@@ -1,6 +1,8 @@
 .gradle
 /build/
 !gradle/wrapper/gradle-wrapper.jar
+out/*
+downloads/*
 
 ### STS ###
 .apt_generated
@@ -23,3 +25,8 @@ nbbuild/
 dist/
 nbdist/
 .nb-gradle/
+
+### jekyll ###
+*.sass
+*.sass-cache
+_site/*
