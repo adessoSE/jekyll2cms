@@ -1,7 +1,10 @@
 package de.adesso;
 
+import org.apache.commons.exec.CommandLine;
+import org.apache.commons.exec.DefaultExecutor;
 import org.springframework.stereotype.Controller;
 
+import java.io.File;
 import java.io.IOException;
 
 @Controller
@@ -14,14 +17,17 @@ public class JekyllController {
     }
 
     public void runJekyll() {
-        Runtime rt = Runtime.getRuntime();
+
+        String line = "C:/tools/ruby23/bin/jekyll.bat build";
+        CommandLine cmdLine = CommandLine.parse(line);
+        DefaultExecutor executor = new DefaultExecutor();
+        executor.setWorkingDirectory(new File(localRepoPath));
         try {
-            Process jekyllProcess = rt.exec("C:/tools/ruby23/bin/jekyll.bat build --source " + localRepoPath);
-            jekyllProcess.waitFor();
+            int exitValue = executor.execute(cmdLine);
+            System.out.println("// " + exitValue);
         } catch (IOException e) {
             e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
         }
+
     }
 }
