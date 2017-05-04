@@ -17,7 +17,7 @@ public class RepoController {
 
     public void initRepo() {
         localPath = "downloads/jekyll";
-        remotePath = "https://github.com/daklassen/daklassen.github.io";
+        remotePath = "https://github.com/daklassen/jekyllTestRepo";
         try {
             localRepoPath = new FileRepository(localPath + "/.git");
         } catch (IOException e) {
