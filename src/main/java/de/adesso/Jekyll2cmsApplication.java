@@ -1,12 +1,13 @@
 package de.adesso;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class Jekyll2cmsApplication implements CommandLineRunner {
+public class Jekyll2cmsApplication implements ApplicationRunner {
 
 	@Autowired private RepoController repoController;
 	@Autowired private JekyllController jekyllController;
@@ -16,16 +17,17 @@ public class Jekyll2cmsApplication implements CommandLineRunner {
 	}
 
 	@Override
-	public void run(String... args) throws Exception {
+	public void run(ApplicationArguments args) throws Exception {
 
-		System.out.println("Starting ...");
+		for(String argument : args.getNonOptionArgs()) {
+			System.out.println("Argument: " + argument);
+		}
 
 		// Clone Repo
-		repoController.initRepo();
+		repoController.initLocalRepo();
 		repoController.cloneRemoteRepo();
 
 		// Run Jekyll
-		jekyllController.initJekyll();
 		jekyllController.runJekyll();
 	}
 }
