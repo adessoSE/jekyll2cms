@@ -23,6 +23,7 @@ public class CmdController {
         this.arguments = arguments;
 
         options.addOption("h", "help", false, "Show help");
+        options.addOption("i", "init", false, "Init local repository");
         options.addOption("c", "clone", false, "Clone remote repository");
         options.addOption("b", "build", false, "Run jekyll build command locally");
     }
