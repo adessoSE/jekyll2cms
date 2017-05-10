@@ -1,6 +1,6 @@
 package de.adesso.controller;
 
-import de.adesso.enums.Command;
+import de.adesso.util.Command;
 import org.apache.commons.cli.*;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;

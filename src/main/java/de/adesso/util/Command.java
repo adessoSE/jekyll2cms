@@ -1,4 +1,4 @@
-package de.adesso.enums;
+package de.adesso.util;
 
 public enum Command {
 
