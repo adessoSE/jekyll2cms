@@ -1,5 +1,6 @@
 package de.adesso.controller;
 
+import de.adesso.enums.Command;
 import org.apache.commons.cli.*;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,25 +14,26 @@ public class CmdController {
 
     private final static Logger LOGGER = Logger.getLogger(CmdController.class);
 
-    @Autowired private RepoController repoController;
-    @Autowired private JekyllController jekyllController;
+    @Autowired
+    private RepoController repoController;
+    @Autowired
+    private JekyllController jekyllController;
 
-    private ApplicationArguments arguments;
+    private String[] arguments;
     private Options options = new Options();
 
     public void init(ApplicationArguments arguments) {
-        this.arguments = arguments;
+        this.arguments = extractNonOptionArgs(arguments);
 
-        options.addOption("h", "help", false, "Show help");
-        options.addOption("i", "init", false, "Init local repository");
-        options.addOption("c", "clone", false, "Clone remote repository");
-        options.addOption("b", "build", false, "Run jekyll build command locally");
+        for (Command cmd : Command.values()) {
+            options.addOption(cmd.getShortName(), cmd.getLongName(), false, cmd.getDescription());
+        }
     }
 
     public void parse() {
 
         LOGGER.info("Starting to parse the commands: ");
-        for (String cmd : extractNonOptionArgs(arguments)) {
+        for (String cmd : arguments) {
             LOGGER.info("> " + cmd);
         }
 
@@ -39,21 +41,21 @@ public class CmdController {
         CommandLine cmd;
 
         try {
-            cmd = parser.parse(options, extractNonOptionArgs(arguments));
+            cmd = parser.parse(options, arguments);
 
-            if (cmd.hasOption("i")) {
+            if (cmd.hasOption(Command.INIT.getShortName())) {
                 initLocalRepo();
             }
 
-            if (cmd.hasOption("c")) {
+            if (cmd.hasOption(Command.CLONE.getShortName())) {
                 cloneRepo();
             }
 
-            if (cmd.hasOption("b")) {
+            if (cmd.hasOption(Command.BUILD.getShortName())) {
                 runJekyll();
             }
 
-            if (cmd.hasOption("h")) {
+            if (cmd.hasOption(Command.HELP.getShortName())) {
                 help();
             }
 
