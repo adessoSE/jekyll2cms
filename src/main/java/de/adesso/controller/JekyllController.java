@@ -18,7 +18,7 @@ public class JekyllController {
     private String LOCAL_REPO_PATH;
 
     public void runJekyllBuild() {
-        LOGGER.info("Starting: Jekyll build");
+        LOGGER.info("> Starting: Jekyll build");
 
         String line = "C:/tools/ruby23/bin/jekyll.bat build";
         CommandLine cmdLine = CommandLine.parse(line);

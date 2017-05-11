@@ -36,7 +36,7 @@ public class RepoController {
     }
 
     public void cloneRemoteRepo() {
-        LOGGER.info("Starting: Git clone remote repository");
+        LOGGER.info("> Starting: Git clone remote repository");
         try {
             Git.cloneRepository()
                     .setURI(REMOTE_REPO_URL)

@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.stereotype.Controller;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Controller
@@ -32,11 +33,8 @@ public class CmdController {
     }
 
     public void parse() {
-
-        LOGGER.info("Starting to parse the commands: ");
-        for (String cmd : arguments) {
-            LOGGER.info("> " + cmd);
-        }
+        LOGGER.info("> Starting to parse the commands: ");
+        LOGGER.info("Executing following commands: " + Arrays.toString(arguments));
 
         CommandLineParser parser = new BasicParser();
 
@@ -50,7 +48,7 @@ public class CmdController {
     }
 
     public void execute() {
-        LOGGER.info("Starting to execute the commands: ");
+        LOGGER.info("> Starting to execute the commands: ");
         try {
             for (Command cmd : Command.values()) {
                 if (parsedCommands.hasOption(cmd.getShortName())) {
