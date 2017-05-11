@@ -64,7 +64,7 @@ public class CmdController {
 
     private void help() {
         HelpFormatter formatter = new HelpFormatter();
-        formatter.printHelp("Jekyll2cms", options);
+        formatter.printHelp("java -jar jekyll2cms.jar", options);
     }
 
     @SuppressWarnings("unused")
