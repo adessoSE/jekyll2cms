@@ -3,8 +3,8 @@ package de.adesso.util;
 public enum Command {
 
     HELP("h", "help", "Show help"),
-    INIT("i", "init", "Init local repository"),
-    CLONE("c", "clone", "Clone remote repository"),
+    INIT("i", "initRepo", "Init local repository"),
+    CLONE("c", "cloneRepo", "Clone remote repository"),
     BUILD("b", "build", "Run jekyll build command locally");
 
     private String shortName;

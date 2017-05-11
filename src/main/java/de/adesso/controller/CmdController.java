@@ -38,32 +38,22 @@ public class CmdController {
         }
 
         CommandLineParser parser = new BasicParser();
-        CommandLine cmd;
+        CommandLine commands;
 
         try {
-            cmd = parser.parse(options, arguments);
+            commands = parser.parse(options, arguments);
 
-            if (cmd.hasOption(Command.INIT.getShortName())) {
-                initLocalRepo();
+            for (Command cmd : Command.values()) {
+                if (commands.hasOption(cmd.getShortName())) {
+                    callMethodByName(cmd.getLongName());
+                }
             }
-
-            if (cmd.hasOption(Command.CLONE.getShortName())) {
-                cloneRepo();
-            }
-
-            if (cmd.hasOption(Command.BUILD.getShortName())) {
-                runJekyll();
-            }
-
-            if (cmd.hasOption(Command.HELP.getShortName())) {
-                help();
-            }
-
-            // TODO: Add more options
 
         } catch (ParseException e) {
             LOGGER.error("Error while parsing arguments", e);
             help();
+        } catch (Exception e) {
+            LOGGER.error(e);
         }
     }
 
@@ -72,20 +62,27 @@ public class CmdController {
         formatter.printHelp("Jekyll2cms", options);
     }
 
-    private void initLocalRepo() {
+    @SuppressWarnings("unused")
+    private void initRepo() {
         repoController.initLocalRepo();
     }
 
+    @SuppressWarnings("unused")
     private void cloneRepo() {
         repoController.cloneRemoteRepo();
     }
 
-    private void runJekyll() {
+    @SuppressWarnings("unused")
+    private void build() {
         jekyllController.runJekyllBuild();
     }
 
     private String[] extractNonOptionArgs(ApplicationArguments applicationArguments) {
         List<String> nonOptionArgs = applicationArguments.getNonOptionArgs();
         return nonOptionArgs.toArray(new String[0]);
+    }
+
+    private void callMethodByName(String funcName) throws Exception {
+        this.getClass().getDeclaredMethod(funcName).invoke(this);
     }
 }
