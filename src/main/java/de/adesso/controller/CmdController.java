@@ -20,6 +20,7 @@ public class CmdController {
     private JekyllController jekyllController;
 
     private String[] arguments;
+    private CommandLine parsedCommands;
     private Options options = new Options();
 
     public void init(ApplicationArguments arguments) {
@@ -38,22 +39,26 @@ public class CmdController {
         }
 
         CommandLineParser parser = new BasicParser();
-        CommandLine commands;
 
         try {
-            commands = parser.parse(options, arguments);
-
-            for (Command cmd : Command.values()) {
-                if (commands.hasOption(cmd.getShortName())) {
-                    callMethodByName(cmd.getLongName());
-                }
-            }
+            parsedCommands = parser.parse(options, arguments);
 
         } catch (ParseException e) {
             LOGGER.error("Error while parsing arguments", e);
             help();
+        }
+    }
+
+    public void execute() {
+        LOGGER.info("Starting to execute the commands: ");
+        try {
+            for (Command cmd : Command.values()) {
+                if (parsedCommands.hasOption(cmd.getShortName())) {
+                    callMethodByName(cmd.getLongName());
+                }
+            }
         } catch (Exception e) {
-            LOGGER.error(e);
+            LOGGER.error("Error while executing commands", e);
         }
     }
 

@@ -25,5 +25,6 @@ public class Jekyll2cmsApplication implements ApplicationRunner {
 	public void run(ApplicationArguments args) throws Exception {
 		cmdController.init(args);
 		cmdController.parse();
+		cmdController.execute();
 	}
 }
