@@ -1,4 +1,4 @@
-package de.adesso.controller;
+package de.adesso.service;
 
 import org.apache.log4j.Logger;
 import org.eclipse.jgit.api.Git;
@@ -6,15 +6,15 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.Repository;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
 
-@Controller
-public class RepoController {
+@Service
+public class RepoService {
 
-    private final static Logger LOGGER = Logger.getLogger(RepoController.class);
+    private final static Logger LOGGER = Logger.getLogger(RepoService.class);
 
     @Value("${repository.local.path}")
     private String LOCAL_REPO_PATH;

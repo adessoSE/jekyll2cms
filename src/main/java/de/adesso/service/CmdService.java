@@ -1,24 +1,24 @@
-package de.adesso.controller;
+package de.adesso.service;
 
 import de.adesso.util.Command;
 import org.apache.commons.cli.*;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.List;
 
-@Controller
-public class CmdController {
+@Service
+public class CmdService {
 
-    private final static Logger LOGGER = Logger.getLogger(CmdController.class);
+    private final static Logger LOGGER = Logger.getLogger(CmdService.class);
 
     @Autowired
-    private RepoController repoController;
+    private RepoService repoService;
     @Autowired
-    private JekyllController jekyllController;
+    private JekyllService jekyllService;
 
     private String[] arguments;
     private CommandLine parsedCommands;
@@ -67,17 +67,17 @@ public class CmdController {
 
     @SuppressWarnings("unused")
     private void initRepo() {
-        repoController.initLocalRepo();
+        repoService.initLocalRepo();
     }
 
     @SuppressWarnings("unused")
     private void cloneRepo() {
-        repoController.cloneRemoteRepo();
+        repoService.cloneRemoteRepo();
     }
 
     @SuppressWarnings("unused")
     private void build() {
-        jekyllController.runJekyllBuild();
+        jekyllService.runJekyllBuild();
     }
 
     private String[] extractNonOptionArgs(ApplicationArguments applicationArguments) {
