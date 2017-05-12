@@ -1,18 +1,18 @@
-package de.adesso.controller;
+package de.adesso.service;
 
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
 
-@Controller
-public class JekyllController {
+@Service
+public class JekyllService {
 
-    private final static Logger LOGGER = Logger.getLogger(JekyllController.class);
+    private final static Logger LOGGER = Logger.getLogger(JekyllService.class);
 
     @Value("${repository.local.path}")
     private String LOCAL_REPO_PATH;
