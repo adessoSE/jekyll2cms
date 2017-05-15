@@ -66,11 +66,6 @@ public class CmdService {
     }
 
     @SuppressWarnings("unused")
-    private void initRepo() {
-        repoService.initLocalRepo();
-    }
-
-    @SuppressWarnings("unused")
     private void cloneRepo() {
         repoService.cloneRemoteRepo();
     }

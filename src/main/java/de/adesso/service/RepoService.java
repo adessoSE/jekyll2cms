@@ -2,9 +2,8 @@ package de.adesso.service;
 
 import org.apache.log4j.Logger;
 import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.internal.storage.file.FileRepository;
-import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.errors.RepositoryNotFoundException;
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -21,29 +20,35 @@ public class RepoService {
     @Value("${repository.remote.url}")
     private String REMOTE_REPO_URL;
 
-    private Repository localRepo;
-    private Git git;
-
-    public void initLocalRepo() {
-        LOGGER.info("Starting: Git init local repository");
-
-        try {
-            localRepo = new FileRepository(LOCAL_REPO_PATH + "/.git");
-        } catch (IOException e) {
-            LOGGER.error("Error while initialising local git repository", e);
-        }
-        git = new Git(localRepo);
-    }
+    private Git localGit;
 
     public void cloneRemoteRepo() {
         LOGGER.info("> Starting: Git clone remote repository");
         try {
-            Git.cloneRepository()
-                    .setURI(REMOTE_REPO_URL)
-                    .setDirectory(new File(LOCAL_REPO_PATH))
-                    .call();
-        } catch (GitAPIException e) {
+            if (!localRepositoryExists()) {
+                localGit = Git.cloneRepository()
+                        .setURI(REMOTE_REPO_URL)
+                        .setDirectory(new File(LOCAL_REPO_PATH))
+                        .call();
+            } else {
+                LOGGER.warn("Remote repository is already cloned into local repository");
+            }
+        } catch (Exception e) {
             LOGGER.error("Error while cloning remote git respository", e);
         }
+    }
+
+    private boolean localRepositoryExists() {
+        try {
+            FileRepositoryBuilder repositoryBuilder = new FileRepositoryBuilder();
+            repositoryBuilder.setGitDir(new File(LOCAL_REPO_PATH + "/.git"));
+            repositoryBuilder.setMustExist(true);
+            repositoryBuilder.build();
+        } catch (RepositoryNotFoundException e) {
+            return false;
+        } catch (IOException e) {
+            LOGGER.error("Error while accessing file", e);
+        }
+        return true;
     }
 }
