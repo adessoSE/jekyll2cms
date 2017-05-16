@@ -1,7 +1,15 @@
 package de.adesso.util;
 
+/**
+ * A collection of all possible commands.
+ */
 public enum Command {
 
+    /**
+     * The first parameter defines the argument name (e.g. "java -jar [name] -h" for help)
+     * The second parameter defines the method name that gets called in the CmdService
+     * The third parameter is a description that gets printed by calling -h from the CLI
+     */
     HELP("h", "help", "Show help"),
     CLONE("c", "cloneRepo", "Clone remote repository"),
     BUILD("b", "build", "Run jekyll build command locally");

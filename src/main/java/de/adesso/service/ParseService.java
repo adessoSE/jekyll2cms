@@ -11,24 +11,25 @@ import java.io.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * This services parses md files to pojo.
+ */
 @Service
 public class ParseService {
+
+    private final static Logger LOGGER = Logger.getLogger(ParseService.class);
 
     // regular expression, used to identify the header of the markdown file
     private final String REGEX_MDFILE = "(-{3}((.|\\n|\\r)*)-{3})((.|\\n|\\r)*)";
 
-    private final static Logger LOGGER = Logger.getLogger(ParseService.class);
-
     /**
-     * parses the meta data (header) of a jekyll markdown file into a PostMetaInformation object.
+     * Parses the meta data (header) of a jekyll markdown file into a PostMetaInformation object.
      *
-     * @param fileName file name of the markdown file
-     * @return PostMetaInformation object
+     * @param mdFile the post from which you want to extract meta information from
+     * @return parsed PostMetaInformation
      */
-    public PostMetaInformation parseFile(String fileName) {
-        LOGGER.info("> Starting to parse markdown File.: ");
-        // markdown file
-        File mdFile = new File(fileName);
+    public PostMetaInformation parseFile(File mdFile) {
+        LOGGER.info("> Starting to parse markdown File.");
 
         // String representation of the MD file content
         String mdFileContent = getMdFileContent(mdFile);
@@ -40,13 +41,12 @@ public class ParseService {
     }
 
     /**
-     * extracts the string content from a markdown file.
+     * Extracts the string content from a markdown file.
      *
      * @param mdFile File object
      * @return content of file as String
      */
     private String getMdFileContent(File mdFile) {
-        LOGGER.info("> Starting to get markdown file content: ");
         String mdFileData = "";
         try {
             mdFileData = IOUtils.toString(new FileInputStream(mdFile), "utf-8");
@@ -57,14 +57,13 @@ public class ParseService {
     }
 
     /**
-     * extracts the header from the markdown file.
+     * Extracts the header from the markdown file.
      *
      * @param mdFileData data of markdown file
      * @param regex      used regular expression to find the header
      * @return header data as String
      */
     private String getMdHeader(String mdFileData, String regex) {
-        LOGGER.info("> Starting to get markdown header: ");
         String mdHeader = "";
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(mdFileData);
@@ -75,20 +74,17 @@ public class ParseService {
     }
 
     /**
-     * creates an object from a String that has a YAML syntax.
+     * Creates an object from a String that has a YAML syntax.
      *
      * @param mdHeader String from which the PostMetaInformation object should be created
-     * @return PostMetaInformation object
-     * @throws IOException catches IOException
+     * @return parsed PostMetaInformation
      */
     private PostMetaInformation getPostMetaInformation(String mdHeader) {
-        LOGGER.info("> Starting to get post meta information from markdown header: ");
+
         PostMetaInformation postMetaInformation = null;
         try {
             ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-
             postMetaInformation = mapper.readValue(mdHeader.getBytes(), PostMetaInformation.class);
-
             LOGGER.info("Parsed meta information: " + postMetaInformation);
 
         } catch (IOException ioe) {

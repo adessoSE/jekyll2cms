@@ -10,20 +10,31 @@ import org.springframework.stereotype.Service;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * This service initialises and delegates them to the corresponding services.
+ */
 @Service
 public class CmdService {
 
     private final static Logger LOGGER = Logger.getLogger(CmdService.class);
 
-    @Autowired
     private RepoService repoService;
-    @Autowired
     private JekyllService jekyllService;
 
     private String[] arguments;
     private CommandLine parsedCommands;
     private Options options = new Options();
 
+    @Autowired
+    public CmdService(RepoService repoService, JekyllService jekyllService) {
+        this.repoService = repoService;
+        this.jekyllService = jekyllService;
+    }
+
+    /**
+     * Initialises the CmdService by saving all not spring related arguments from the main
+     * method and by adding all commands from the "Command" enumeration as an option.
+     */
     public void init(ApplicationArguments arguments) {
         this.arguments = extractNonOptionArgs(arguments);
 
@@ -32,6 +43,9 @@ public class CmdService {
         }
     }
 
+    /**
+     * Parses all arguments by trying to find a fitting option for each one.
+     */
     public void parse() {
         LOGGER.info("> Starting to parse the commands: ");
         LOGGER.info("Executing following commands: " + Arrays.toString(arguments));
@@ -47,6 +61,12 @@ public class CmdService {
         }
     }
 
+    /**
+     * Executes the parsed arguments.
+     *
+     * Important: The local method name and the longName from the
+     *            "Command" enumeration has to be the same.
+     */
     public void execute() {
         LOGGER.info("> Starting to execute the commands: ");
         try {
@@ -75,6 +95,9 @@ public class CmdService {
         jekyllService.runJekyllBuild();
     }
 
+    /**
+     * Filters out all spring related arguments.
+     */
     private String[] extractNonOptionArgs(ApplicationArguments applicationArguments) {
         List<String> nonOptionArgs = applicationArguments.getNonOptionArgs();
         return nonOptionArgs.toArray(new String[0]);

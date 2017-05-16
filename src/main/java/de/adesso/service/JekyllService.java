@@ -9,6 +9,9 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.IOException;
 
+/**
+ * This service helps managing all jekyll related commands.
+ */
 @Service
 public class JekyllService {
 
@@ -17,6 +20,9 @@ public class JekyllService {
     @Value("${repository.local.path}")
     private String LOCAL_REPO_PATH;
 
+    /**
+     * This method executes "jekyll build" command in the local repository.
+     */
     public void runJekyllBuild() {
         LOGGER.info("> Starting: Jekyll build");
 
