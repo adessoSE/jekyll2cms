@@ -10,7 +10,6 @@ import java.util.Map;
 public class PostMetaInformation {
 
     private int id;
-    private String layout;
     private String title;
     private String[] categories;
     // TODO: check correct date format or change to a date object
@@ -19,16 +18,10 @@ public class PostMetaInformation {
     private String modifiedDate;
     private String author;
     private String[] tags;
-    private boolean comments;
-    private boolean ads;
     private Map<String, String> image;
 
     public int getId() {
         return id;
-    }
-
-    public String getLayout() {
-        return layout;
     }
 
     public String getTitle() {
@@ -55,24 +48,12 @@ public class PostMetaInformation {
         return tags;
     }
 
-    public boolean isComments() {
-        return comments;
-    }
-
-    public boolean isAds() {
-        return ads;
-    }
-
     public Map<String, String> getImage() {
         return image;
     }
 
     public void setId(int id) {
         this.id = id;
-    }
-
-    public void setLayout(String layout) {
-        this.layout = layout;
     }
 
     public void setTitle(String title) {
@@ -99,14 +80,6 @@ public class PostMetaInformation {
         this.tags = tags;
     }
 
-    public void setComments(boolean comments) {
-        this.comments = comments;
-    }
-
-    public void setAds(boolean ads) {
-        this.ads = ads;
-    }
-
     public void setImage(Map<String, String> image) {
         this.image = image;
     }
@@ -115,15 +88,12 @@ public class PostMetaInformation {
     public String toString() {
         return "PostMetaInformation{" +
                 "id=" + id +
-                ", layout='" + layout + '\'' +
                 ", title='" + title + '\'' +
                 ", categories=" + Arrays.toString(categories) +
                 ", date='" + date + '\'' +
                 ", modifiedDate='" + modifiedDate + '\'' +
                 ", author='" + author + '\'' +
                 ", tags=" + Arrays.toString(tags) +
-                ", comments=" + comments +
-                ", ads=" + ads +
                 ", image=" + image +
                 '}';
     }
