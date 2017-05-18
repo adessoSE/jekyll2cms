@@ -17,10 +17,13 @@ public class JekyllService {
     @Value("${repository.local.path}")
     private String LOCAL_REPO_PATH;
 
+    @Value("${jekyll.path}")
+    private String JEKYLL_PATH;
+
     public void runJekyllBuild() {
         LOGGER.info("> Starting: Jekyll build");
 
-        String line = "C:/tools/ruby23/bin/jekyll.bat build";
+        String line = JEKYLL_PATH + " build";
         CommandLine cmdLine = CommandLine.parse(line);
         DefaultExecutor executor = new DefaultExecutor();
         executor.setWorkingDirectory(new File(LOCAL_REPO_PATH));
