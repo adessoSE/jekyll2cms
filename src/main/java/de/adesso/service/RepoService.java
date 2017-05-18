@@ -10,6 +10,9 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.IOException;
 
+/**
+ * This service helps managing repositories with the help of JGit.
+ */
 @Service
 public class RepoService {
 
@@ -22,6 +25,10 @@ public class RepoService {
 
     private Git localGit;
 
+    /**
+     * Clones the remote repository (see in application.properties: repository.remote.url)
+     * to a local repository (repository.local.path) if the local repository is not already existing.
+     */
     public void cloneRemoteRepo() {
         LOGGER.info("> Starting: Git clone remote repository");
         try {
