@@ -27,8 +27,6 @@ public class JekyllService {
      * This method executes "jekyll build" command in the local repository.
      */
     public void runJekyllBuild() {
-        LOGGER.info("> Starting: Jekyll build");
-
         String line = JEKYLL_PATH + " build";
         CommandLine cmdLine = CommandLine.parse(line);
         DefaultExecutor executor = new DefaultExecutor();
@@ -36,10 +34,20 @@ public class JekyllService {
 
         try {
             int exitValue = executor.execute(cmdLine);
-            LOGGER.info("Jekyll build exited with value: " + exitValue);
+            printJekyllBuildStatus(exitValue);
         } catch (IOException e) {
             LOGGER.error("Error while executing jekyll build.", e);
         }
 
+    }
+
+    private void printJekyllBuildStatus(int exitValue) {
+        if (exitValue == 0) {
+            System.out.println();
+            System.out.println("Jekyll build was successful");
+        } else {
+            System.err.println();
+            System.err.println("ERROR: Jekyll build was not successful");
+        }
     }
 }

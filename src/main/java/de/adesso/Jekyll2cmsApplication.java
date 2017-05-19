@@ -10,17 +10,17 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class Jekyll2cmsApplication implements ApplicationRunner {
 
-	@Autowired
-	private CmdService cmdService;
+    @Autowired
+    private CmdService cmdService;
 
-	public static void main(String[] args) {
-		SpringApplication.run(Jekyll2cmsApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(Jekyll2cmsApplication.class, args);
+    }
 
-	@Override
-	public void run(ApplicationArguments args) throws Exception {
-		cmdService.init(args);
-		cmdService.parse();
-		cmdService.execute();
-	}
+    @Override
+    public void run(ApplicationArguments args) throws Exception {
+        cmdService.init(args);
+        boolean isParsed = cmdService.parse();
+        if (isParsed) cmdService.execute();
+    }
 }

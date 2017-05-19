@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -45,33 +44,42 @@ public class CmdService {
 
     /**
      * Parses all arguments by trying to find a fitting option for each one.
+     *
+     * @return true if all commands could be parsed
      */
-    public void parse() {
-        LOGGER.info("> Starting to parse the commands: ");
-        LOGGER.info("Executing following commands: " + Arrays.toString(arguments));
-
+    public boolean parse() {
         CommandLineParser parser = new BasicParser();
 
         try {
             parsedCommands = parser.parse(options, arguments);
 
+        } catch (UnrecognizedOptionException ue) {
+            System.err.println("WARN: Cannot find command " + ue.getOption());
+            help();
+            return false;
+
         } catch (ParseException e) {
             LOGGER.error("Error while parsing arguments", e);
             help();
+            return false;
         }
+
+        return true;
     }
 
     /**
      * Executes the parsed arguments.
-     *
+     * <p>
      * Important: The local method name and the longName from the
-     *            "Command" enumeration has to be the same.
+     * "Command" enumeration has to be the same.
      */
     public void execute() {
-        LOGGER.info("> Starting to execute the commands: ");
         try {
             for (Command cmd : Command.values()) {
                 if (parsedCommands.hasOption(cmd.getShortName())) {
+                    System.out.println();
+                    System.out.println(":: Executing " + cmd + " :: -------------------");
+                    System.out.println();
                     callMethodByName(cmd.getLongName());
                 }
             }

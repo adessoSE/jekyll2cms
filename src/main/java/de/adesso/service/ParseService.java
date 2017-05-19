@@ -7,7 +7,9 @@ import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -29,7 +31,6 @@ public class ParseService {
      * @return parsed PostMetaInformation
      */
     public PostMetaInformation parseFile(File mdFile) {
-        LOGGER.info("> Starting to parse markdown File.");
 
         // String representation of the MD file content
         String mdFileContent = getMdFileContent(mdFile);
@@ -85,7 +86,7 @@ public class ParseService {
         try {
             ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
             postMetaInformation = mapper.readValue(mdHeader.getBytes(), PostMetaInformation.class);
-            LOGGER.info("Parsed meta information: " + postMetaInformation);
+            System.out.println("Parsed meta information: " + postMetaInformation);
 
         } catch (IOException ioe) {
             LOGGER.error("Error while mapping meta information. ", ioe);
