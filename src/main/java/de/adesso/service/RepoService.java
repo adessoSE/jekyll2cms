@@ -30,15 +30,15 @@ public class RepoService {
      * to a local repository (repository.local.path) if the local repository is not already existing.
      */
     public void cloneRemoteRepo() {
-        LOGGER.info("> Starting: Git clone remote repository");
         try {
             if (!localRepositoryExists()) {
                 localGit = Git.cloneRepository()
                         .setURI(REMOTE_REPO_URL)
                         .setDirectory(new File(LOCAL_REPO_PATH))
                         .call();
+                System.out.println("Repository cloned successfully");
             } else {
-                LOGGER.warn("Remote repository is already cloned into local repository");
+                System.err.println("WARN: Remote repository is already cloned into local repository");
             }
         } catch (Exception e) {
             LOGGER.error("Error while cloning remote git respository", e);
