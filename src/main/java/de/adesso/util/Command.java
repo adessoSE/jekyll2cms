@@ -12,7 +12,8 @@ public enum Command {
      */
     HELP("h", "help", "Show help"),
     CLONE("c", "cloneRepo", "Clone remote repository"),
-    BUILD("b", "build", "Run jekyll build command locally");
+    BUILD("b", "build", "Run jekyll build command locally"),
+    MIGRATE("m", "migrate", "Initial migration of all existing posts");
 
     private String shortName;
     private String longName;

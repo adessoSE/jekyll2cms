@@ -1,5 +1,6 @@
 package de.adesso.service;
 
+import de.adesso.persistence.PostMetaData;
 import de.adesso.util.Command;
 import org.apache.commons.cli.*;
 import org.apache.log4j.Logger;
@@ -19,15 +20,20 @@ public class CmdService {
 
     private RepoService repoService;
     private JekyllService jekyllService;
+    private ParseService parseService;
+    private PersistenceService persistenceService;
 
     private String[] arguments;
     private CommandLine parsedCommands;
     private Options options = new Options();
 
     @Autowired
-    public CmdService(RepoService repoService, JekyllService jekyllService) {
+    public CmdService(RepoService repoService, JekyllService jekyllService,
+                      ParseService parseService, PersistenceService persistenceService) {
         this.repoService = repoService;
         this.jekyllService = jekyllService;
+        this.parseService = parseService;
+        this.persistenceService = persistenceService;
     }
 
     /**
@@ -101,6 +107,17 @@ public class CmdService {
     @SuppressWarnings("unused")
     private void build() {
         jekyllService.runJekyllBuild();
+    }
+
+    @SuppressWarnings("unused")
+    private void migrate() {
+        repoService.getAllPosts()
+                .forEach(file -> {
+                    PostMetaData metaData = parseService.getMetaInformationFromPost(file);
+                    //TODO: Save Image and Post into metaData
+                    persistenceService.saveMetaData(metaData);
+                });
+
     }
 
     /**
