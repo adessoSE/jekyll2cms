@@ -14,6 +14,8 @@ public class Jekyll2cmsApplication implements ApplicationRunner {
     private CmdService cmdService;
 
     public static void main(String[] args) {
+        // TODO: Replace in production
+        // SpringApplication.run(Jekyll2cmsApplication.class, args).close();
         SpringApplication.run(Jekyll2cmsApplication.class, args);
     }
 
