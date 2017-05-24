@@ -21,6 +21,9 @@ public class Image {
     @JoinColumn(name = "post_id")
     private Post post;
 
+    private Image() {
+    }
+
     public Long getId() {
         return id;
     }
