@@ -20,6 +20,16 @@ gradlew cleanidea idea
 ```
 Now you can open the generated Intellij project and start working on the projekt.
 
+### Access database console
+
+For development there is a h2 database configured. The console can be reached after booting up the application at:
+
+```
+http://localhost:8080/console
+```
+
+The JDBC URL is **jdbc:h2:mem:testdb**.
+
 ### Run application
 
 Build a jar file and execute it with help parameter:
