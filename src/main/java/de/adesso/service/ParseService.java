@@ -2,7 +2,7 @@ package de.adesso.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import de.adesso.components.PostMetaInformation;
+import de.adesso.persistence.PostMetaData;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
@@ -25,12 +25,12 @@ public class ParseService {
     private final String REGEX_MDFILE = "(-{3}((.|\\n|\\r)*)-{3})((.|\\n|\\r)*)";
 
     /**
-     * Parses the meta data (header) of a jekyll markdown file into a PostMetaInformation object.
+     * Parses the meta data (header) of a jekyll markdown file into a PostMetaData object.
      *
      * @param mdFile the post from which you want to extract meta information from
-     * @return parsed PostMetaInformation
+     * @return parsed PostMetaData
      */
-    public PostMetaInformation parseFile(File mdFile) {
+    public PostMetaData getMetaInformationFromPost(File mdFile) {
 
         // String representation of the MD file content
         String mdFileContent = getMdFileContent(mdFile);
@@ -38,7 +38,7 @@ public class ParseService {
         // Header of the mdFile, which is the YAML syntax
         String mdHeader = getMdHeader(mdFileContent, REGEX_MDFILE);
 
-        return getPostMetaInformation(mdHeader);
+        return getPostMetaData(mdHeader);
     }
 
     /**
@@ -77,21 +77,21 @@ public class ParseService {
     /**
      * Creates an object from a String that has a YAML syntax.
      *
-     * @param mdHeader String from which the PostMetaInformation object should be created
-     * @return parsed PostMetaInformation
+     * @param mdHeader String from which the PostMetaData object should be created
+     * @return parsed PostMetaData
      */
-    private PostMetaInformation getPostMetaInformation(String mdHeader) {
+    private PostMetaData getPostMetaData(String mdHeader) {
 
-        PostMetaInformation postMetaInformation = null;
+        PostMetaData postMetaData = null;
         try {
             ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-            postMetaInformation = mapper.readValue(mdHeader.getBytes(), PostMetaInformation.class);
-            System.out.println("Parsed meta information: " + postMetaInformation);
+            postMetaData = mapper.readValue(mdHeader.getBytes(), PostMetaData.class);
+            System.out.println("Parsed meta information: " + postMetaData);
 
         } catch (IOException ioe) {
             LOGGER.error("Error while mapping meta information. ", ioe);
         }
-        return postMetaInformation;
+        return postMetaData;
     }
 
 }

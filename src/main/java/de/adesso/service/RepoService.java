@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This service helps managing repositories with the help of JGit.
@@ -43,6 +45,18 @@ public class RepoService {
         } catch (Exception e) {
             LOGGER.error("Error while cloning remote git respository", e);
         }
+    }
+
+    /**
+     * @return all unrendered post files in markdown format.
+     */
+    public List<File> getAllPosts() {
+        ArrayList<File> posts = new ArrayList<>();
+        File postsFolder = new File(LOCAL_REPO_PATH + "/_posts");
+        for (File fileEntry : postsFolder.listFiles()) {
+            posts.add(fileEntry);
+        }
+        return posts;
     }
 
     private boolean localRepositoryExists() {
