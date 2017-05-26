@@ -2,5 +2,5 @@ package de.adesso.persistence;
 
 import org.springframework.data.repository.CrudRepository;
 
-public interface MetaDataRepository extends CrudRepository<PostMetaData, Long> {
+public interface ImageRepository extends CrudRepository<Image, Long> {
 }

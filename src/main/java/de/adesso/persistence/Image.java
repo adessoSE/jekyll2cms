@@ -1,6 +1,9 @@
 package de.adesso.persistence;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 
 /**
  * This class represents an image entity.
@@ -11,17 +14,19 @@ public class Image {
     @Id
     @GeneratedValue
     private Long id;
-
-    @Column(columnDefinition = "VARCHAR2(2000)")
     private String url;
-
     private String format;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "post_id")
+    @ManyToOne
     private Post post;
 
+    // needed by JPA
     private Image() {
+    }
+
+    public Image(String url, String format) {
+        this.url = url;
+        this.format = format;
     }
 
     public Long getId() {
@@ -64,20 +69,5 @@ public class Image {
                 ", format='" + format + '\'' +
                 ", post=" + post +
                 '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        Image image = (Image) o;
-
-        return id.equals(image.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return id.hashCode();
     }
 }

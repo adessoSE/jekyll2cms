@@ -1,7 +1,6 @@
 package de.adesso.persistence;
 
 import javax.persistence.*;
-import java.util.Arrays;
 
 /**
  * This class creates an Object containing the meta information (header) of the blog post
@@ -22,28 +21,41 @@ public class PostMetaData {
 
     private String slug;
 
-    //@Column(columnDefinition = "VARCHAR2(200)")
     private String categories;
 
     // TODO: check correct date format or change to a date object
+    @Column(nullable = false)
     private String date;
 
     // TODO: check correct date format or change to a date object
+    @Column(nullable = false)
     private String modifiedDate;
 
+    @Column(nullable = false)
     private String author;
 
-    //@Column(columnDefinition = "VARCHAR2(200)")
     private String[] tags;
 
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "POST_ID")
     private Post post;
 
-    /**
-     * Needed private constructor for JPA
-     */
+    // needed by JPA
     private PostMetaData() {
+    }
+
+    public PostMetaData(String title, String layout, String slug, String categories,
+                        String date, String modifiedDate, String author, String[] tags,
+                        Post post) {
+        this.title = title;
+        this.layout = layout;
+        this.slug = slug;
+        this.categories = categories;
+        this.date = date;
+        this.modifiedDate = modifiedDate;
+        this.author = author;
+        this.tags = tags;
+        this.post = post;
     }
 
     public Long getId() {
@@ -60,6 +72,14 @@ public class PostMetaData {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public String getLayout() {
+        return layout;
+    }
+
+    public void setLayout(String layout) {
+        this.layout = layout;
     }
 
     public String getSlug() {
@@ -127,33 +147,7 @@ public class PostMetaData {
                 ", date=" + date +
                 ", modifiedDate=" + modifiedDate +
                 ", author='" + author + '\'' +
-                ", tags=" + Arrays.toString(tags) +
+                ", tags=" + tags +
                 '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        PostMetaData that = (PostMetaData) o;
-
-        if (!id.equals(that.id)) return false;
-        return title.equals(that.title);
-    }
-
-    @Override
-    public int hashCode() {
-        int result = id.hashCode();
-        result = 31 * result + title.hashCode();
-        return result;
-    }
-
-    public String getLayout() {
-        return layout;
-    }
-
-    public void setLayout(String layout) {
-        this.layout = layout;
     }
 }
