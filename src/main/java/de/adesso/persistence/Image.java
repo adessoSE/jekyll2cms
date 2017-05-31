@@ -11,22 +11,43 @@ import javax.persistence.ManyToOne;
 @Entity
 public class Image {
 
+    /* unique ID of image entity*/
     @Id
     @GeneratedValue
     private Long id;
+    /* URL of the image */
     private String url;
+    /* image format */
     private String format;
 
+    /* The post that belongs to this image */
     @ManyToOne
     private Post post;
 
-    // needed by JPA
+    /** needed by JPA */
     private Image() {
     }
 
+    /**
+     * Constructor
+     * @param url
+     * @param format
+     */
     public Image(String url, String format) {
         this.url = url;
         this.format = format;
+    }
+
+    /**
+     * Contructor
+     * @param url
+     * @param format
+     * @param post
+     */
+    public Image(String url, String format, Post post) {
+        this.url = url;
+        this.format = format;
+        this.post = post;
     }
 
     public Long getId() {
