@@ -22,6 +22,7 @@ public class CmdService {
     private JekyllService jekyllService;
     private ParseService parseService;
     private PersistenceService persistenceService;
+    private PostParseService postParseService;
 
     private String[] arguments;
     private CommandLine parsedCommands;
@@ -29,11 +30,12 @@ public class CmdService {
 
     @Autowired
     public CmdService(RepoService repoService, JekyllService jekyllService,
-                      ParseService parseService, PersistenceService persistenceService) {
+                      ParseService parseService, PersistenceService persistenceService, PostParseService postParseService) {
         this.repoService = repoService;
         this.jekyllService = jekyllService;
         this.parseService = parseService;
         this.persistenceService = persistenceService;
+        this.postParseService = postParseService;
     }
 
     /**
@@ -117,7 +119,14 @@ public class CmdService {
                     //TODO: Save Image and Post into metaData
                     persistenceService.saveMetaData(metaData);
                 });
-
+        postParseService.getAllHtmlPosts()
+                .forEach(post -> {
+                    persistenceService.savePost(post);
+                    postParseService.getImages(post)
+                            .forEach(image -> {
+                                persistenceService.saveImage(image);
+                            });
+                });
     }
 
     /**
