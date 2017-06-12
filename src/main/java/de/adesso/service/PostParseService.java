@@ -130,7 +130,7 @@ public class PostParseService {
      * @return boolean
      */
     private boolean isHtmlFile(String filePath) {
-        return filePath.substring(filePath.lastIndexOf('.') + 1).toUpperCase().equals("HTML")
-                || filePath.substring(filePath.lastIndexOf('.') + 1).toUpperCase().equals("HTM");
+        return filePath.substring(filePath.lastIndexOf('.') + 1).equalsIgnoreCase("HTML")
+                || filePath.substring(filePath.lastIndexOf('.') + 1).equalsIgnoreCase("HTM");
     }
 }

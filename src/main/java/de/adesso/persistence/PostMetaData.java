@@ -28,13 +28,12 @@ public class PostMetaData {
     private String date;
 
     // TODO: check correct date format or change to a date object
-    @Column(nullable = false)
     private String modifiedDate;
 
     @Column(nullable = false)
     private String author;
 
-    private String[] tags;
+    private String tags;
 
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "POST_ID")
@@ -45,7 +44,7 @@ public class PostMetaData {
     }
 
     public PostMetaData(String title, String layout, String slug, String categories,
-                        String date, String modifiedDate, String author, String[] tags,
+                        String date, String modifiedDate, String author, String tags,
                         Post post) {
         this.title = title;
         this.layout = layout;
@@ -130,11 +129,11 @@ public class PostMetaData {
         this.author = author;
     }
 
-    public String[] getTags() {
+    public String getTags() {
         return tags;
     }
 
-    public void setTags(String[] tags) {
+    public void setTags(String tags) {
         this.tags = tags;
     }
 
