@@ -1,9 +1,6 @@
 package de.adesso.persistence;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
 
 /**
  * This class represents an image entity.
@@ -21,7 +18,7 @@ public class Image {
     private String format;
 
     /* The post that belongs to this image */
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     private Post post;
 
     /** needed by JPA */

@@ -23,7 +23,7 @@ public class Post {
     private String teaser;
 
     /* List of the images included in this post */
-    @OneToMany(mappedBy = "post")
+    @OneToMany(mappedBy = "post", fetch = FetchType.EAGER)
     private List<Image> images;
 
     // needed by JPA
