@@ -22,7 +22,6 @@ repositories {
 	mavenCentral()
 }
 
-
 dependencies {
 	// Remove in production
 	compile("org.springframework.boot:spring-boot-devtools")
@@ -35,6 +34,8 @@ dependencies {
 	compile('com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.8.8')
 	compile('commons-io:commons-io:2.5')
 	compile('org.jsoup:jsoup:1.10.2')
+	compile('org.im4java:im4java:1.4.0')
+	compile('org.springframework.boot:spring-boot-configuration-processor')
 
 	runtime('com.h2database:h2')
 	testCompile('org.springframework.boot:spring-boot-starter-test')
