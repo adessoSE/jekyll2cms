@@ -3,26 +3,34 @@ package de.adesso.persistence;
 import javax.persistence.*;
 import java.util.List;
 
+/**
+ * This class creates a post object with the given fields.
+ */
 @Entity
 public class Post {
 
+    /* unique ID of the post */
     @Id
     @GeneratedValue
     private Long id;
 
+    /* The content of the post */
     @Column(columnDefinition = "TEXT")
     private String content;
 
+    /* The teaser text of the post */
     @Column(columnDefinition = "TEXT")
     private String teaser;
 
-    @OneToMany(mappedBy = "post")
+    /* List of the images included in this post */
+    @OneToMany(mappedBy = "post", fetch = FetchType.EAGER)
     private List<Image> images;
 
     // needed by JPA
     private Post() {
     }
 
+    /* constructor */
     public Post(String content, String teaser, List<Image> images) {
         this.content = content;
         this.teaser = teaser;
@@ -55,16 +63,10 @@ public class Post {
 
     @Override
     public String toString() {
-        String imagesString = "";
-        for (Image image : images) {
-            imagesString += image.toString() + ", ";
-        }
-        String retVal = "Post{" +
+        return "Post{" +
                 "id=" + id +
                 ", content='" + content + '\'' +
                 ", teaser='" + teaser + '\'' +
-                "Images{" + imagesString + "}" +
                 '}';
-        return retVal;
     }
 }

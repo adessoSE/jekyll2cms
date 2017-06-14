@@ -22,18 +22,23 @@ public class CmdService {
     private JekyllService jekyllService;
     private ParseService parseService;
     private PersistenceService persistenceService;
+    private PostParseService postParseService;
+    private ImageProcessorService imageProcessorService;
 
     private String[] arguments;
     private CommandLine parsedCommands;
     private Options options = new Options();
 
     @Autowired
-    public CmdService(RepoService repoService, JekyllService jekyllService,
-                      ParseService parseService, PersistenceService persistenceService) {
+    public CmdService(RepoService repoService, JekyllService jekyllService, ParseService parseService,
+                      PersistenceService persistenceService, PostParseService postParseService,
+                      ImageProcessorService imageProcessorService) {
         this.repoService = repoService;
         this.jekyllService = jekyllService;
         this.parseService = parseService;
         this.persistenceService = persistenceService;
+        this.postParseService = postParseService;
+        this.imageProcessorService = imageProcessorService;
     }
 
     /**
@@ -117,7 +122,15 @@ public class CmdService {
                     //TODO: Save Image and Post into metaData
                     persistenceService.saveMetaData(metaData);
                 });
-
+        postParseService.getAllHtmlPosts()
+                .forEach(post -> {
+                    persistenceService.savePost(post);
+                    postParseService.getImages(post)
+                            .forEach(image -> {
+                                persistenceService.saveImage(image);
+                            });
+                });
+        this.imageProcessorService.runImageMagickResize();
     }
 
     /**
