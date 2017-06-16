@@ -25,22 +25,12 @@ public class Image {
     private Image() {
     }
 
-    /**
-     * Constructor
-     * @param url
-     * @param format
-     */
+
     public Image(String url, String format) {
         this.url = url;
         this.format = format;
     }
 
-    /**
-     * Contructor
-     * @param url
-     * @param format
-     * @param post
-     */
     public Image(String url, String format, Post post) {
         this.url = url;
         this.format = format;

@@ -22,7 +22,7 @@ public class CmdService {
     private JekyllService jekyllService;
     private PersistenceService persistenceService;
     private PostParseService postParseService;
-    private ImageProcessorService imageProcessorService;
+    private ImageService imageService;
 
     private String[] arguments;
     private CommandLine parsedCommands;
@@ -31,12 +31,12 @@ public class CmdService {
     @Autowired
     public CmdService(RepoService repoService, JekyllService jekyllService,
                       PersistenceService persistenceService, PostParseService postParseService,
-                      ImageProcessorService imageProcessorService) {
+                      ImageService imageService) {
         this.repoService = repoService;
         this.jekyllService = jekyllService;
         this.persistenceService = persistenceService;
         this.postParseService = postParseService;
-        this.imageProcessorService = imageProcessorService;
+        this.imageService = imageService;
     }
 
     /**
@@ -127,7 +127,7 @@ public class CmdService {
                     persistenceService.saveMetaData(metaData);
                 });
         // resize images
-        this.imageProcessorService.runImageMagickResize();
+        imageService.runImageMagickResize();
     }
 
     /**
