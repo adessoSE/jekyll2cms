@@ -37,6 +37,11 @@ public class Post {
         this.images = images;
     }
 
+    /* constructor */
+    public Post(String content) {
+        this.content = content;
+    }
+
     public Long getId() {
         return id;
     }

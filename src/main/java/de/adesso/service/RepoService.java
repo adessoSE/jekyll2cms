@@ -47,18 +47,6 @@ public class RepoService {
         }
     }
 
-    /**
-     * @return all unrendered post files in markdown format.
-     */
-    public List<File> getAllPosts() {
-        ArrayList<File> posts = new ArrayList<>();
-        File postsFolder = new File(LOCAL_REPO_PATH + "/_posts");
-        for (File fileEntry : postsFolder.listFiles()) {
-            posts.add(fileEntry);
-        }
-        return posts;
-    }
-
     private boolean localRepositoryExists() {
         try {
             FileRepositoryBuilder repositoryBuilder = new FileRepositoryBuilder();

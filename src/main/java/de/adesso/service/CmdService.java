@@ -20,7 +20,6 @@ public class CmdService {
 
     private RepoService repoService;
     private JekyllService jekyllService;
-    private ParseService parseService;
     private PersistenceService persistenceService;
     private PostParseService postParseService;
     private ImageProcessorService imageProcessorService;
@@ -30,12 +29,11 @@ public class CmdService {
     private Options options = new Options();
 
     @Autowired
-    public CmdService(RepoService repoService, JekyllService jekyllService, ParseService parseService,
+    public CmdService(RepoService repoService, JekyllService jekyllService,
                       PersistenceService persistenceService, PostParseService postParseService,
                       ImageProcessorService imageProcessorService) {
         this.repoService = repoService;
         this.jekyllService = jekyllService;
-        this.parseService = parseService;
         this.persistenceService = persistenceService;
         this.postParseService = postParseService;
         this.imageProcessorService = imageProcessorService;
@@ -116,20 +114,19 @@ public class CmdService {
 
     @SuppressWarnings("unused")
     private void migrate() {
-        repoService.getAllPosts()
-                .forEach(file -> {
-                    PostMetaData metaData = parseService.getMetaInformationFromPost(file);
-                    //TODO: Save Image and Post into metaData
-                    persistenceService.saveMetaData(metaData);
-                });
         postParseService.getAllHtmlPosts()
                 .forEach(post -> {
                     persistenceService.savePost(post);
-                    postParseService.getImages(post)
+                    // get images of current post
+                    postParseService.extractImages(post)
                             .forEach(image -> {
                                 persistenceService.saveImage(image);
                             });
+                    // get corresponding metadata file of current post
+                    PostMetaData metaData = postParseService.findCorrespondingMetadataFile(post);
+                    persistenceService.saveMetaData(metaData);
                 });
+        // resize images
         this.imageProcessorService.runImageMagickResize();
     }
 
