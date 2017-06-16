@@ -1,6 +1,7 @@
 package de.adesso.service;
 
 import de.adesso.persistence.Image;
+import de.adesso.persistence.ImageRepository;
 import de.adesso.util.ImageResolution;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
@@ -17,9 +18,9 @@ import java.util.*;
  * This service takes the images from the blog posts and transforms it into different resolutions that are predefined.
  */
 @Service
-public class ImageProcessorService {
+public class ImageService {
 
-    private ImageService imageService;
+    private PersistenceService persistenceService;
 
     @Value("${imagemagick.convert.path}")
     public String CONVERT_PATH;
@@ -31,8 +32,8 @@ public class ImageProcessorService {
     public String COMMAND_LINE_PATH;
 
     @Autowired
-    public ImageProcessorService(ImageService imageService) {
-        this.imageService = imageService;
+    public ImageService(PersistenceService persistenceService) {
+        this.persistenceService = persistenceService;
     }
 
     /**
@@ -50,7 +51,7 @@ public class ImageProcessorService {
      * transforms the images of all the posts into the resolutions specified within the ImageResolution enum.
      */
     public void runImageMagickResize() {
-        List<Image> images = imageService.getAllImages();
+        List<Image> images = persistenceService.loadAllImages();
         for(Image image : images) {
             String imageUrl = image.getUrl();
             String imageName = imageUrl.substring(imageUrl.lastIndexOf("/") + 1, imageUrl.lastIndexOf(".")) ;
@@ -87,15 +88,19 @@ public class ImageProcessorService {
 
         try {
             int exitValue = executor.execute(cmdLine);
-            if (exitValue == 0) {
-                System.out.println();
-                System.out.println("ImageMagick was successfull.");
-            } else {
-                System.err.println();
-                System.err.println("ERROR: ImageMagick was not successful");
-            }
+            printImageMagickStatus(exitValue);
         } catch (IOException e) {
             System.err.println("Error while executing ImageMagick command.\n" + e);
+        }
+    }
+
+    private void printImageMagickStatus(int exitValue) {
+        if (exitValue == 0) {
+            System.out.println();
+            System.out.println("ImageMagick was successful");
+        } else {
+            System.err.println();
+            System.err.println("ERROR: ImageMagick was not successful");
         }
     }
 }
