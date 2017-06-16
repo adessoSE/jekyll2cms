@@ -20,25 +20,23 @@ public class CmdService {
 
     private RepoService repoService;
     private JekyllService jekyllService;
-    private ParseService parseService;
     private PersistenceService persistenceService;
     private PostParseService postParseService;
-    private ImageProcessorService imageProcessorService;
+    private ImageService imageService;
 
     private String[] arguments;
     private CommandLine parsedCommands;
     private Options options = new Options();
 
     @Autowired
-    public CmdService(RepoService repoService, JekyllService jekyllService, ParseService parseService,
+    public CmdService(RepoService repoService, JekyllService jekyllService,
                       PersistenceService persistenceService, PostParseService postParseService,
-                      ImageProcessorService imageProcessorService) {
+                      ImageService imageService) {
         this.repoService = repoService;
         this.jekyllService = jekyllService;
-        this.parseService = parseService;
         this.persistenceService = persistenceService;
         this.postParseService = postParseService;
-        this.imageProcessorService = imageProcessorService;
+        this.imageService = imageService;
     }
 
     /**
@@ -116,21 +114,20 @@ public class CmdService {
 
     @SuppressWarnings("unused")
     private void migrate() {
-        repoService.getAllPosts()
-                .forEach(file -> {
-                    PostMetaData metaData = parseService.getMetaInformationFromPost(file);
-                    //TODO: Save Image and Post into metaData
-                    persistenceService.saveMetaData(metaData);
-                });
         postParseService.getAllHtmlPosts()
                 .forEach(post -> {
                     persistenceService.savePost(post);
-                    postParseService.getImages(post)
+                    // get images of current post
+                    postParseService.extractImages(post)
                             .forEach(image -> {
                                 persistenceService.saveImage(image);
                             });
+                    // get corresponding metadata file of current post
+                    PostMetaData metaData = postParseService.findCorrespondingMetadataFile(post);
+                    persistenceService.saveMetaData(metaData);
                 });
-        this.imageProcessorService.runImageMagickResize();
+        // resize images
+        imageService.runImageMagickResize();
     }
 
     /**

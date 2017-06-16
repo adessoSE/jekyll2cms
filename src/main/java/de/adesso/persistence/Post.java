@@ -30,11 +30,14 @@ public class Post {
     private Post() {
     }
 
-    /* constructor */
     public Post(String content, String teaser, List<Image> images) {
         this.content = content;
         this.teaser = teaser;
         this.images = images;
+    }
+
+    public Post(String content) {
+        this.content = content;
     }
 
     public Long getId() {

@@ -9,6 +9,8 @@ import de.adesso.persistence.PostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class PersistenceService {
 
@@ -34,5 +36,9 @@ public class PersistenceService {
 
     public void saveImage(Image image) {
         imageRepository.save(image);
+    }
+
+    public List<Image> loadAllImages() {
+        return imageRepository.findAll();
     }
 }

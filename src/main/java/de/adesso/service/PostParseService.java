@@ -1,16 +1,18 @@
 package de.adesso.service;
 
-
 import de.adesso.persistence.Image;
 import de.adesso.persistence.Post;
+import de.adesso.persistence.PostMetaData;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -28,34 +30,30 @@ public class PostParseService {
     @Value("${repository.local.htmlposts.path}")
     private String LOCAL_HTML_POSTS_PATH;
 
-    /**
-     * extracts all necessary information to create post objects and write them into the database.
-     * @return List - List of post objects
-     */
-    public List<Post> getAllHtmlPosts() {
-        return this.listHtmlPostFiles(LOCAL_HTML_POSTS_PATH);
-    }
+    @Value("${repository.local.path}")
+    private String LOCAL_REPO_PATH;
+
+    @Autowired
+    private ParseService parseService;
 
     /**
-     * Searches and lists HTML files within the given file path.
+     * Searches HTML files within the given file path an generate posts from them.
      *
-     * @param rootPath The root path that is used for searching the file tree.
      * @return List - List of posts
      */
-    private List<Post> listHtmlPostFiles(String rootPath) {
-        final Post[] post = {null};
+    public List<Post> getAllHtmlPosts() {
         ArrayList<Post> posts = new ArrayList<>();
-        try (Stream<Path> stream = Files.walk(Paths.get(rootPath))) {
-            stream
+        try (Stream<Path> htmlFiles = Files.walk(Paths.get(LOCAL_HTML_POSTS_PATH))) {
+            htmlFiles
                     .filter(Files::isRegularFile)
                     .forEach(path -> {
                         String filePath = path.toString();
-                        if (this.isHtmlFile(filePath)) {
+                        if (isHtmlFile(filePath)) {
                             // get the contents of the post
-                            String htmlContent = getHtmlPostContent(new File(filePath));
-                            post[0] = new Post(htmlContent, "", null);
-                            post[0].setTeaser(this.getPostContentFirstParagraph(htmlContent));
-                            posts.add(post[0]);
+                            String htmlContent = extractHtmlPostContent(new File(filePath));
+                            Post post = new Post(htmlContent);
+                            post.setTeaser(extractPostContentFirstParagraph(htmlContent));
+                            posts.add(post);
                             System.out.println("Parsed HTML post file to post object!");
                         }
                     });
@@ -68,39 +66,39 @@ public class PostParseService {
     }
 
     /**
-     * Extracts the HTML post content of the HTML file.
+     * Finds the corresponding metadata file of the given post.
      *
-     * @param htmlFile The HTML post file
-     * @return String - Post content as HTML code
+     * @param post - the post object for which the metadata file is searched.
+     * @return PostMetaData
      */
-    private String getHtmlPostContent(File htmlFile) {
-        String htmlContent = "";
-        Document doc = null;
-        try {
-            doc = Jsoup.parse(htmlFile, "UTF-8");
-            Elements articles = doc.getElementsByTag("article");
-            for (Element e1 : articles) {
-                htmlContent = e1.outerHtml();
-            }
-        } catch (IOException e) {
-            System.err.println(e.getMessage());
-            e.printStackTrace();
-        }
-        return htmlContent;
-    }
+    public PostMetaData findCorrespondingMetadataFile(Post post) {
 
-    /**
-     * gets the first paragraph of the post content. It will be used as the teaser/preview portion of the post.
-     *
-     * @param htmlPostContent The HTML code of the post content
-     * @return String - The first paragraph as HTML code
-     */
-    private String getPostContentFirstParagraph(String htmlPostContent) {
-        Document doc = Jsoup.parse(htmlPostContent);
-        Element paragraph = doc
-                .getElementsByClass("post-content").first()
-                .getElementsByTag("p").first();
-        return paragraph.outerHtml();
+        List<File> htmlFiles = extractAllHtmlFilesFromDirectory();
+        File[] metadataFiles = new File(LOCAL_REPO_PATH + "/_posts").listFiles(File::isFile);
+
+        PostMetaData postMetaData = null;
+        for (File htmlFile : htmlFiles) {
+            String htmlFilePath = htmlFile.getAbsolutePath();
+
+            if (isHtmlFile(htmlFilePath)) {
+                String htmlFileNameNoExt = cutOffFileExtension(htmlFile.getName());
+                String parentFileName = htmlFile.getParentFile().getName();
+                String htmlContent = extractHtmlPostContent(new File(htmlFilePath));
+
+                for (File metadataFile : metadataFiles) {
+                    String metadataFileNameNoExt = cutOffFileExtension(metadataFile.getName());
+                    if (metadataFileNameNoExt.equals(parentFileName + "-" + htmlFileNameNoExt)
+                            && htmlContent.equals(post.getContent())) {
+                        postMetaData = parseService.getMetaInformationFromPost(metadataFile);
+                        postMetaData.setPost(post);
+                        return postMetaData;
+                    }
+                }
+
+            }
+        }
+
+        return postMetaData;
     }
 
     /**
@@ -109,7 +107,7 @@ public class PostParseService {
      * @param post - The corresponding post of the images
      * @return List - List of Image objects
      */
-    public List<Image> getImages(Post post) {
+    public List<Image> extractImages(Post post) {
         List<Image> imageList = new ArrayList<>();
         Document doc = Jsoup.parse(post.getContent());
         Elements images = doc.select("img");
@@ -124,13 +122,58 @@ public class PostParseService {
     }
 
     /**
-     * Checks if given file path is an HTML or HTM file
+     * cut off the extension of file names.
      *
-     * @param filePath path of the file
-     * @return boolean
+     * @param fileName - The file name of interest.
+     * @return String
      */
+    private String cutOffFileExtension(String fileName) {
+        return fileName.substring(0, fileName.lastIndexOf("."));
+    }
+
+    /**
+     * Extracts the HTML post content of the HTML file.
+     *
+     * @param htmlFile The HTML post file
+     * @return String - Post content as HTML code
+     */
+    private String extractHtmlPostContent(File htmlFile) {
+        Document doc = null;
+        try {
+            doc = Jsoup.parse(htmlFile, "UTF-8");
+        } catch (IOException e) {
+            System.err.println(e.getMessage());
+            e.printStackTrace();
+        }
+        return doc.html();
+    }
+
+    /**
+     * gets the first paragraph of the post content. It will be used as the teaser/preview portion of the post.
+     *
+     * @param htmlPostContent The HTML code of the post content
+     * @return String - The first paragraph as HTML code
+     */
+    private String extractPostContentFirstParagraph(String htmlPostContent) {
+        Document doc = Jsoup.parse(htmlPostContent);
+        Element paragraph = doc
+                .getElementsByClass("post-content").first()
+                .getElementsByTag("p").first();
+        return paragraph.outerHtml();
+    }
+
     private boolean isHtmlFile(String filePath) {
-        return filePath.substring(filePath.lastIndexOf('.') + 1).equalsIgnoreCase("HTML")
-                || filePath.substring(filePath.lastIndexOf('.') + 1).equalsIgnoreCase("HTM");
+        return filePath.endsWith(".htm") || filePath.endsWith(".html");
+    }
+
+    private List<File> extractAllHtmlFilesFromDirectory() {
+        File[] htmlFileFolders = new File(LOCAL_HTML_POSTS_PATH).listFiles(File::isDirectory);
+        List<File> htmlFiles = new ArrayList<>();
+        for(File folder : htmlFileFolders) {
+            for (File htmlFile : folder.listFiles(File::isFile)) {
+                htmlFiles.add(htmlFile);
+            }
+        }
+        return htmlFiles;
     }
 }
