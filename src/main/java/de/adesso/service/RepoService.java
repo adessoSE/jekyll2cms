@@ -54,9 +54,10 @@ public class RepoService {
      * pulls the remote git repository to receive changes.
      */
     public void pullRemoteRepo() {
-        try {
-            localGit.checkout().setName("master").call();
-            localGit.pull().setRemote("origin").call();
+        try(Git git = new Git(localGit.getRepository())) {
+            git.pull()
+                .call();
+            localGit.close();
         } catch (Exception e) {
             LOGGER.error("Error while fetching remote git repository", e);
         }

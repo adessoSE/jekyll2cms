@@ -10,7 +10,7 @@ public class Image {
 
     /* unique ID of image entity*/
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Long id;
     /* URL of the image */
     private String url;

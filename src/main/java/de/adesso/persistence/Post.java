@@ -14,16 +14,20 @@ public class Post {
 
     /* unique ID of the post */
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Long id;
 
     /* The content of the post */
     @Column(columnDefinition = "TEXT")
     private String content;
 
-    /* The teaser text of the post */
+    /* The teaserXml text of the post */
     @Column(columnDefinition = "TEXT")
-    private String teaser;
+    private String teaserXml;
+
+    /* The searchXml text of the post */
+    @Column(columnDefinition = "TEXT")
+    private String searchXml;
 
     /* hash value of post content */
     @Column(columnDefinition = "VARCHAR2(64)")
@@ -72,12 +76,20 @@ public class Post {
         this.content = content;
     }
 
-    public String getTeaser() {
-        return teaser;
+    public String getTeaserXml() {
+        return teaserXml;
     }
 
-    public void setTeaser(String teaser) {
-        this.teaser = teaser;
+    public void setTeaserXml(String teaserXml) {
+        this.teaserXml = teaserXml;
+    }
+
+    public String getSearchXml() {
+        return searchXml;
+    }
+
+    public void setSearchXml(String searchXml) {
+        this.searchXml = searchXml;
     }
 
     public String getHashValue() {
@@ -109,7 +121,8 @@ public class Post {
         return "Post{" +
                 "id=" + id +
                 ", content='" + content + '\'' +
-                ", teaser='" + teaser + '\'' +
+                ", teaserXml='" + teaserXml + '\'' +
+                ", searchXml='" + searchXml + '\'' +
                 '}';
     }
 }
