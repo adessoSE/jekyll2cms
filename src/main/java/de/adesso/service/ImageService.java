@@ -6,6 +6,8 @@ import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
 import org.im4java.core.Info;
 import org.im4java.core.InfoException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,8 @@ import java.util.List;
  */
 @Service
 public class ImageService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ImageService.class);
 
     private PersistenceService persistenceService;
 
@@ -52,16 +56,18 @@ public class ImageService {
      * transforms the images of all the posts into the resolutions specified within the ImageResolution enum.
      */
     public void runImageMagickResize() {
+        String method = "runImageMagickResize";
         List<Image> images = persistenceService.loadAllImages();
         for (Image image : images) {
             String imageUrl = image.getUrl();
             String imageName = imageUrl.substring(imageUrl.lastIndexOf("/") + 1, imageUrl.lastIndexOf("."));
-            System.out.println(">>>>>>> Processing image " + imageUrl + " with image name " + imageName);
-            int imageWidth = 0;
 
+            int imageWidth = 0;
+            LOGGER.info("Processing image {} with image name {}", imageUrl, imageName);
             try {
                 imageWidth = new Info(imageUrl, true).getImageWidth();
             } catch (InfoException e) {
+                LOGGER.error("In method "+ method + ": Could not get image info from image: " + imageUrl, e);
                 e.printStackTrace();
             }
 
@@ -84,7 +90,6 @@ public class ImageService {
      */
     private void runResizeCommand(String commandLine) {
         CommandLine cmdLine = CommandLine.parse(commandLine);
-        System.out.println(commandLine);
         DefaultExecutor executor = new DefaultExecutor();
         executor.setWorkingDirectory(new File(COMMAND_LINE_PATH));
 
@@ -92,17 +97,15 @@ public class ImageService {
             int exitValue = executor.execute(cmdLine);
             printImageMagickStatus(exitValue);
         } catch (IOException e) {
-            System.err.println("Error while executing ImageMagick command.\n" + e);
+            LOGGER.error("Error while executing ImageMagick command: {}. {}", commandLine, e.getMessage());
         }
     }
 
     private void printImageMagickStatus(int exitValue) {
         if (exitValue == 0) {
-            System.out.println();
-            System.out.println("ImageMagick was successful");
+            LOGGER.info("Processing image was successful.");
         } else {
-            System.err.println();
-            System.err.println("ERROR: ImageMagick was not successful");
+            LOGGER.error("Could not process the image.");
         }
     }
 }

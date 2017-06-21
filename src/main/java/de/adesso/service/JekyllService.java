@@ -2,7 +2,8 @@ package de.adesso.service;
 
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +16,7 @@ import java.io.IOException;
 @Service
 public class JekyllService {
 
-    private final static Logger LOGGER = Logger.getLogger(JekyllService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(JekyllService.class);
 
     @Value("${repository.local.path}")
     private String LOCAL_REPO_PATH;
@@ -27,6 +28,7 @@ public class JekyllService {
      * This method executes "jekyll build" command in the local repository.
      */
     public void runJekyllBuild() {
+        String method = "runJekyllBuild";
         String line = JEKYLL_PATH + " build";
         CommandLine cmdLine = CommandLine.parse(line);
         DefaultExecutor executor = new DefaultExecutor();
@@ -36,18 +38,16 @@ public class JekyllService {
             int exitValue = executor.execute(cmdLine);
             printJekyllBuildStatus(exitValue);
         } catch (IOException e) {
-            LOGGER.error("Error while executing jekyll build.", e);
+            LOGGER.error("In method {}: Error while executing jekyll build. Error message: {}", method, e.getMessage());
         }
 
     }
 
     private void printJekyllBuildStatus(int exitValue) {
         if (exitValue == 0) {
-            System.out.println();
-            System.out.println("Jekyll build was successful");
+            LOGGER.info("Jekyll build was successful.");
         } else {
-            System.err.println();
-            System.err.println("ERROR: Jekyll build was not successful");
+            LOGGER.error("Jekyll build was not successful.");
         }
     }
 }

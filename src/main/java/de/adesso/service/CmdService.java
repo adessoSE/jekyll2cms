@@ -8,7 +8,8 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.UnrecognizedOptionException;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.stereotype.Service;
@@ -21,7 +22,7 @@ import java.util.List;
 @Service
 public class CmdService {
 
-    private final static Logger LOGGER = Logger.getLogger(CmdService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CmdService.class);
 
     private RepoService repoService;
     private JekyllService jekyllService;
@@ -60,18 +61,19 @@ public class CmdService {
      * @return true if all commands could be parsed
      */
     public boolean parse() {
+        String method = "parse";
         CommandLineParser parser = new BasicParser();
 
         try {
             parsedCommands = parser.parse(options, arguments);
 
         } catch (UnrecognizedOptionException ue) {
-            System.err.println("WARN: Cannot find command " + ue.getOption());
+            LOGGER.warn("In method {}: Cannot find command. Error message: {}", method, ue.getOption());
             help();
             return false;
 
         } catch (ParseException e) {
-            LOGGER.error("Error while parsing arguments", e);
+            LOGGER.error("In method {}: Error while parsing arguments. Error message: {}", method, e.getMessage());
             help();
             return false;
         }
@@ -86,17 +88,16 @@ public class CmdService {
      * "Command" enumeration has to be the same.
      */
     public void execute() {
+        String method = "execute";
         try {
             for (Command cmd : Command.values()) {
                 if (parsedCommands.hasOption(cmd.getShortName())) {
-                    System.out.println();
-                    System.out.println(":: Executing " + cmd + " :: -------------------");
-                    System.out.println();
+                    LOGGER.info("Executing: {}...", cmd);
                     callMethodByName(cmd.getLongName());
                 }
             }
         } catch (Exception e) {
-            LOGGER.error("Error while executing commands", e);
+            LOGGER.error("In method " + method + ": Error while executing commands.", e);
         }
     }
 

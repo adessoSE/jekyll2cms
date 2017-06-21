@@ -1,0 +1,88 @@
+2017-06-21 15:21:13.049  INFO 13056 --- [restartedMain] de.adesso.Jekyll2cmsApplication          : Starting Jekyll2cmsApplication on DE-ADN-1LD10G2 with PID 13056 (C:\workspace_idea\Projekte\jekyll2cms\out\production\jekyll2cms started by sanayei in C:\workspace_idea\Projekte\jekyll2cms)
+2017-06-21 15:21:13.049  INFO 13056 --- [restartedMain] de.adesso.Jekyll2cmsApplication          : No active profile set, falling back to default profiles: default
+2017-06-21 15:21:16.001  INFO 13056 --- [restartedMain] de.adesso.service.CmdService             : :: Executing CLONE :: -------------------
+2017-06-21 15:21:16.972  INFO 13056 --- [restartedMain] de.adesso.service.CmdService             : :: Executing BUILD :: -------------------
+2017-06-21 15:21:18.339  INFO 13056 --- [restartedMain] de.adesso.service.CmdService             : :: Executing UPDATE :: -------------------
+2017-06-21 15:21:18.574  INFO 13056 --- [restartedMain] de.adesso.Jekyll2cmsApplication          : Started Jekyll2cmsApplication in 5.71 seconds (JVM running for 6.154)
+2017-06-21 15:39:10.716  INFO 6796 --- [restartedMain] de.adesso.Jekyll2cmsApplication          : Starting Jekyll2cmsApplication on DE-ADN-1LD10G2 with PID 6796 (C:\workspace_idea\Projekte\jekyll2cms\out\production\jekyll2cms started by sanayei in C:\workspace_idea\Projekte\jekyll2cms)
+2017-06-21 15:39:10.717  INFO 6796 --- [restartedMain] de.adesso.Jekyll2cmsApplication          : No active profile set, falling back to default profiles: default
+2017-06-21 15:39:13.708  INFO 6796 --- [restartedMain] de.adesso.Jekyll2cmsApplication          : Started Jekyll2cmsApplication in 3.185 seconds (JVM running for 3.577)
+2017-06-21 16:46:18.726  INFO 14404 --- [restartedMain] de.adesso.Jekyll2cmsApplication          : Starting Jekyll2cmsApplication on DE-ADN-1LD10G2 with PID 14404 (C:\workspace_idea\Projekte\jekyll2cms\out\production\jekyll2cms started by sanayei in C:\workspace_idea\Projekte\jekyll2cms)
+2017-06-21 16:46:18.727  INFO 14404 --- [restartedMain] de.adesso.Jekyll2cmsApplication          : No active profile set, falling back to default profiles: default
+2017-06-21 16:46:21.770  INFO 14404 --- [restartedMain] de.adesso.service.CmdService             : Executing: CLONE...
+2017-06-21 16:46:21.984  WARN 14404 --- [restartedMain] de.adesso.service.RepoService            : Remote repository is already cloned into local repository
+2017-06-21 16:46:21.988  INFO 14404 --- [restartedMain] de.adesso.service.RepoService            : Trying to pull remote repository...
+2017-06-21 16:46:22.720  INFO 14404 --- [restartedMain] de.adesso.service.CmdService             : Executing: BUILD...
+2017-06-21 16:46:24.038  INFO 14404 --- [restartedMain] de.adesso.service.JekyllService          : Jekyll build was successful.
+2017-06-21 16:46:24.038  INFO 14404 --- [restartedMain] de.adesso.service.CmdService             : Executing: UPDATE...
+2017-06-21 16:46:24.039  INFO 14404 --- [restartedMain] de.adesso.service.PersistenceService     : Updating database...
+2017-06-21 16:46:24.108  INFO 14404 --- [restartedMain] de.adesso.service.PostParseService       : Successfully parsed all HTML post files to post objects!
+2017-06-21 16:46:24.209  INFO 14404 --- [restartedMain] de.adesso.service.ParseService           : Parsed meta information: Fri Feb 03 17:18:00 CET 2017-Hello World!
+2017-06-21 16:46:24.222  INFO 14404 --- [restartedMain] de.adesso.service.ParseService           : Parsed meta information: Thu May 04 16:23:00 CEST 2017-Welcome to Jekyll!
+2017-06-21 16:46:24.235  INFO 14404 --- [restartedMain] de.adesso.service.ParseService           : Parsed meta information: Tue May 30 16:23:00 CEST 2017-Test post with images
+2017-06-21 16:46:24.245  INFO 14404 --- [restartedMain] de.adesso.service.ParseService           : Parsed meta information: Thu Jun 08 12:00:00 CEST 2017-New Post test
+2017-06-21 16:46:24.256  INFO 14404 --- [restartedMain] de.adesso.service.ParseService           : Parsed meta information: Tue Jun 20 17:00:00 CEST 2017-Testing commit history for New Post
+2017-06-21 16:46:24.266  INFO 14404 --- [restartedMain] de.adesso.service.ParseService           : Parsed meta information: Tue Jun 20 17:00:00 CEST 2017-Testing commit history for New Post
+2017-06-21 16:46:24.279  INFO 14404 --- [restartedMain] de.adesso.service.ParseService           : Parsed meta information: Tue Jun 20 13:20:00 CEST 2017-Testing Pull
+2017-06-21 16:46:24.281  INFO 14404 --- [restartedMain] de.adesso.service.PersistenceService     : Updating database was successful.
+2017-06-21 16:46:24.282  INFO 14404 --- [restartedMain] de.adesso.Jekyll2cmsApplication          : Started Jekyll2cmsApplication in 5.745 seconds (JVM running for 6.134)
+2017-06-21 16:47:23.977  INFO 6524 --- [restartedMain] de.adesso.Jekyll2cmsApplication          : Starting Jekyll2cmsApplication on DE-ADN-1LD10G2 with PID 6524 (C:\workspace_idea\Projekte\jekyll2cms\out\production\jekyll2cms started by sanayei in C:\workspace_idea\Projekte\jekyll2cms)
+2017-06-21 16:47:23.978  INFO 6524 --- [restartedMain] de.adesso.Jekyll2cmsApplication          : No active profile set, falling back to default profiles: default
+2017-06-21 16:47:27.078  INFO 6524 --- [restartedMain] de.adesso.service.CmdService             : Executing: CLONE...
+2017-06-21 16:47:27.180  WARN 6524 --- [restartedMain] de.adesso.service.RepoService            : Remote repository is already cloned into local repository
+2017-06-21 16:47:27.184  INFO 6524 --- [restartedMain] de.adesso.service.RepoService            : Trying to pull remote repository...
+2017-06-21 16:47:27.887  INFO 6524 --- [restartedMain] de.adesso.service.CmdService             : Executing: BUILD...
+2017-06-21 16:47:29.144  INFO 6524 --- [restartedMain] de.adesso.service.JekyllService          : Jekyll build was successful.
+2017-06-21 16:47:29.145  INFO 6524 --- [restartedMain] de.adesso.service.CmdService             : Executing: UPDATE...
+2017-06-21 16:47:29.145  INFO 6524 --- [restartedMain] de.adesso.service.PersistenceService     : Updating database...
+2017-06-21 16:47:29.214  INFO 6524 --- [restartedMain] de.adesso.service.PostParseService       : Successfully parsed all HTML post files to post objects!
+2017-06-21 16:47:29.309  INFO 6524 --- [restartedMain] de.adesso.service.ParseService           : Parsed meta information: Fri Feb 03 17:18:00 CET 2017-Hello World!
+2017-06-21 16:47:29.323  INFO 6524 --- [restartedMain] de.adesso.service.ParseService           : Parsed meta information: Thu May 04 16:23:00 CEST 2017-Welcome to Jekyll!
+2017-06-21 16:47:29.336  INFO 6524 --- [restartedMain] de.adesso.service.ParseService           : Parsed meta information: Tue May 30 16:23:00 CEST 2017-Test post with images
+2017-06-21 16:47:29.350  INFO 6524 --- [restartedMain] de.adesso.service.ParseService           : Parsed meta information: Thu Jun 08 12:00:00 CEST 2017-New Post test
+2017-06-21 16:47:29.361  INFO 6524 --- [restartedMain] de.adesso.service.ParseService           : Parsed meta information: Tue Jun 20 17:00:00 CEST 2017-Testing commit history for New Post
+2017-06-21 16:47:29.371  INFO 6524 --- [restartedMain] de.adesso.service.ParseService           : Parsed meta information: Tue Jun 20 17:00:00 CEST 2017-Testing commit history for New Post
+2017-06-21 16:47:29.382  INFO 6524 --- [restartedMain] de.adesso.service.ParseService           : Parsed meta information: Tue Jun 20 13:20:00 CEST 2017-Testing Pull
+2017-06-21 16:47:29.385  INFO 6524 --- [restartedMain] de.adesso.service.PersistenceService     : Updating database was successful.
+2017-06-21 16:47:29.386  INFO 6524 --- [restartedMain] de.adesso.Jekyll2cmsApplication          : Started Jekyll2cmsApplication in 5.601 seconds (JVM running for 5.98)
+2017-06-21 16:53:46.573  INFO 4120 --- [restartedMain] de.adesso.Jekyll2cmsApplication          : Starting Jekyll2cmsApplication on DE-ADN-1LD10G2 with PID 4120 (C:\workspace_idea\Projekte\jekyll2cms\out\production\jekyll2cms started by sanayei in C:\workspace_idea\Projekte\jekyll2cms)
+2017-06-21 16:53:46.573  INFO 4120 --- [restartedMain] de.adesso.Jekyll2cmsApplication          : No active profile set, falling back to default profiles: default
+2017-06-21 16:53:49.598  INFO 4120 --- [restartedMain] de.adesso.service.CmdService             : Executing: CLONE...
+2017-06-21 16:53:49.707  WARN 4120 --- [restartedMain] de.adesso.service.RepoService            : Remote repository is already cloned into local repository
+2017-06-21 16:53:49.710  INFO 4120 --- [restartedMain] de.adesso.service.RepoService            : Trying to pull remote repository...
+2017-06-21 16:53:50.467  INFO 4120 --- [restartedMain] de.adesso.service.CmdService             : Executing: BUILD...
+2017-06-21 16:53:51.776  INFO 4120 --- [restartedMain] de.adesso.service.JekyllService          : Jekyll build was successful.
+2017-06-21 16:53:51.776  INFO 4120 --- [restartedMain] de.adesso.service.CmdService             : Executing: UPDATE...
+2017-06-21 16:53:51.776  INFO 4120 --- [restartedMain] de.adesso.service.PersistenceService     : Updating database...
+2017-06-21 16:53:51.845  INFO 4120 --- [restartedMain] de.adesso.service.PostParseService       : Successfully parsed all HTML post files to post objects!
+2017-06-21 16:53:51.936  INFO 4120 --- [restartedMain] de.adesso.service.ParseService           : Parsed meta information: 2017-02-03-Hello World!
+2017-06-21 16:53:51.950  INFO 4120 --- [restartedMain] de.adesso.service.ParseService           : Parsed meta information: 2017-05-04-Welcome to Jekyll!
+2017-06-21 16:53:51.963  INFO 4120 --- [restartedMain] de.adesso.service.ParseService           : Parsed meta information: 2017-05-30-Test post with images
+2017-06-21 16:53:51.973  INFO 4120 --- [restartedMain] de.adesso.service.ParseService           : Parsed meta information: 2017-06-08-New Post test
+2017-06-21 16:53:51.985  INFO 4120 --- [restartedMain] de.adesso.service.ParseService           : Parsed meta information: 2017-06-20-Testing commit history for New Post
+2017-06-21 16:53:51.995  INFO 4120 --- [restartedMain] de.adesso.service.ParseService           : Parsed meta information: 2017-06-20-Testing commit history for New Post
+2017-06-21 16:53:52.006  INFO 4120 --- [restartedMain] de.adesso.service.ParseService           : Parsed meta information: 2017-06-20-Testing Pull
+2017-06-21 16:53:52.009  INFO 4120 --- [restartedMain] de.adesso.service.PersistenceService     : Updating database was successful.
+2017-06-21 16:53:52.010  INFO 4120 --- [restartedMain] de.adesso.Jekyll2cmsApplication          : Started Jekyll2cmsApplication in 5.632 seconds (JVM running for 6.005)
+2017-06-21 16:57:16.031 ERROR 8424 --- [restartedMain] o.s.b.l.LoggingApplicationListener       : Cannot set level: INFO,WARN,ERROR for 'de.adesso'
+2017-06-21 16:57:19.183  WARN 8424 --- [restartedMain] de.adesso.service.RepoService            : Remote repository is already cloned into local repository
+2017-06-21 16:57:51.546  WARN 9760 --- [restartedMain] de.adesso.service.RepoService            : Remote repository is already cloned into local repository
+2017-06-21 16:58:12.031  INFO 17140 --- [restartedMain] de.adesso.Jekyll2cmsApplication          : Starting Jekyll2cmsApplication on DE-ADN-1LD10G2 with PID 17140 (C:\workspace_idea\Projekte\jekyll2cms\out\production\jekyll2cms started by sanayei in C:\workspace_idea\Projekte\jekyll2cms)
+2017-06-21 16:58:12.031  INFO 17140 --- [restartedMain] de.adesso.Jekyll2cmsApplication          : No active profile set, falling back to default profiles: default
+2017-06-21 16:58:15.051  INFO 17140 --- [restartedMain] de.adesso.service.CmdService             : Executing: CLONE...
+2017-06-21 16:58:15.152  WARN 17140 --- [restartedMain] de.adesso.service.RepoService            : Remote repository is already cloned into local repository
+2017-06-21 16:58:15.155  INFO 17140 --- [restartedMain] de.adesso.service.RepoService            : Trying to pull remote repository...
+2017-06-21 16:58:15.866  INFO 17140 --- [restartedMain] de.adesso.service.CmdService             : Executing: BUILD...
+2017-06-21 16:58:17.181  INFO 17140 --- [restartedMain] de.adesso.service.JekyllService          : Jekyll build was successful.
+2017-06-21 16:58:17.181  INFO 17140 --- [restartedMain] de.adesso.service.CmdService             : Executing: UPDATE...
+2017-06-21 16:58:17.181  INFO 17140 --- [restartedMain] de.adesso.service.PersistenceService     : Updating database...
+2017-06-21 16:58:17.249  INFO 17140 --- [restartedMain] de.adesso.service.PostParseService       : Successfully parsed all HTML post files to post objects!
+2017-06-21 16:58:17.341  INFO 17140 --- [restartedMain] de.adesso.service.ParseService           : Parsed meta information: 2017-02-03-Hello World!
+2017-06-21 16:58:17.355  INFO 17140 --- [restartedMain] de.adesso.service.ParseService           : Parsed meta information: 2017-05-04-Welcome to Jekyll!
+2017-06-21 16:58:17.368  INFO 17140 --- [restartedMain] de.adesso.service.ParseService           : Parsed meta information: 2017-05-30-Test post with images
+2017-06-21 16:58:17.379  INFO 17140 --- [restartedMain] de.adesso.service.ParseService           : Parsed meta information: 2017-06-08-New Post test
+2017-06-21 16:58:17.390  INFO 17140 --- [restartedMain] de.adesso.service.ParseService           : Parsed meta information: 2017-06-20-Testing commit history for New Post
+2017-06-21 16:58:17.400  INFO 17140 --- [restartedMain] de.adesso.service.ParseService           : Parsed meta information: 2017-06-20-Testing commit history for New Post
+2017-06-21 16:58:17.411  INFO 17140 --- [restartedMain] de.adesso.service.ParseService           : Parsed meta information: 2017-06-20-Testing Pull
+2017-06-21 16:58:17.413  INFO 17140 --- [restartedMain] de.adesso.service.PersistenceService     : Updating database was successful.
+2017-06-21 16:58:17.414  INFO 17140 --- [restartedMain] de.adesso.Jekyll2cmsApplication          : Started Jekyll2cmsApplication in 5.581 seconds (JVM running for 5.984)
