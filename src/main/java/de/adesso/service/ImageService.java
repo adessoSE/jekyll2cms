@@ -1,18 +1,18 @@
 package de.adesso.service;
 
 import de.adesso.persistence.Image;
-import de.adesso.persistence.ImageRepository;
 import de.adesso.util.ImageResolution;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
-import org.im4java.core.*;
+import org.im4java.core.Info;
+import org.im4java.core.InfoException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.List;
 
 /**
  * This service takes the images from the blog posts and transforms it into different resolutions that are predefined.
@@ -38,8 +38,9 @@ public class ImageService {
 
     /**
      * Sets a basic convert command with the provided parameters. The command is used with the ImageMagick processor.
-     * @param inputFileName - original file that is to be converted
-     * @param newWidth - the new width of input file
+     *
+     * @param inputFileName  - original file that is to be converted
+     * @param newWidth       - the new width of input file
      * @param outputFileName - new file name of original file after transformation
      * @return String - returns the command line that is used to run ImageMagick processor.
      */
@@ -52,9 +53,9 @@ public class ImageService {
      */
     public void runImageMagickResize() {
         List<Image> images = persistenceService.loadAllImages();
-        for(Image image : images) {
+        for (Image image : images) {
             String imageUrl = image.getUrl();
-            String imageName = imageUrl.substring(imageUrl.lastIndexOf("/") + 1, imageUrl.lastIndexOf(".")) ;
+            String imageName = imageUrl.substring(imageUrl.lastIndexOf("/") + 1, imageUrl.lastIndexOf("."));
             System.out.println(">>>>>>> Processing image " + imageUrl + " with image name " + imageName);
             int imageWidth = 0;
 
@@ -66,7 +67,7 @@ public class ImageService {
 
             for (ImageResolution imgRes : ImageResolution.values()) {
                 int imageDefinedWidth = imgRes.getValue();
-                if(imageWidth > imageDefinedWidth) {
+                if (imageWidth > imageDefinedWidth) {
                     String outputFileName = imageName + "_" + imgRes.toString().toLowerCase() + "_" + imageDefinedWidth + ".png";
                     String commandLine = this.setBasicConvertCommand(imageUrl, imageDefinedWidth, outputFileName);
                     this.runResizeCommand(commandLine);
@@ -78,6 +79,7 @@ public class ImageService {
 
     /**
      * runs the resize command provided by the parameter.
+     *
      * @param commandLine
      */
     private void runResizeCommand(String commandLine) {

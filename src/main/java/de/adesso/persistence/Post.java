@@ -1,9 +1,14 @@
 package de.adesso.persistence;
 
-import de.adesso.util.HashingType;
 import de.adesso.util.MD5Hash;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import java.util.List;
 
 /**
@@ -14,7 +19,7 @@ public class Post {
 
     /* unique ID of the post */
     @Id
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     /* The content of the post */
@@ -37,27 +42,25 @@ public class Post {
     @OneToMany(mappedBy = "post", fetch = FetchType.EAGER)
     private List<Image> images;
 
-    @Transient
-    private HashingType hashingType;
-
     // needed by JPA
     private Post() {
     }
 
-    /** constructor
+    /**
+     * constructor
      * Creates also an MD5Hash hashing type.
-     * */
+     */
     public Post(String content) {
         this.content = content;
-        this.hashingType = new MD5Hash();
     }
 
     /**
      * Generates a hash value from the given string.
+     *
      * @param content
      */
     public void generateHashValue(String content) {
-        this.hashValue = this.hashingType.generateHashValue(content);
+        this.hashValue = MD5Hash.generateHashValue(content);
     }
 
     public Long getId() {
@@ -98,14 +101,6 @@ public class Post {
 
     public void setHashValue(String hashValue) {
         this.hashValue = hashValue;
-    }
-
-    public HashingType getHashingType() {
-        return hashingType;
-    }
-
-    public void setHashingType(HashingType hashingType) {
-        this.hashingType = hashingType;
     }
 
     public List<Image> getImages() {

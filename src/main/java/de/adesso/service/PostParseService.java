@@ -55,10 +55,9 @@ public class PostParseService {
                             post.setTeaserXml(extractPostContentFirstParagraph(htmlContent));
                             post.generateHashValue(htmlContent);
                             posts.add(post);
-                            System.out.println("Parsed HTML post file to post object!");
                         }
                     });
-            System.out.println("Parsed all HTML post files to post objects!");
+            System.out.println("Successfully parsed all HTML post files to post objects!");
         } catch (IOException e) {
             System.err.println("There was an error reading files: " + e.getMessage());
             e.printStackTrace();
@@ -118,7 +117,6 @@ public class PostParseService {
             Image image = new Image(imageUrl, imageFormat, post);
             imageList.add(image);
         });
-        System.out.println("Parsed image information of the post to image object!");
         return imageList;
     }
 
@@ -170,7 +168,7 @@ public class PostParseService {
     private List<File> extractAllHtmlFilesFromDirectory() {
         File[] htmlFileFolders = new File(LOCAL_HTML_POSTS_PATH).listFiles(File::isDirectory);
         List<File> htmlFiles = new ArrayList<>();
-        for(File folder : htmlFileFolders) {
+        for (File folder : htmlFileFolders) {
             for (File htmlFile : folder.listFiles(File::isFile)) {
                 htmlFiles.add(htmlFile);
             }

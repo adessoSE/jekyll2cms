@@ -4,9 +4,9 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 /**
- * This class implements HashingType and generates an MD5 hash value.
+ * This class generates an MD5 hash value.
  */
-public class MD5Hash implements HashingType {
+public class MD5Hash {
 
     /**
      * Generates an MD5 hash value from the given input value.
@@ -14,8 +14,7 @@ public class MD5Hash implements HashingType {
      * @param inputValue
      * @return String
      */
-    @Override
-    public String generateHashValue(String inputValue) {
+    public static String generateHashValue(String inputValue) {
         StringBuilder hashValue = new StringBuilder();
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");

@@ -15,6 +15,7 @@ public enum ImageResolution {
 
     /**
      * Constructor.
+     *
      * @param value - Value of constant.
      */
     ImageResolution(int value) {

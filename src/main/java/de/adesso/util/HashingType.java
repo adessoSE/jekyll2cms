@@ -6,6 +6,7 @@ package de.adesso.util;
 public interface HashingType {
     /**
      * Generates a hash value from the given input value.
+     *
      * @param inputValue
      * @return String
      */

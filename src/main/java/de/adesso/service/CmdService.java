@@ -1,8 +1,13 @@
 package de.adesso.service;
 
-import de.adesso.persistence.PostMetaData;
 import de.adesso.util.Command;
-import org.apache.commons.cli.*;
+import org.apache.commons.cli.BasicParser;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.UnrecognizedOptionException;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
@@ -21,7 +26,6 @@ public class CmdService {
     private RepoService repoService;
     private JekyllService jekyllService;
     private PersistenceService persistenceService;
-    private PostParseService postParseService;
     private ImageService imageService;
 
     private String[] arguments;
@@ -35,7 +39,6 @@ public class CmdService {
         this.repoService = repoService;
         this.jekyllService = jekyllService;
         this.persistenceService = persistenceService;
-        this.postParseService = postParseService;
         this.imageService = imageService;
     }
 
@@ -113,21 +116,9 @@ public class CmdService {
     }
 
     @SuppressWarnings("unused")
-    private void migrate() {
-        postParseService.getAllHtmlPosts()
-                .forEach(post -> {
-                    persistenceService.savePost(post);
-                    // get images of current post
-                    postParseService.extractImages(post)
-                            .forEach(image -> {
-                                persistenceService.saveImage(image);
-                            });
-                    // get corresponding metadata file of current post
-                    PostMetaData metaData = postParseService.findCorrespondingMetadataFile(post);
-                    persistenceService.saveMetaData(metaData);
-                });
-        // resize images
-        imageService.runImageMagickResize();
+    private void update() {
+        persistenceService.updateDatabase();
+        //imageService.runImageMagickResize();
     }
 
     /**

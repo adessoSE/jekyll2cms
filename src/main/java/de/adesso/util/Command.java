@@ -13,7 +13,7 @@ public enum Command {
     HELP("h", "help", "Show help"),
     CLONE("c", "cloneRepo", "Clone remote repository"),
     BUILD("b", "build", "Run jekyll build command locally"),
-    MIGRATE("m", "migrate", "Initial migration of all existing posts");
+    UPDATE("u", "update", "Updates database with new/changed content");
 
     private String shortName;
     private String longName;

@@ -9,8 +9,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * This service helps managing repositories with the help of JGit.
@@ -54,9 +52,9 @@ public class RepoService {
      * pulls the remote git repository to receive changes.
      */
     public void pullRemoteRepo() {
-        try(Git git = new Git(localGit.getRepository())) {
+        try (Git git = new Git(localGit.getRepository())) {
             git.pull()
-                .call();
+                    .call();
             localGit.close();
         } catch (Exception e) {
             LOGGER.error("Error while fetching remote git repository", e);

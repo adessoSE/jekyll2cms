@@ -17,13 +17,30 @@ public class PersistenceService {
     private MetaDataRepository metaDataRepo;
     private PostRepository postRepository;
     private ImageRepository imageRepository;
+    private PostParseService postParseService;
 
     @Autowired
     public PersistenceService(MetaDataRepository metaDataRepo, PostRepository postRepository,
-                              ImageRepository imageRepository) {
+                              ImageRepository imageRepository, PostParseService postParseService) {
         this.metaDataRepo = metaDataRepo;
         this.postRepository = postRepository;
         this.imageRepository = imageRepository;
+        this.postParseService = postParseService;
+    }
+
+    public void updateDatabase() {
+        postParseService.getAllHtmlPosts()
+                .forEach(post -> {
+                    savePost(post);
+                    // get images of current post
+                    postParseService.extractImages(post)
+                            .forEach(image -> {
+                                saveImage(image);
+                            });
+                    // get corresponding metadata file of current post
+                    PostMetaData metaData = postParseService.findCorrespondingMetadataFile(post);
+                    saveMetaData(metaData);
+                });
     }
 
     public void saveMetaData(PostMetaData metadata) {
