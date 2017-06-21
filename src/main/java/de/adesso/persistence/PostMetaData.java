@@ -1,6 +1,9 @@
 package de.adesso.persistence;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import javax.persistence.*;
+import java.util.Date;
 
 /**
  * This class creates an Object containing the meta information (header) of the blog post
@@ -11,28 +14,31 @@ import javax.persistence.*;
 public class PostMetaData {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(columnDefinition = "VARCHAR(100)", nullable = false)
     private String title;
 
+    @Column(columnDefinition = "VARCHAR(50)")
     private String layout;
 
-    private String slug;
-
+    @Column(columnDefinition = "VARCHAR(150)")
     private String categories;
 
     // TODO: check correct date format or change to a date object
-    @Column(nullable = false)
-    private String date;
+    @Column(name = "POSTED_DATE", nullable = false)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd hh:mm:ss")
+    private Date date;
 
     // TODO: check correct date format or change to a date object
-    private String modifiedDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    private Date modifiedDate;
 
-    @Column(nullable = false)
+    @Column(columnDefinition = "VARCHAR(100)", nullable = false)
     private String author;
 
+    @Column(columnDefinition = "VARCHAR(150)")
     private String tags;
 
     @OneToOne(fetch = FetchType.EAGER)
@@ -43,12 +49,11 @@ public class PostMetaData {
     private PostMetaData() {
     }
 
-    public PostMetaData(String title, String layout, String slug, String categories,
-                        String date, String modifiedDate, String author, String tags,
+    public PostMetaData(String title, String layout, String categories,
+                        Date date, Date modifiedDate, String author, String tags,
                         Post post) {
         this.title = title;
         this.layout = layout;
-        this.slug = slug;
         this.categories = categories;
         this.date = date;
         this.modifiedDate = modifiedDate;
@@ -81,14 +86,6 @@ public class PostMetaData {
         this.layout = layout;
     }
 
-    public String getSlug() {
-        return slug;
-    }
-
-    public void setSlug(String slug) {
-        this.slug = slug;
-    }
-
     public Post getPost() {
         return post;
     }
@@ -105,19 +102,19 @@ public class PostMetaData {
         this.categories = categories;
     }
 
-    public String getDate() {
+    public Date getDate() {
         return date;
     }
 
-    public void setDate(String date) {
+    public void setDate(Date date) {
         this.date = date;
     }
 
-    public String getModifiedDate() {
+    public Date getModifiedDate() {
         return modifiedDate;
     }
 
-    public void setModifiedDate(String modifiedDate) {
+    public void setModifiedDate(Date modifiedDate) {
         this.modifiedDate = modifiedDate;
     }
 

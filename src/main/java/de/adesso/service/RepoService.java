@@ -41,9 +41,25 @@ public class RepoService {
                 System.out.println("Repository cloned successfully");
             } else {
                 System.err.println("WARN: Remote repository is already cloned into local repository");
+                localGit = Git.open(new File(LOCAL_REPO_PATH + "/.git"));
+                System.out.println("Trying to pull remote repository...");
+                pullRemoteRepo();
             }
         } catch (Exception e) {
             LOGGER.error("Error while cloning remote git respository", e);
+        }
+    }
+
+    /**
+     * pulls the remote git repository to receive changes.
+     */
+    public void pullRemoteRepo() {
+        try(Git git = new Git(localGit.getRepository())) {
+            git.pull()
+                .call();
+            localGit.close();
+        } catch (Exception e) {
+            LOGGER.error("Error while fetching remote git repository", e);
         }
     }
 
