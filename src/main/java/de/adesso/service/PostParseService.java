@@ -7,6 +7,8 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -26,6 +28,8 @@ import java.util.stream.Stream;
 @Service
 public class PostParseService {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(PostParseService.class);
+
     /* The path where the generated jekyll files live. */
     @Value("${repository.local.htmlposts.path}")
     private String LOCAL_HTML_POSTS_PATH;
@@ -42,6 +46,7 @@ public class PostParseService {
      * @return List - List of posts
      */
     public List<Post> getAllHtmlPosts() {
+        String method = "getAllHtmlPosts";
         ArrayList<Post> posts = new ArrayList<>();
         try (Stream<Path> htmlFiles = Files.walk(Paths.get(LOCAL_HTML_POSTS_PATH))) {
             htmlFiles
@@ -57,9 +62,9 @@ public class PostParseService {
                             posts.add(post);
                         }
                     });
-            System.out.println("Successfully parsed all HTML post files to post objects!");
+            LOGGER.info("Successfully parsed all HTML post files to post objects!");
         } catch (IOException e) {
-            System.err.println("There was an error reading files: " + e.getMessage());
+            LOGGER.error("In method {}: There was an error reading files: {}", method, e.getMessage());
             e.printStackTrace();
         }
         return posts;
@@ -137,11 +142,12 @@ public class PostParseService {
      * @return String - Post content as HTML code
      */
     private String extractHtmlPostContent(File htmlFile) {
+        String method = "extractHtmlPostContent";
         Document doc = null;
         try {
             doc = Jsoup.parse(htmlFile, "UTF-8");
         } catch (IOException e) {
-            System.err.println(e.getMessage());
+            LOGGER.error("In method {}: There was an error reading files. Error message: {}", method, e.getMessage());
             e.printStackTrace();
         }
         return doc.html();

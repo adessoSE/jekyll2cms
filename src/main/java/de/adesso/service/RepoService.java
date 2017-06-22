@@ -1,9 +1,10 @@
 package de.adesso.service;
 
-import org.apache.log4j.Logger;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +17,7 @@ import java.io.IOException;
 @Service
 public class RepoService {
 
-    private final static Logger LOGGER = Logger.getLogger(RepoService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RepoService.class);
 
     @Value("${repository.local.path}")
     private String LOCAL_REPO_PATH;
@@ -30,21 +31,21 @@ public class RepoService {
      * to a local repository (repository.local.path) if the local repository is not already existing.
      */
     public void cloneRemoteRepo() {
+        String method = "cloneRemoteRepo";
         try {
             if (!localRepositoryExists()) {
                 localGit = Git.cloneRepository()
                         .setURI(REMOTE_REPO_URL)
                         .setDirectory(new File(LOCAL_REPO_PATH))
                         .call();
-                System.out.println("Repository cloned successfully");
+                LOGGER.info("Repository cloned successfully");
             } else {
-                System.err.println("WARN: Remote repository is already cloned into local repository");
+                LOGGER.warn("Remote repository is already cloned into local repository");
                 localGit = Git.open(new File(LOCAL_REPO_PATH + "/.git"));
-                System.out.println("Trying to pull remote repository...");
                 pullRemoteRepo();
             }
         } catch (Exception e) {
-            LOGGER.error("Error while cloning remote git respository", e);
+            LOGGER.error("In method " + method +": Error while cloning remote git respository", e);
         }
     }
 
@@ -52,25 +53,29 @@ public class RepoService {
      * pulls the remote git repository to receive changes.
      */
     public void pullRemoteRepo() {
+        String method = "pullRemoteRepo";
+        LOGGER.info("Trying to pull remote repository...");
         try (Git git = new Git(localGit.getRepository())) {
             git.pull()
                     .call();
             localGit.close();
         } catch (Exception e) {
-            LOGGER.error("Error while fetching remote git repository", e);
+            LOGGER.error("In method "+ method +": Error while pulling remote git repository.", e);
         }
     }
 
     private boolean localRepositoryExists() {
+        String method = "localRepositoryExists";
         try {
             FileRepositoryBuilder repositoryBuilder = new FileRepositoryBuilder();
             repositoryBuilder.setGitDir(new File(LOCAL_REPO_PATH + "/.git"));
             repositoryBuilder.setMustExist(true);
             repositoryBuilder.build();
         } catch (RepositoryNotFoundException e) {
+            LOGGER.error("In method {}: Could not find repository: Error message: {}", method, e.getMessage());
             return false;
         } catch (IOException e) {
-            LOGGER.error("Error while accessing file", e);
+            LOGGER.error("In method {}: Error while accessing file: Error message: {}", method, e.getMessage());
         }
         return true;
     }

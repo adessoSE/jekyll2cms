@@ -6,6 +6,8 @@ import de.adesso.persistence.MetaDataRepository;
 import de.adesso.persistence.Post;
 import de.adesso.persistence.PostMetaData;
 import de.adesso.persistence.PostRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +15,8 @@ import java.util.List;
 
 @Service
 public class PersistenceService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(PersistenceService.class);
 
     private MetaDataRepository metaDataRepo;
     private PostRepository postRepository;
@@ -29,6 +33,7 @@ public class PersistenceService {
     }
 
     public void updateDatabase() {
+        LOGGER.info("Updating database...");
         postParseService.getAllHtmlPosts()
                 .forEach(post -> {
                     savePost(post);
@@ -41,6 +46,7 @@ public class PersistenceService {
                     PostMetaData metaData = postParseService.findCorrespondingMetadataFile(post);
                     saveMetaData(metaData);
                 });
+        LOGGER.info("Updating database was successful.");
     }
 
     public void saveMetaData(PostMetaData metadata) {

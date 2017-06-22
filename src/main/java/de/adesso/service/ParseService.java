@@ -4,12 +4,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import de.adesso.persistence.PostMetaData;
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -19,7 +21,7 @@ import java.util.regex.Pattern;
 @Service
 public class ParseService {
 
-    private final static Logger LOGGER = Logger.getLogger(ParseService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ParseService.class);
 
     // regular expression, used to identify the header of the markdown file
     private final String REGEX_MDFILE = "(-{3}((.|\\n|\\r)*)-{3})((.|\\n|\\r)*)";
@@ -48,11 +50,13 @@ public class ParseService {
      * @return content of file as String
      */
     private String getMdFileContent(File mdFile) {
+        String method = "getMdFileContent";
+
         String mdFileData = "";
         try {
             mdFileData = IOUtils.toString(new FileInputStream(mdFile), "utf-8");
         } catch (IOException ioe) {
-            LOGGER.error("Error while trying to get the content of markdown file. ", ioe);
+            LOGGER.error("In method {}: Error while trying to get the content of a markdown file. Error message: {} ", method, ioe.getMessage());
         }
         return mdFileData;
     }
@@ -81,15 +85,18 @@ public class ParseService {
      * @return parsed PostMetaData
      */
     private PostMetaData getPostMetaData(String mdHeader) {
+        String method = "getPostMetaData";
 
         PostMetaData postMetaData = null;
         try {
             ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
             postMetaData = mapper.readValue(mdHeader.getBytes(), PostMetaData.class);
-            System.out.println("Parsed meta information: " + postMetaData);
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
+            LOGGER.info("Parsed meta information: {}-{}", sdf.format(postMetaData.getDate()), postMetaData.getTitle() );
 
         } catch (IOException ioe) {
-            LOGGER.error("Error while mapping meta information. ", ioe);
+            LOGGER.error("In method {}: Error while mapping meta information. Error message: {} ", method, ioe.getMessage());
         }
         return postMetaData;
     }
