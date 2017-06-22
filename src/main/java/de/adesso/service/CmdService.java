@@ -119,7 +119,7 @@ public class CmdService {
     @SuppressWarnings("unused")
     private void update() {
         persistenceService.updateDatabase();
-        //imageService.runImageMagickResize();
+        //imageService.transformAllImages();
     }
 
     /**

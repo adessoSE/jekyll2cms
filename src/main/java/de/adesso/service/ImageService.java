@@ -55,12 +55,14 @@ public class ImageService {
     /**
      * transforms the images of all the posts into the resolutions specified within the ImageResolution enum.
      */
-    public void runImageMagickResize() {
-        String method = "runImageMagickResize";
+    public void transformAllImages() {
+        String method = "transformAllImages";
+
         List<Image> images = persistenceService.loadAllImages();
         for (Image image : images) {
             String imageUrl = image.getUrl();
             String imageName = imageUrl.substring(imageUrl.lastIndexOf("/") + 1, imageUrl.lastIndexOf("."));
+            String imageFormat = imageUrl.substring(imageUrl.lastIndexOf("."));
 
             int imageWidth = 0;
             LOGGER.info("Processing image {} with image name {}", imageUrl, imageName);
@@ -74,9 +76,17 @@ public class ImageService {
             for (ImageResolution imgRes : ImageResolution.values()) {
                 int imageDefinedWidth = imgRes.getValue();
                 if (imageWidth > imageDefinedWidth) {
-                    String outputFileName = imageName + "_" + imgRes.toString().toLowerCase() + "_" + imageDefinedWidth + ".png";
+                    String outputFileName =
+                            new StringBuilder()
+                                    .append(imageName)
+                                    .append("_")
+                                    .append(imgRes.toString().toLowerCase())
+                                    .append("_")
+                                    .append(imageDefinedWidth)
+                                    .append(imageFormat)
+                                    .toString();
                     String commandLine = this.setBasicConvertCommand(imageUrl, imageDefinedWidth, outputFileName);
-                    this.runResizeCommand(commandLine);
+                    this.runBasicConvertCommand(commandLine);
                 }
 
             }
@@ -84,11 +94,11 @@ public class ImageService {
     }
 
     /**
-     * runs the resize command provided by the parameter.
+     * runs the basic convert command provided by the parameter.
      *
      * @param commandLine
      */
-    private void runResizeCommand(String commandLine) {
+    private void runBasicConvertCommand(String commandLine) {
         CommandLine cmdLine = CommandLine.parse(commandLine);
         DefaultExecutor executor = new DefaultExecutor();
         executor.setWorkingDirectory(new File(COMMAND_LINE_PATH));
