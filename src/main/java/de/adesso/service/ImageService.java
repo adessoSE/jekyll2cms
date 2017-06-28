@@ -62,14 +62,14 @@ public class ImageService {
         for (Image image : images) {
             String imageUrl = image.getUrl();
             String imageName = imageUrl.substring(imageUrl.lastIndexOf("/") + 1, imageUrl.lastIndexOf("."));
-            String imageFormat = imageUrl.substring(imageUrl.lastIndexOf("."));
+            String imageFormat = imageUrl.substring(imageUrl.lastIndexOf(".") + 1);
 
             int imageWidth = 0;
             LOGGER.info("Processing image {} with image name {}", imageUrl, imageName);
             try {
                 imageWidth = new Info(imageUrl, true).getImageWidth();
             } catch (InfoException e) {
-                LOGGER.error("In method "+ method + ": Could not get image info from image: " + imageUrl, e);
+                LOGGER.error("In method " + method + ": Could not get image info from image: " + imageUrl, e);
                 e.printStackTrace();
             }
 
@@ -77,14 +77,7 @@ public class ImageService {
                 int imageDefinedWidth = imgRes.getValue();
                 if (imageWidth > imageDefinedWidth) {
                     String outputFileName =
-                            new StringBuilder()
-                                    .append(imageName)
-                                    .append("_")
-                                    .append(imgRes.toString().toLowerCase())
-                                    .append("_")
-                                    .append(imageDefinedWidth)
-                                    .append(imageFormat)
-                                    .toString();
+                            String.format("%s_%s_%s.%s", imageName, imgRes.toString().toLowerCase(), imageDefinedWidth, imageFormat);
                     String commandLine = this.setBasicConvertCommand(imageUrl, imageDefinedWidth, outputFileName);
                     this.runBasicConvertCommand(commandLine);
                 }

@@ -35,7 +35,7 @@ public class CmdService {
 
     @Autowired
     public CmdService(RepoService repoService, JekyllService jekyllService,
-                      PersistenceService persistenceService, PostParseService postParseService,
+                      PersistenceService persistenceService,
                       ImageService imageService) {
         this.repoService = repoService;
         this.jekyllService = jekyllService;
