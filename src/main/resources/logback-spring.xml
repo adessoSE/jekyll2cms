@@ -48,7 +48,7 @@
                 <!-- daily rollover -->
                 <fileNamePattern>${LOG_ARCHIVE}/logfile_archive-%d{yyyyMMdd}.log</fileNamePattern>
 
-                <!-- keep 30 days' worth of history capped at 3GB total size -->
+                <!-- keep 30 days' worth of history capped at 1MB total size -->
                 <maxHistory>30</maxHistory>
                 <totalSizeCap>1MB</totalSizeCap>
             </rollingPolicy>
