@@ -2,40 +2,23 @@ package de.adesso.persistence;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
 import java.util.Date;
 
 /**
  * This class creates an Object containing the meta information (header) of the blog post
  * that was created using markdown language of jekyll.
  */
-@Entity
-@Table(name = "POST_META_DATA")
 public class PostMetaData {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(columnDefinition = "VARCHAR(100)", nullable = false)
     private String title;
 
-    @Column(columnDefinition = "VARCHAR(50)")
     private String layout;
 
-    @Column(columnDefinition = "VARCHAR(150)")
     private String categories;
 
     // TODO: check correct date format or change to a date object
-    @Column(name = "POSTED_DATE", nullable = false)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd hh:mm")
     private Date date;
 
@@ -43,18 +26,15 @@ public class PostMetaData {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private Date modifiedDate;
 
-    @Column(columnDefinition = "VARCHAR(100)", nullable = false)
     private String author;
 
-    @Column(columnDefinition = "VARCHAR(150)")
     private String tags;
 
-    @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "POST_ID")
+    private String subline;
+
     private Post post;
 
-    // needed by JPA
-    private PostMetaData() {
+    public PostMetaData() {
     }
 
     public PostMetaData(String title, String layout, String categories,
@@ -140,6 +120,14 @@ public class PostMetaData {
 
     public void setTags(String tags) {
         this.tags = tags;
+    }
+
+    public String getSubline() {
+        return subline;
+    }
+
+    public void setSubline(String subline) {
+        this.subline = subline;
     }
 
     @Override

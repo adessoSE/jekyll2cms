@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -24,7 +25,6 @@ public class ImageService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ImageService.class);
 
-    private PersistenceService persistenceService;
 
     @Value("${imagemagick.convert.path}")
     public String CONVERT_PATH;
@@ -35,10 +35,8 @@ public class ImageService {
     @Value("${imagemagick.commandline.output.path}")
     public String COMMAND_LINE_PATH;
 
-    @Autowired
-    public ImageService(PersistenceService persistenceService) {
-        this.persistenceService = persistenceService;
-    }
+
+    public ImageService() {}
 
     /**
      * Sets a basic convert command with the provided parameters. The command is used with the ImageMagick processor.
@@ -58,7 +56,8 @@ public class ImageService {
     public void transformAllImages() {
         String method = "transformAllImages";
 
-        List<Image> images = persistenceService.loadAllImages();
+        // TODO WARNING: NullPointerException. => fill image list first
+        List<Image> images = new ArrayList<>();
         for (Image image : images) {
             String imageUrl = image.getUrl();
             String imageName = imageUrl.substring(imageUrl.lastIndexOf("/") + 1, imageUrl.lastIndexOf("."));

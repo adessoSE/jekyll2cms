@@ -3,6 +3,7 @@
 !gradle/wrapper/gradle-wrapper.jar
 out/*
 repo/*
+xml-output/*
 
 ### STS ###
 .apt_generated

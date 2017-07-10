@@ -2,48 +2,36 @@ package de.adesso.persistence;
 
 import de.adesso.util.MD5Hash;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 import java.util.List;
 
 /**
  * This class creates a post object with the given fields.
  */
-@Entity
 public class Post {
 
     /* unique ID of the post */
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     /* The content of the post */
-    @Column(columnDefinition = "TEXT")
     private String content;
 
     /* The teaserXml text of the post */
-    @Column(columnDefinition = "TEXT")
     private String teaserXml;
 
+    /* The teaserHtml text of the post */
+    private String teaserHtml;
+
     /* The searchXml text of the post */
-    @Column(columnDefinition = "TEXT")
     private String searchXml;
 
     /* hash value of post content */
-    @Column(columnDefinition = "VARCHAR2(64)")
     private String hashValue;
 
     /* List of the images included in this post */
-    @OneToMany(mappedBy = "post", fetch = FetchType.EAGER)
     private List<Image> images;
 
-    // needed by JPA
-    private Post() {
+    public Post() {
     }
 
     /**
@@ -87,6 +75,14 @@ public class Post {
         this.teaserXml = teaserXml;
     }
 
+    public String getTeaserHtml() {
+        return teaserHtml;
+    }
+
+    public void setTeaserHtml(String teaserHtml) {
+        this.teaserHtml = teaserHtml;
+    }
+
     public String getSearchXml() {
         return searchXml;
     }
@@ -116,8 +112,7 @@ public class Post {
         return "Post{" +
                 "id=" + id +
                 ", content='" + content + '\'' +
-                ", teaserXml='" + teaserXml + '\'' +
-                ", searchXml='" + searchXml + '\'' +
+                ", teaserHtml='" + teaserHtml + '\'' +
                 '}';
     }
 }

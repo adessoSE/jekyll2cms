@@ -57,7 +57,7 @@ public class PostParseService {
                             // get the contents of the post
                             String htmlContent = extractHtmlPostContent(new File(filePath));
                             Post post = new Post(htmlContent);
-                            post.setTeaserXml(extractPostContentFirstParagraph(htmlContent));
+                            post.setTeaserHtml(extractPostContentFirstParagraph(htmlContent));
                             post.generateHashValue(htmlContent);
                             posts.add(post);
                         }

@@ -26,21 +26,18 @@ public class CmdService {
 
     private RepoService repoService;
     private JekyllService jekyllService;
-    private PersistenceService persistenceService;
     private ImageService imageService;
+    private XmlParseService xmlParseService;
 
     private String[] arguments;
     private CommandLine parsedCommands;
     private Options options = new Options();
 
     @Autowired
-    public CmdService(RepoService repoService, JekyllService jekyllService,
-                      PersistenceService persistenceService,
-                      ImageService imageService) {
+    public CmdService(RepoService repoService, JekyllService jekyllService, XmlParseService xmlParseService) {
         this.repoService = repoService;
         this.jekyllService = jekyllService;
-        this.persistenceService = persistenceService;
-        this.imageService = imageService;
+        this.xmlParseService = xmlParseService;
     }
 
     /**
@@ -116,10 +113,8 @@ public class CmdService {
         jekyllService.runJekyllBuild();
     }
 
-    @SuppressWarnings("unused")
-    private void update() {
-        persistenceService.updateDatabase();
-        //imageService.transformAllImages();
+    private void generate() {
+        xmlParseService.generateXmlPostFiles();
     }
 
     /**
