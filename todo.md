@@ -4,7 +4,7 @@
 - [ ] Create job for GitHub-Pull
 - [ ] Read metadata from markdown files
 - [ ] Read author information from authors.yml file
-- [x] Generate Jekyll-blog 
+- [ ] Generate Jekyll-blog 
 - [ ] Detect new and changed posts
 - [ ] Generate XML from new and changed posts
 - [ ] Push generated XML to GitHub
