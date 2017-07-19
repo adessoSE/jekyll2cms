@@ -41,9 +41,6 @@ public class PostParseService {
     @Autowired
     private ParseService parseService;
 
-    @Autowired
-    private AuthorsYamlService authorsYamlService;
-
     /**
      * Searches HTML files within the given file path an generate posts from them.
      *
@@ -164,10 +161,6 @@ public class PostParseService {
             e.printStackTrace();
         }
         return doc.html();
-    }
-
-    private Author extractAuthorFromYaml(String yamlFile) {
-        return null;
     }
 
     /**

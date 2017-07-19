@@ -1,13 +1,7 @@
 package de.adesso.service;
 
 import de.adesso.util.Command;
-import org.apache.commons.cli.BasicParser;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
-import org.apache.commons.cli.UnrecognizedOptionException;
+import org.apache.commons.cli.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -116,9 +110,9 @@ public class CmdService {
         jekyllService.runJekyllBuild();
     }
 
-    private void generate() {
+    /*private void generate() {
         xmlParseService.generateXmlPostFiles();
-    }
+    }*/
 
     @SuppressWarnings("unused")
     private void update() {

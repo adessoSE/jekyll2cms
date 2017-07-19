@@ -92,6 +92,14 @@ public class Post {
         this.images = images;
     }
 
+    public PostMetaData getPostMetaData() {
+        return postMetaData;
+    }
+
+    public void setPostMetaData(PostMetaData postMetaData) {
+        this.postMetaData = postMetaData;
+    }
+
     @Override
     public String toString() {
         return "Post{" +

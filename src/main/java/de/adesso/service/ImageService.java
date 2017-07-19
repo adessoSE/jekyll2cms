@@ -8,7 +8,6 @@ import org.im4java.core.Info;
 import org.im4java.core.InfoException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -34,9 +33,6 @@ public class ImageService {
 
     @Value("${imagemagick.commandline.output.path}")
     public String COMMAND_LINE_PATH;
-
-
-    public ImageService() {}
 
     /**
      * Sets a basic convert command with the provided parameters. The command is used with the ImageMagick processor.

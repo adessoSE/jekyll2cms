@@ -1,6 +1,7 @@
 package de.adesso.service;
 
-import de.adesso.persistence.*;
+import de.adesso.persistence.Post;
+import de.adesso.persistence.PostMetaData;
 import de.adesso.xml.Document;
 import de.adesso.xml.Documents;
 import de.adesso.xml.Field;
@@ -28,12 +29,12 @@ public class XmlParseService {
 
     private PostParseService postParseService;
 
+    private List<Field> fields;
+
     @Autowired
     public XmlParseService(PostParseService postParseService) {
         this.postParseService = postParseService;
     }
-
-    private List<Field> fields;
 
     public XmlParseService(){
     }

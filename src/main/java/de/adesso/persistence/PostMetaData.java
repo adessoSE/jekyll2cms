@@ -2,7 +2,6 @@ package de.adesso.persistence;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreType;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -39,11 +38,11 @@ public class PostMetaData {
 
     private String subline;
 
-    private String language_multi_keyword;
+    private String languageMultiKeyword;
 
-    private String content_type_multi_keyword;
+    private String contentTypeMultiKeyword;
 
-    private String mime_type_multi_keyword;
+    private String mimeTypeMultiKeyword;
 
     /* hash value of post content */
     private String hashValue;
@@ -148,28 +147,28 @@ public class PostMetaData {
         this.authors = authors;
     }
 
-    public String getLanguage_multi_keyword() {
-        return language_multi_keyword;
+    public String getLanguageMultiKeyword() {
+        return languageMultiKeyword;
     }
 
-    public void setLanguage_multi_keyword(String language_multi_keyword) {
-        this.language_multi_keyword = language_multi_keyword;
+    public void setLanguageMultiKeyword(String languageMultiKeyword) {
+        this.languageMultiKeyword = languageMultiKeyword;
     }
 
-    public String getContent_type_multi_keyword() {
-        return content_type_multi_keyword;
+    public String getContentTypeMultiKeyword() {
+        return contentTypeMultiKeyword;
     }
 
-    public void setContent_type_multi_keyword(String content_type_multi_keyword) {
-        this.content_type_multi_keyword = content_type_multi_keyword;
+    public void setContentTypeMultiKeyword(String contentTypeMultiKeyword) {
+        this.contentTypeMultiKeyword = contentTypeMultiKeyword;
     }
 
-    public String getMime_type_multi_keyword() {
-        return mime_type_multi_keyword;
+    public String getMimeTypeMultiKeyword() {
+        return mimeTypeMultiKeyword;
     }
 
-    public void setMime_type_multi_keyword(String mime_type_multi_keyword) {
-        this.mime_type_multi_keyword = mime_type_multi_keyword;
+    public void setMimeTypeMultiKeyword(String mimeTypeMultiKeyword) {
+        this.mimeTypeMultiKeyword = mimeTypeMultiKeyword;
     }
 
     public String getHashValue() {
@@ -216,9 +215,9 @@ public class PostMetaData {
                 ", authors=" + printAuthorsAsString() +
                 ", tags='" + tags + '\'' +
                 ", subline='" + subline + '\'' +
-                ", language_multi_keyword='" + language_multi_keyword + '\'' +
-                ", content_type_multi_keyword='" + content_type_multi_keyword + '\'' +
-                ", mime_type_multi_keyword='" + mime_type_multi_keyword + '\'' +
+                ", languageMultiKeyword='" + languageMultiKeyword + '\'' +
+                ", contentTypeMultiKeyword='" + contentTypeMultiKeyword + '\'' +
+                ", mimeTypeMultiKeyword='" + mimeTypeMultiKeyword + '\'' +
                 ", post=" + post +
                 '}';
     }

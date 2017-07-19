@@ -1,12 +1,13 @@
 package de.adesso.service;
 
-import de.adesso.persistence.*;
+import de.adesso.persistence.Post;
+import de.adesso.persistence.PostMetaData;
+import de.adesso.persistence.PostMetaDataRepository;
+import de.adesso.persistence.PostRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class PersistenceService {
@@ -32,12 +33,13 @@ public class PersistenceService {
                 .forEach(post -> {
                     //savePost(post);
                     // get images of current post
-                    /*postParseService.extractImages(post)
-                            .forEach(image -> {
-                                saveImage(image);
-                            });*/
+//                    postParseService.extractImages(post)
+//                            .forEach(image -> {
+//                                saveImage(image);
+//                            });
                     // get corresponding metadata file of current post
-                    PostMetaData metaData = postParseService.findCorrespondingMetadataFile(post);
+                    // TODO add PostMetaData metadata = ... 
+                    postParseService.findCorrespondingMetadataFile(post);
                     //saveMetaData(metaData);
                 });
         LOGGER.info("Updating database was successful.");
