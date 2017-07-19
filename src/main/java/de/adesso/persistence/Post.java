@@ -8,9 +8,12 @@ import java.util.List;
 /**
  * This class creates a post object with the given fields.
  */
+@Entity
 public class Post {
 
     /* unique ID of the post */
+    @Id
+    @GeneratedValue
     private Long id;
 
     /* The content of the post */
@@ -23,6 +26,7 @@ public class Post {
     private String hashValue;
 
     /* List of the images included in this post */
+    @Transient
     private List<Image> images;
 
     @OneToOne(mappedBy = "post")

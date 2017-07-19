@@ -1,7 +1,12 @@
 package de.adesso.persistence;
 
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
 import javax.persistence.*;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -10,13 +15,15 @@ public class Author {
     @GeneratedValue
     private Long id;
 
-    private String firstName;
-    private String lastName;
+    private String name;
+    @JsonProperty("git_username")
     private String gitUsername;
+    @JsonProperty("picture_url")
     private String pictureUrl;
     private String bio;
-    private String githubUrl;
-    private String emailAddress;
+    private String github;
+    private String email;
+
 
     @ManyToMany(mappedBy = "authors")
     private Set<PostMetaData> posts;
@@ -24,9 +31,8 @@ public class Author {
     public Author() {
     }
 
-    public Author(String firstName, String lastName) {
-        this.firstName = firstName;
-        this.lastName = lastName;
+    public Author(String name) {
+        this.name = name;
     }
 
     public Long getId() {
@@ -37,20 +43,12 @@ public class Author {
         this.id = id;
     }
 
-    public String getFirstName() {
-        return firstName;
+    public String getName() {
+        return name;
     }
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getGitUsername() {
@@ -77,20 +75,20 @@ public class Author {
         this.bio = bio;
     }
 
-    public String getGithubUrl() {
-        return githubUrl;
+    public String getGithub() {
+        return github;
     }
 
-    public void setGithubUrl(String githubUrl) {
-        this.githubUrl = githubUrl;
+    public void setGithub(String github) {
+        this.github = github;
     }
 
-    public String getEmailAddress() {
-        return emailAddress;
+    public String getEmail() {
+        return email;
     }
 
-    public void setEmailAddress(String emailAddress) {
-        this.emailAddress = emailAddress;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public Set<PostMetaData> getPosts() {
@@ -109,31 +107,27 @@ public class Author {
         Author author = (Author) o;
 
         if (!id.equals(author.id)) return false;
-        if (firstName != null ? !firstName.equals(author.firstName) : author.firstName != null) return false;
-        if (lastName != null ? !lastName.equals(author.lastName) : author.lastName != null) return false;
-        return gitUsername.equals(author.gitUsername);
+        return name.equals(author.name);
     }
 
     @Override
     public int hashCode() {
-        int result = id.hashCode();
-        result = 31 * result + (firstName != null ? firstName.hashCode() : 0);
-        result = 31 * result + (lastName != null ? lastName.hashCode() : 0);
-        result = 31 * result + gitUsername.hashCode();
+        int result = 23;
+        result = 31 * result + name.hashCode();
         return result;
     }
 
     @Override
     public String toString() {
-        return "Author{\n" +
+        return "Author{" +
                 "id=" + id +
-                ", \nfirstName='" + firstName + '\'' +
-                ", \nlastName='" + lastName + '\'' +
-                ", \ngitUsername='" + gitUsername + '\'' +
-                ", \npictureUrl='" + pictureUrl + '\'' +
-                ", \nbio='" + bio + '\'' +
-                ", \ngithubUrl='" + githubUrl + '\'' +
-                ", \nemailAddress='" + emailAddress + '\'' +
+                ", name='" + name + '\'' +
+                ", gitUsername='" + gitUsername + '\'' +
+                ", pictureUrl='" + pictureUrl + '\'' +
+                ", bio='" + bio + '\'' +
+                ", github='" + github + '\'' +
+                ", email='" + email + '\'' +
+                ", posts=" + posts +
                 '}';
     }
 }

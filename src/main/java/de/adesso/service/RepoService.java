@@ -59,6 +59,7 @@ public class RepoService {
             git.pull()
                     .call();
             localGit.close();
+            LOGGER.info("Repository pulled successfully!");
         } catch (Exception e) {
             LOGGER.error("In method "+ method +": Error while pulling remote git repository.", e);
         }

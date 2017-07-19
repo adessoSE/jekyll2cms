@@ -1,74 +1,69 @@
 package de.adesso.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import de.adesso.persistence.Author;
 import org.springframework.stereotype.Service;
-import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.constructor.Constructor;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+/**
+ * This service handles all parsing functionalities of the authors.yml file.
+ */
 @Service
 public class AuthorsYamlService {
 
-    public List<Author> parseAuthorsYaml(String yamlFile) {
+    /**
+     * Parses the given authors.yml file to a list of Authors.
+     * @param authorsYamlFile - authors.yml file
+     * @return List - a list of author objects.
+     */
+    public List<Author> parseAuthorsYamlFile(String authorsYamlFile) {
         List<Author> authors = new ArrayList<>();
-
-        Yaml yaml = new Yaml(new Constructor(List.class));
-        List authorsYamlAsList = null;
-        InputStream fin = null;
-
+        Author author = null;
+        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+        JsonNode root = null;
         try {
-            fin = new FileInputStream(new File(yamlFile));
-            authorsYamlAsList = (List) yaml.load(fin);
+            root = mapper.readTree(new File(authorsYamlFile));
+            Iterator<JsonNode> authorIterator = root.iterator();
+            while(authorIterator.hasNext()) {
+                JsonNode authorNode = authorIterator.next();
+                author = mapper.treeToValue(authorNode, Author.class);
+                authors.add(author);
+            }
+
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            if (fin != null) {
-                try {
-                    fin.close();
-                } catch (Exception e) {
-                    // no-op
-                }
-            }
         }
 
-        for(int i = 0; i < authorsYamlAsList.size(); i++) {
-
-            // for explanation of Map<?, ?>... go to https://stackoverflow.com/a/13387897
-            Map<?, ?> authorInfos = (LinkedHashMap<?, ?>) authorsYamlAsList.get(i);
-            Author author = new Author();
-            for (Map.Entry<?, ?> entry : authorInfos.entrySet()) {
-
-
-                String key = (String) entry.getKey();
-                if(key.equals("git_username")) author.setGitUsername((String) entry.getValue());
-
-                if(key.equals("first_name")) author.setFirstName((String) entry.getValue());
-
-                if(key.equals("last_name")) author.setLastName((String) entry.getValue());
-
-                if(key.equals("email")) author.setEmailAddress((String) entry.getValue());
-
-                if(key.equals("bio")) author.setBio((String) entry.getValue());
-
-                if(key.equals("picture_url")) author.setPictureUrl((String) entry.getValue());
-
-                if(key.equals("github")) author.setGithubUrl((String) entry.getValue());
-
-            }
-            authors.add(author);
-            System.out.println(author);
-            System.out.println("=============================");
-
-        }
         return authors;
-
     }
+
+    /**
+     * Finds a specified author name in the given given yaml file and maps the author to an Auhtor object
+     * @param authorsYamlFile - authors.yml file
+     * @param name - authors name under which that authors information lives.
+     * @return Author - author object
+     */
+    public Author findAuthorInAuthorsYamlFile(String authorsYamlFile, String name) {
+        Author author = null;
+        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+        JsonNode root = null;
+        JsonNode authorNode = null;
+        try {
+            root = mapper.readTree(new File(authorsYamlFile));
+            authorNode = root.findPath(name);
+            if(authorNode != null) {
+                author = mapper.treeToValue(authorNode, Author.class);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return author;
+    }
+
 }

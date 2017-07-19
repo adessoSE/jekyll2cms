@@ -13,6 +13,7 @@ public enum Command {
     HELP("h", "help", "Show help"),
     CLONE("c", "cloneRepo", "Clone remote repository"),
     BUILD("b", "build", "Run jekyll build command locally"),
+    UPDATE("u", "update", "Updates database with new/changed content"),
     GENERATE_XML("g", "generate", "Generate XML files");
 
     private String shortName;

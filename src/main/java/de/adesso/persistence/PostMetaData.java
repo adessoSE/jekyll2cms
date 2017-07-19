@@ -1,9 +1,12 @@
 package de.adesso.persistence;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreType;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -14,6 +17,8 @@ import java.util.Set;
 @Entity
 public class PostMetaData {
 
+    @Id
+    @GeneratedValue
     private Long id;
 
     private String title;
@@ -49,13 +54,18 @@ public class PostMetaData {
             joinColumns = {@JoinColumn(name = "post_meta_data_id")},
             inverseJoinColumns = {@JoinColumn(name = "author_id")}
     )
+    @JsonIgnore
     private Set<Author> authors;
+
+    @JsonIgnore
+    private String author;
 
     @OneToOne
     @JoinColumn(name = "post_id", unique = true)
     private Post post;
 
     public PostMetaData() {
+        authors = new HashSet<>();
     }
 
     public Long getId() {
@@ -170,6 +180,13 @@ public class PostMetaData {
         this.hashValue = hashValue;
     }
 
+    public String getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(String author) {
+        this.author = author;
+    }
 
     public String printAuthorsAsString() {
         StringBuilder author = new StringBuilder();

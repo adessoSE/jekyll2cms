@@ -131,13 +131,21 @@ public class PostParseService {
     }
 
     /**
+     * TODO Optimization for case where file does not have extension
      * cut off the extension of file names.
      *
      * @param fileName - The file name of interest.
      * @return String
      */
     private String cutOffFileExtension(String fileName) {
-        return fileName.substring(0, fileName.lastIndexOf("."));
+        String fileNameWithoutExtension = "";
+        if(fileName.contains(".")) {
+            fileNameWithoutExtension = fileName.substring(0, fileName.lastIndexOf("."));
+        }
+        else {
+            fileNameWithoutExtension = fileName;
+        }
+        return fileNameWithoutExtension;
     }
 
     /**
