@@ -1,5 +1,6 @@
 package de.adesso.service;
 
+import de.adesso.persistence.Author;
 import de.adesso.persistence.Image;
 import de.adesso.persistence.Post;
 import de.adesso.persistence.PostMetaData;
@@ -57,7 +58,7 @@ public class PostParseService {
                             // get the contents of the post
                             String htmlContent = extractHtmlPostContent(new File(filePath));
                             Post post = new Post(htmlContent);
-                            post.setTeaserXml(extractPostContentFirstParagraph(htmlContent));
+                            post.setTeaserHtml(extractPostContentFirstParagraph(htmlContent));
                             post.generateHashValue(htmlContent);
                             posts.add(post);
                         }
@@ -96,6 +97,7 @@ public class PostParseService {
                             && htmlContent.equals(post.getContent())) {
                         postMetaData = parseService.getMetaInformationFromPost(metadataFile);
                         postMetaData.setPost(post);
+                        // postMetaData.getAuthors();
                         return postMetaData;
                     }
                 }
@@ -126,13 +128,21 @@ public class PostParseService {
     }
 
     /**
+     * TODO Optimization for case where file does not have extension
      * cut off the extension of file names.
      *
      * @param fileName - The file name of interest.
      * @return String
      */
     private String cutOffFileExtension(String fileName) {
-        return fileName.substring(0, fileName.lastIndexOf("."));
+        String fileNameWithoutExtension = "";
+        if(fileName.contains(".")) {
+            fileNameWithoutExtension = fileName.substring(0, fileName.lastIndexOf("."));
+        }
+        else {
+            fileNameWithoutExtension = fileName;
+        }
+        return fileNameWithoutExtension;
     }
 
     /**

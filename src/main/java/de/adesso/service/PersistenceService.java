@@ -1,34 +1,29 @@
 package de.adesso.service;
 
-import de.adesso.persistence.Image;
-import de.adesso.persistence.ImageRepository;
-import de.adesso.persistence.MetaDataRepository;
 import de.adesso.persistence.Post;
 import de.adesso.persistence.PostMetaData;
+import de.adesso.persistence.PostMetaDataRepository;
 import de.adesso.persistence.PostRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
 public class PersistenceService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PersistenceService.class);
 
-    private MetaDataRepository metaDataRepo;
+    private PostMetaDataRepository metaDataRepo;
     private PostRepository postRepository;
-    private ImageRepository imageRepository;
+    // private ImageRepository imageRepository;
     private PostParseService postParseService;
 
     @Autowired
-    public PersistenceService(MetaDataRepository metaDataRepo, PostRepository postRepository,
-                              ImageRepository imageRepository, PostParseService postParseService) {
+    public PersistenceService(PostMetaDataRepository metaDataRepo, PostRepository postRepository,
+                              PostParseService postParseService) {
         this.metaDataRepo = metaDataRepo;
         this.postRepository = postRepository;
-        this.imageRepository = imageRepository;
         this.postParseService = postParseService;
     }
 
@@ -36,15 +31,16 @@ public class PersistenceService {
         LOGGER.info("Updating database...");
         postParseService.getAllHtmlPosts()
                 .forEach(post -> {
-                    savePost(post);
+                    //savePost(post);
                     // get images of current post
-                    postParseService.extractImages(post)
-                            .forEach(image -> {
-                                saveImage(image);
-                            });
+//                    postParseService.extractImages(post)
+//                            .forEach(image -> {
+//                                saveImage(image);
+//                            });
                     // get corresponding metadata file of current post
-                    PostMetaData metaData = postParseService.findCorrespondingMetadataFile(post);
-                    saveMetaData(metaData);
+                    // TODO add PostMetaData metadata = ... 
+                    postParseService.findCorrespondingMetadataFile(post);
+                    //saveMetaData(metaData);
                 });
         LOGGER.info("Updating database was successful.");
     }
@@ -57,11 +53,11 @@ public class PersistenceService {
         postRepository.save(post);
     }
 
-    public void saveImage(Image image) {
+    /*public void saveImage(Image image) {
         imageRepository.save(image);
     }
 
     public List<Image> loadAllImages() {
         return imageRepository.findAll();
-    }
+    }*/
 }

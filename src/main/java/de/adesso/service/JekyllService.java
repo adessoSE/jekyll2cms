@@ -45,6 +45,7 @@ public class JekyllService {
             printJekyllBuildStatus(exitValue, jekyllBuildOutput.toString());
         } catch (IOException e) {
             LOGGER.error("In method {}: Error while executing jekyll build. Error message: {}", method, e.getMessage());
+            e.printStackTrace();
         }
 
     }

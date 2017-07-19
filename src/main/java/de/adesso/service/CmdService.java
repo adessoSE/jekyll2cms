@@ -1,13 +1,7 @@
 package de.adesso.service;
 
 import de.adesso.util.Command;
-import org.apache.commons.cli.BasicParser;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
-import org.apache.commons.cli.UnrecognizedOptionException;
+import org.apache.commons.cli.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,21 +20,21 @@ public class CmdService {
 
     private RepoService repoService;
     private JekyllService jekyllService;
+//    private ImageService imageService;
+    private XmlParseService xmlParseService;
     private PersistenceService persistenceService;
-    private ImageService imageService;
 
     private String[] arguments;
     private CommandLine parsedCommands;
     private Options options = new Options();
 
     @Autowired
-    public CmdService(RepoService repoService, JekyllService jekyllService,
-                      PersistenceService persistenceService,
-                      ImageService imageService) {
+    public CmdService(RepoService repoService, JekyllService jekyllService, XmlParseService xmlParseService,
+                      PersistenceService persistenceService) {
         this.repoService = repoService;
         this.jekyllService = jekyllService;
+        this.xmlParseService = xmlParseService;
         this.persistenceService = persistenceService;
-        this.imageService = imageService;
     }
 
     /**
@@ -115,6 +109,10 @@ public class CmdService {
     private void build() {
         jekyllService.runJekyllBuild();
     }
+
+    /*private void generate() {
+        xmlParseService.generateXmlPostFiles();
+    }*/
 
     @SuppressWarnings("unused")
     private void update() {

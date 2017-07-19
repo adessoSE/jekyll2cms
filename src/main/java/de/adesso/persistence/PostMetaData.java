@@ -1,41 +1,32 @@
 package de.adesso.persistence;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 /**
  * This class creates an Object containing the meta information (header) of the blog post
  * that was created using markdown language of jekyll.
  */
 @Entity
-@Table(name = "POST_META_DATA")
 public class PostMetaData {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue
     private Long id;
 
-    @Column(columnDefinition = "VARCHAR(100)", nullable = false)
     private String title;
 
-    @Column(columnDefinition = "VARCHAR(50)")
     private String layout;
 
-    @Column(columnDefinition = "VARCHAR(150)")
     private String categories;
 
     // TODO: check correct date format or change to a date object
-    @Column(name = "POSTED_DATE", nullable = false)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd hh:mm")
     private Date date;
 
@@ -43,31 +34,37 @@ public class PostMetaData {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private Date modifiedDate;
 
-    @Column(columnDefinition = "VARCHAR(100)", nullable = false)
-    private String author;
-
-    @Column(columnDefinition = "VARCHAR(150)")
     private String tags;
 
-    @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "POST_ID")
+    private String subline;
+
+    private String languageMultiKeyword;
+
+    private String contentTypeMultiKeyword;
+
+    private String mimeTypeMultiKeyword;
+
+    /* hash value of post content */
+    private String hashValue;
+
+    @ManyToMany(cascade = {CascadeType.PERSIST})
+    @JoinTable(
+            name = "post_author_relation",
+            joinColumns = {@JoinColumn(name = "post_meta_data_id")},
+            inverseJoinColumns = {@JoinColumn(name = "author_id")}
+    )
+    @JsonIgnore
+    private Set<Author> authors;
+
+    @JsonIgnore
+    private String author;
+
+    @OneToOne
+    @JoinColumn(name = "post_id", unique = true)
     private Post post;
 
-    // needed by JPA
-    private PostMetaData() {
-    }
-
-    public PostMetaData(String title, String layout, String categories,
-                        Date date, Date modifiedDate, String author, String tags,
-                        Post post) {
-        this.title = title;
-        this.layout = layout;
-        this.categories = categories;
-        this.date = date;
-        this.modifiedDate = modifiedDate;
-        this.author = author;
-        this.tags = tags;
-        this.post = post;
+    public PostMetaData() {
+        authors = new HashSet<>();
     }
 
     public Long getId() {
@@ -126,14 +123,6 @@ public class PostMetaData {
         this.modifiedDate = modifiedDate;
     }
 
-    public String getAuthor() {
-        return author;
-    }
-
-    public void setAuthor(String author) {
-        this.author = author;
-    }
-
     public String getTags() {
         return tags;
     }
@@ -142,16 +131,94 @@ public class PostMetaData {
         this.tags = tags;
     }
 
+    public String getSubline() {
+        return subline;
+    }
+
+    public void setSubline(String subline) {
+        this.subline = subline;
+    }
+
+    public Set<Author> getAuthors() {
+        return authors;
+    }
+
+    public void setAuthors(Set<Author> authors) {
+        this.authors = authors;
+    }
+
+    public String getLanguageMultiKeyword() {
+        return languageMultiKeyword;
+    }
+
+    public void setLanguageMultiKeyword(String languageMultiKeyword) {
+        this.languageMultiKeyword = languageMultiKeyword;
+    }
+
+    public String getContentTypeMultiKeyword() {
+        return contentTypeMultiKeyword;
+    }
+
+    public void setContentTypeMultiKeyword(String contentTypeMultiKeyword) {
+        this.contentTypeMultiKeyword = contentTypeMultiKeyword;
+    }
+
+    public String getMimeTypeMultiKeyword() {
+        return mimeTypeMultiKeyword;
+    }
+
+    public void setMimeTypeMultiKeyword(String mimeTypeMultiKeyword) {
+        this.mimeTypeMultiKeyword = mimeTypeMultiKeyword;
+    }
+
+    public String getHashValue() {
+        return hashValue;
+    }
+
+    public void setHashValue(String hashValue) {
+        this.hashValue = hashValue;
+    }
+
+    public String getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(String author) {
+        this.author = author;
+    }
+
+    public String printAuthorsAsString() {
+        StringBuilder author = new StringBuilder();
+        if(authors != null) {
+            final Iterator<Author> itr = authors.iterator();
+
+            while(itr.hasNext()) {
+                Author a = itr.next();
+                author.append(a.toString());
+                if(itr.hasNext()) {
+                    author.append(",");
+                }
+            }
+        }
+        return author.toString();
+    }
+
     @Override
     public String toString() {
         return "PostMetaData{" +
                 "id=" + id +
                 ", title='" + title + '\'' +
-                ", categories=" + categories +
+                ", layout='" + layout + '\'' +
+                ", categories='" + categories + '\'' +
                 ", date=" + date +
                 ", modifiedDate=" + modifiedDate +
-                ", author='" + author + '\'' +
-                ", tags=" + tags +
+                ", authors=" + printAuthorsAsString() +
+                ", tags='" + tags + '\'' +
+                ", subline='" + subline + '\'' +
+                ", languageMultiKeyword='" + languageMultiKeyword + '\'' +
+                ", contentTypeMultiKeyword='" + contentTypeMultiKeyword + '\'' +
+                ", mimeTypeMultiKeyword='" + mimeTypeMultiKeyword + '\'' +
+                ", post=" + post +
                 '}';
     }
 }

@@ -1,37 +1,24 @@
 package de.adesso.persistence;
 
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-
 /**
  * This class represents an image entity.
  */
-@Entity
 public class Image {
 
     /* unique ID of image entity*/
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     /* URL of the image */
     private String url;
+
     /* image format */
     private String format;
 
     /* The post that belongs to this image */
-    @ManyToOne(fetch = FetchType.EAGER)
     private Post post;
 
-    /**
-     * needed by JPA
-     */
-    private Image() {
+    public Image() {
     }
-
 
     public Image(String url, String format) {
         this.url = url;

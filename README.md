@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/daklassen/jekyll2cms.svg?branch=master)](https://travis-ci.org/daklassen/jekyll2cms) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/d754e6c1e994477db592068d28e383b7)](https://www.codacy.com/app/daklassen/jekyll2cms?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=daklassen/jekyll2cms&amp;utm_campaign=Badge_Grade)
+[![Build Status](https://travis-ci.org/daklassen/jekyll2cms.svg?branch=master)](https://travis-ci.org/daklassen/jekyll2cms) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/687c8b3c2ddc41dbb9ea08f3d0aa829f)](https://www.codacy.com/app/shsanayei/jekyll2cms?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=shsanayei/jekyll2cms&amp;utm_campaign=Badge_Grade)
 
 ## Jekyll2cms 
 
