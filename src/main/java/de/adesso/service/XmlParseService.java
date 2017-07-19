@@ -53,13 +53,11 @@ public class XmlParseService {
         this.fields.add(field);
         field = new Field("layout", metaData.getLayout());
         this.fields.add(field);
-        field = new Field("author", metaData.getAuthor());
-        this.fields.add(field);
         field = new Field("categories", metaData.getCategories());
         this.fields.add(field);
         field = new Field("tags", metaData.getTags());
         this.fields.add(field);
-        field = new Field("date", metaData.getDate().toString());
+        field = new Field("date_date", metaData.getDate().toString());
         this.fields.add(field);
         field = new Field("change_date", metaData.getModifiedDate() != null
                 ? metaData.getModifiedDate().toString()

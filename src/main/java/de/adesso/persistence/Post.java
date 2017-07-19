@@ -8,28 +8,29 @@ import java.util.List;
 /**
  * This class creates a post object with the given fields.
  */
+@Entity
 public class Post {
 
     /* unique ID of the post */
+    @Id
+    @GeneratedValue
     private Long id;
 
     /* The content of the post */
     private String content;
 
-    /* The teaserXml text of the post */
-    private String teaserXml;
-
     /* The teaserHtml text of the post */
     private String teaserHtml;
-
-    /* The searchXml text of the post */
-    private String searchXml;
 
     /* hash value of post content */
     private String hashValue;
 
     /* List of the images included in this post */
+    @Transient
     private List<Image> images;
+
+    @OneToOne(mappedBy = "post")
+    private PostMetaData postMetaData;
 
     public Post() {
     }
@@ -67,28 +68,12 @@ public class Post {
         this.content = content;
     }
 
-    public String getTeaserXml() {
-        return teaserXml;
-    }
-
-    public void setTeaserXml(String teaserXml) {
-        this.teaserXml = teaserXml;
-    }
-
     public String getTeaserHtml() {
         return teaserHtml;
     }
 
     public void setTeaserHtml(String teaserHtml) {
         this.teaserHtml = teaserHtml;
-    }
-
-    public String getSearchXml() {
-        return searchXml;
-    }
-
-    public void setSearchXml(String searchXml) {
-        this.searchXml = searchXml;
     }
 
     public String getHashValue() {

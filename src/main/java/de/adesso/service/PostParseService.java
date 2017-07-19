@@ -1,5 +1,6 @@
 package de.adesso.service;
 
+import de.adesso.persistence.Author;
 import de.adesso.persistence.Image;
 import de.adesso.persistence.Post;
 import de.adesso.persistence.PostMetaData;
@@ -39,6 +40,9 @@ public class PostParseService {
 
     @Autowired
     private ParseService parseService;
+
+    @Autowired
+    private AuthorsYamlService authorsYamlService;
 
     /**
      * Searches HTML files within the given file path an generate posts from them.
@@ -96,6 +100,7 @@ public class PostParseService {
                             && htmlContent.equals(post.getContent())) {
                         postMetaData = parseService.getMetaInformationFromPost(metadataFile);
                         postMetaData.setPost(post);
+                        // postMetaData.getAuthors();
                         return postMetaData;
                     }
                 }
@@ -126,13 +131,21 @@ public class PostParseService {
     }
 
     /**
+     * TODO Optimization for case where file does not have extension
      * cut off the extension of file names.
      *
      * @param fileName - The file name of interest.
      * @return String
      */
     private String cutOffFileExtension(String fileName) {
-        return fileName.substring(0, fileName.lastIndexOf("."));
+        String fileNameWithoutExtension = "";
+        if(fileName.contains(".")) {
+            fileNameWithoutExtension = fileName.substring(0, fileName.lastIndexOf("."));
+        }
+        else {
+            fileNameWithoutExtension = fileName;
+        }
+        return fileNameWithoutExtension;
     }
 
     /**
@@ -151,6 +164,10 @@ public class PostParseService {
             e.printStackTrace();
         }
         return doc.html();
+    }
+
+    private Author extractAuthorFromYaml(String yamlFile) {
+        return null;
     }
 
     /**
