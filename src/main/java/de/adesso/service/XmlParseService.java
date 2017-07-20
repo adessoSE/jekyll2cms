@@ -19,6 +19,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This class creates XML files.
+ */
 @Service
 public class XmlParseService {
 
@@ -29,6 +32,7 @@ public class XmlParseService {
 
     private PostParseService postParseService;
 
+    /** List of Field objects */
     private List<Field> fields;
 
     @Autowired
@@ -39,6 +43,10 @@ public class XmlParseService {
     public XmlParseService(){
     }
 
+    /**
+     * creates Field objects corresponding to given Post objects properties.
+     * @param post
+     */
     public void addFieldFromPost(Post post) {
         Field field = new Field("teaser", post.getTeaserHtml());
         this.fields.add(field);
@@ -46,6 +54,10 @@ public class XmlParseService {
         this.fields.add(field);
     }
 
+    /**
+     * creates Field objects corresponding to given PostMetaData objects properties.
+     * @param metaData
+     */
     public void addFieldFromMetaData(PostMetaData metaData) {
 
         Field field = new Field("title", metaData.getTitle());
@@ -66,6 +78,9 @@ public class XmlParseService {
         this.fields.add(field);
     }
 
+    /**
+     * generates XML files
+     */
     public void generateXmlPostFiles() {
         fields = new ArrayList<>();
         postParseService.getAllHtmlPosts()

@@ -97,7 +97,6 @@ public class PostParseService {
                             && htmlContent.equals(post.getContent())) {
                         postMetaData = parseService.getMetaInformationFromPost(metadataFile);
                         postMetaData.setPost(post);
-                        // postMetaData.getAuthors();
                         return postMetaData;
                     }
                 }

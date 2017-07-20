@@ -47,7 +47,7 @@ public class PostMetaData {
     /* hash value of post content */
     private String hashValue;
 
-    @ManyToMany(cascade = {CascadeType.PERSIST})
+    @ManyToMany
     @JoinTable(
             name = "post_author_relation",
             joinColumns = {@JoinColumn(name = "post_meta_data_id")},
@@ -56,7 +56,9 @@ public class PostMetaData {
     @JsonIgnore
     private Set<Author> authors;
 
+    /* existence is important for parsing post headers yaml format, but is not used */
     @JsonIgnore
+    @Transient
     private String author;
 
     @OneToOne
