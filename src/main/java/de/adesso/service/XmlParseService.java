@@ -2,6 +2,7 @@ package de.adesso.service;
 
 import de.adesso.persistence.Post;
 import de.adesso.persistence.PostMetaData;
+import de.adesso.util.XmlFieldName;
 import de.adesso.xml.Document;
 import de.adesso.xml.Documents;
 import de.adesso.xml.Field;
@@ -48,9 +49,9 @@ public class XmlParseService {
      * @param post
      */
     public void addFieldFromPost(Post post) {
-        Field field = new Field("teaser", post.getTeaserHtml());
+        Field field = new Field(XmlFieldName.TEASER.getXmlFieldName(), post.getTeaserHtml());
         this.fields.add(field);
-        field = new Field("content", post.getContent());
+        field = new Field(XmlFieldName.CONTENT.getXmlFieldName(), post.getContent());
         this.fields.add(field);
     }
 
@@ -60,19 +61,20 @@ public class XmlParseService {
      */
     public void addFieldFromMetaData(PostMetaData metaData) {
 
-        Field field = new Field("title", metaData.getTitle());
+
+        Field field = new Field(XmlFieldName.TITLE.getXmlFieldName(), metaData.getTitle());
         this.fields.add(field);
-        field = new Field("subline", metaData.getSubline());
+        field = new Field(XmlFieldName.SUBLINE.getXmlFieldName(), metaData.getSubline());
         this.fields.add(field);
-        field = new Field("layout", metaData.getLayout());
+        field = new Field(XmlFieldName.LAYOUT.getXmlFieldName(), metaData.getLayout());
         this.fields.add(field);
-        field = new Field("categories", metaData.getCategories());
+        field = new Field(XmlFieldName.CATEGORIES.getXmlFieldName(), metaData.getCategories());
         this.fields.add(field);
-        field = new Field("tags", metaData.getTags());
+        field = new Field(XmlFieldName.TAGS.getXmlFieldName(), metaData.getTags());
         this.fields.add(field);
-        field = new Field("date_date", metaData.getDate().toString());
+        field = new Field(XmlFieldName.DATE_DATE.getXmlFieldName(), metaData.getDate().toString());
         this.fields.add(field);
-        field = new Field("change_date", metaData.getModifiedDate() != null
+        field = new Field(XmlFieldName.CHANGE_DATE.getXmlFieldName(), metaData.getModifiedDate() != null
                 ? metaData.getModifiedDate().toString()
                 : metaData.getDate().toString() );
         this.fields.add(field);
