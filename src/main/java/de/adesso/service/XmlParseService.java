@@ -96,15 +96,25 @@ public class XmlParseService {
 
     }
 
+    /**
+     * Generates XML file name.
+     * @param postMetaData - PostMetaData object
+     * @return String
+     */
     private String generateXmlFileName(PostMetaData postMetaData) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         return String.format(XML_OUTPUT_PATH + "%s-%s.xml", sdf.format(postMetaData.getDate()), postMetaData.getTitle());
     }
 
-    public void generateXmlPostFile(String filePath, String documentUID) {
+    /**
+     * Generates XML file.
+     * @param fileOutputPath - output file path
+     * @param documentUID
+     */
+    public void generateXmlPostFile(String fileOutputPath, String documentUID) {
         try {
-            File file = new File(filePath);
-            LOGGER.info("Creating following XML file: {}", filePath);
+            File file = new File(fileOutputPath);
+            LOGGER.info("Creating following XML file: {}", fileOutputPath);
             JAXBContext jaxbContext = JAXBContext.newInstance(Documents.class);
 
             /* **** Populate XML Elements **** */
@@ -124,7 +134,5 @@ public class XmlParseService {
         } catch (JAXBException e) {
             e.printStackTrace();
         }
-
-
     }
 }

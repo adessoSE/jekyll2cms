@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import de.adesso.persistence.Author;
-import de.adesso.persistence.AuthorRepository;
 import de.adesso.persistence.PostMetaData;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -17,8 +16,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * This services parses md files to pojo.
