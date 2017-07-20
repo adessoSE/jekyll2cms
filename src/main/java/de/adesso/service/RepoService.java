@@ -35,6 +35,8 @@ public class RepoService {
 	private ObjectId oldHead;
 
 	private Git localGit;
+	
+	private static final String HEAD = "HEAD^{tree}";
 
 	/**
 	 * Clones the remote repository (see in application.properties:
@@ -76,7 +78,7 @@ public class RepoService {
 			oldHeadIter.reset(reader, oldHead);
 
 			CanonicalTreeParser newHeadIter = new CanonicalTreeParser();
-			ObjectId newTree = git.getRepository().resolve("HEAD^{tree}");
+			ObjectId newTree = git.getRepository().resolve(RepoService.HEAD);
 			newHeadIter.reset(reader, newTree);
 
 			DiffFormatter df = new DiffFormatter(new ByteArrayOutputStream());
@@ -101,7 +103,7 @@ public class RepoService {
 		LOGGER.info("Trying to pull remote repository...");
 		Repository repository = localGit.getRepository();
 		try (Git git = new Git(repository)) {
-			this.oldHead = repository.resolve("HEAD^{tree}");
+			this.oldHead = repository.resolve(RepoService.HEAD);
 			git.pull().call();
 			this.checkForUpdates(git);
 			localGit.close();
