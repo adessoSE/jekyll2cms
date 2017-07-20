@@ -13,3 +13,7 @@
 - [ ] Set up a GitHub-preview for review process of written blog posts
   - Hoster example: https://www.netlify.com/
   - create adesso-style preview 
+  
+### SubTasks:
+- [ ] Documentation
+- [ ] Refactoring
