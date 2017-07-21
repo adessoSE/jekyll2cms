@@ -71,8 +71,12 @@ public class AuthorsYamlService {
             authorNode = root.findPath(name);
             if(authorNode != null) {
                 author = mapper.treeToValue(authorNode, Author.class);
+                LOGGER.info("Successfully found and mapped author '{}' ", name);
             }
-            LOGGER.info("Successfully found and mapped author '{}' ", name);
+            else {
+                LOGGER.info("Could not find the author '{}' in the yaml file '{}'. Author is {}", name, authorsYamlFile, author);
+            }
+
         } catch (IOException ioe) {
             LOGGER.error("In method {}: Error while trying to find or map author '{}' in file '{}'. Error message: {}", name, authorsYamlFile, ioe.getMessage());
         }

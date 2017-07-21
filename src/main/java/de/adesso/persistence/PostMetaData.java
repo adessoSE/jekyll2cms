@@ -3,7 +3,6 @@ package de.adesso.persistence;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import javax.persistence.*;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -13,12 +12,7 @@ import java.util.Set;
  * This class creates an Object containing the meta information (header) of the blog post
  * that was created using markdown language of jekyll.
  */
-@Entity
 public class PostMetaData {
-
-    @Id
-    @GeneratedValue
-    private Long id;
 
     private String title;
 
@@ -27,7 +21,7 @@ public class PostMetaData {
     private String categories;
 
     // TODO: check correct date format or change to a date object
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd hh:mm")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private Date date;
 
     // TODO: check correct date format or change to a date object
@@ -47,34 +41,16 @@ public class PostMetaData {
     /* hash value of post content */
     private String hashValue;
 
-    @ManyToMany
-    @JoinTable(
-            name = "post_author_relation",
-            joinColumns = {@JoinColumn(name = "post_meta_data_id")},
-            inverseJoinColumns = {@JoinColumn(name = "author_id")}
-    )
     @JsonIgnore
     private Set<Author> authors;
 
     /* existence is important for parsing post headers yaml format, but is not used */
-    @JsonIgnore
-    @Transient
     private String author;
 
-    @OneToOne
-    @JoinColumn(name = "post_id", unique = true)
     private Post post;
 
     public PostMetaData() {
         authors = new HashSet<>();
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getTitle() {
@@ -208,7 +184,6 @@ public class PostMetaData {
     @Override
     public String toString() {
         return "PostMetaData{" +
-                "id=" + id +
                 ", title='" + title + '\'' +
                 ", layout='" + layout + '\'' +
                 ", categories='" + categories + '\'' +

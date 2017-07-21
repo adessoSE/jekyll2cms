@@ -20,21 +20,20 @@ public class CmdService {
 
     private RepoService repoService;
     private JekyllService jekyllService;
-//    private ImageService imageService;
+    PostParseService postParseService;
     private XmlParseService xmlParseService;
-    private PersistenceService persistenceService;
 
     private String[] arguments;
     private CommandLine parsedCommands;
     private Options options = new Options();
 
     @Autowired
-    public CmdService(RepoService repoService, JekyllService jekyllService, XmlParseService xmlParseService,
-                      PersistenceService persistenceService) {
+    public CmdService(RepoService repoService, JekyllService jekyllService,
+                      PostParseService postParseService, XmlParseService xmlParseService) {
         this.repoService = repoService;
         this.jekyllService = jekyllService;
+        this.postParseService = postParseService;
         this.xmlParseService = xmlParseService;
-        this.persistenceService = persistenceService;
     }
 
     /**
@@ -114,11 +113,6 @@ public class CmdService {
         xmlParseService.generateXmlPostFiles();
     }*/
 
-    @SuppressWarnings("unused")
-    private void update() {
-        persistenceService.updateDatabase();
-        //imageService.transformAllImages();
-    }
 
     /**
      * Filters out all spring related arguments.

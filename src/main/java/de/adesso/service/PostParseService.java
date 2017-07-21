@@ -58,7 +58,6 @@ public class PostParseService {
                             String htmlContent = extractHtmlPostContent(new File(filePath));
                             Post post = new Post(htmlContent);
                             post.setTeaserHtml(extractPostContentFirstParagraph(htmlContent));
-                            post.generateHashValue(htmlContent);
                             posts.add(post);
                         }
                     });
