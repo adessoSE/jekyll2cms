@@ -1,7 +1,7 @@
 ## ToDo
 
 - [ ] Build Jekyll templates
-- [ ] Create required and optional HTML tags
+- [ ] Create required and optional tags
    - [ ] **Clearify what is meant by required and optional tags**
 - [ ] Create job for GitHub-Pull
   - [ ] Detect new and changed posts
