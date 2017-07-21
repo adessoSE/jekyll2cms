@@ -12,6 +12,8 @@ import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
@@ -23,6 +25,7 @@ import java.util.List;
  * This service helps managing repositories with the help of JGit.
  */
 @Service
+@EnableScheduling
 public class RepoService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(RepoService.class);
@@ -35,7 +38,7 @@ public class RepoService {
 	private ObjectId oldHead;
 
 	private Git localGit;
-	
+
 	private static final String HEAD = "HEAD^{tree}";
 
 	/**
@@ -64,8 +67,8 @@ public class RepoService {
 	 * is executed in method pullRemoteRepo(), the existing local repository will be
 	 * stored to variable 'oldHead'. After the git-pull command was executed, this
 	 * method will be called which compares the state of the old repository with the
-	 * state of the repository after executing the git-pull command. Changed
-	 * files will be logged
+	 * state of the repository after executing the git-pull command. Changed files
+	 * will be logged
 	 * 
 	 * @param git
 	 */
@@ -73,18 +76,19 @@ public class RepoService {
 		LOGGER.info("Checking for Updates");
 		try {
 			ObjectReader reader = git.getRepository().newObjectReader();
-
 			CanonicalTreeParser oldHeadIter = new CanonicalTreeParser();
 			oldHeadIter.reset(reader, oldHead);
-
 			CanonicalTreeParser newHeadIter = new CanonicalTreeParser();
 			ObjectId newTree = git.getRepository().resolve(RepoService.HEAD);
 			newHeadIter.reset(reader, newTree);
-
 			DiffFormatter df = new DiffFormatter(new ByteArrayOutputStream());
 			df.setRepository(git.getRepository());
 			List<DiffEntry> entries = df.scan(oldHeadIter, newHeadIter);
-
+			if (entries == null || entries.size() == 0) {
+				System.out.println("No updates found");
+			} else {
+				this.triggerXMLgenerator();
+			}
 			for (DiffEntry entry : entries) {
 				LOGGER.info("The file " + entry.getNewPath() + " was updated!!");
 			}
@@ -95,21 +99,30 @@ public class RepoService {
 		}
 	}
 
+	private void triggerXMLgenerator() {
+		System.out.println("Generate XML files from jekyll builts and push them to remote repository");
+		//TODO: trigger next steps of the defined application lifecycle
+	}
+
 	/**
 	 * pulls the remote git repository to receive changes.
 	 */
+	@Scheduled(fixedRate = 10000) // 3600000 = 1h (value in milliseconds)
 	public void pullRemoteRepo() {
 		String method = "pullRemoteRepo";
 		LOGGER.info("Trying to pull remote repository...");
-		Repository repository = localGit.getRepository();
-		try (Git git = new Git(repository)) {
-			this.oldHead = repository.resolve(RepoService.HEAD);
-			git.pull().call();
-			this.checkForUpdates(git);
-			localGit.close();
-		} catch (Exception e) {
-			LOGGER.error("In method " + method + ": Error while pulling remote git repository.", e);
+		if (localGit != null) {
+			Repository repository = localGit.getRepository();
+			try (Git git = new Git(repository)) {
+				this.oldHead = repository.resolve(RepoService.HEAD);
+				git.pull().call();
+				this.checkForUpdates(git);
+				localGit.close();
+			} catch (Exception e) {
+				LOGGER.error("In method " + method + ": Error while pulling remote git repository.", e);
+			}
 		}
+
 	}
 
 	private boolean localRepositoryExists() {
