@@ -4,8 +4,8 @@
 - [ ] Create required and optional tags
    - [ ] **Clarify what is meant by required and optional tags**
 - [ ] Create job for GitHub-Pull
-  - [ ] Detect new and changed posts
-  - [ ] Generate XML from new and changed posts
+  - [x] Detect new and changed posts
+  - [x] Generate XML from new and changed posts
   - [ ] Push generated XML to GitHub
 - [x] Read metadata from markdown files
 - [x] Read author information from authors.yml file
