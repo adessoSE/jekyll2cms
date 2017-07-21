@@ -1,5 +1,6 @@
 package de.adesso.service;
 
+import de.adesso.persistence.Author;
 import de.adesso.persistence.Post;
 import de.adesso.persistence.PostMetaData;
 import de.adesso.util.XmlFieldName;
@@ -36,6 +37,8 @@ public class XmlParseService {
     /** List of Field objects */
     private List<Field> fields;
 
+    private static String LANGUAGE_DE = "DE";
+
     @Autowired
     public XmlParseService(PostParseService postParseService) {
         this.postParseService = postParseService;
@@ -48,7 +51,7 @@ public class XmlParseService {
      * creates Field objects corresponding to given Post objects properties.
      * @param post
      */
-    public void addFieldFromPost(Post post) {
+    public void addPostFields(Post post) {
         Field field = new Field(XmlFieldName.TEASER.getXmlFieldName(), post.getTeaserHtml());
         this.fields.add(field);
         field = new Field(XmlFieldName.CONTENT.getXmlFieldName(), post.getContent());
@@ -59,7 +62,7 @@ public class XmlParseService {
      * creates Field objects corresponding to given PostMetaData objects properties.
      * @param metaData
      */
-    public void addFieldFromMetaData(PostMetaData metaData) {
+    public void addMetaDataFields(PostMetaData metaData) {
 
 
         Field field = new Field(XmlFieldName.TITLE.getXmlFieldName(), metaData.getTitle());
@@ -81,6 +84,25 @@ public class XmlParseService {
     }
 
     /**
+     * creates Field objects corresponding to given Author objects properties.
+     * @param author
+     */
+    public void addAuthorFields(Author author) {
+        Field field = new Field(XmlFieldName.AUTHOR_FIRST_NAME.getXmlFieldName(), author.getFirstName());
+        this.fields.add(field);
+        field = new Field(XmlFieldName.AUTHOR_LAST_NAME.getXmlFieldName(), author.getLastName());
+        this.fields.add(field);
+    }
+
+    /**
+     * creates neutral Field objects that have constants or doesn't belong to any other persistence object
+     */
+    public void addNeutralFields() {
+        Field field = new Field(XmlFieldName.LANGUAGE_MULTI_KEYWORD.getXmlFieldName(), LANGUAGE_DE);
+        this.fields.add(field);
+    }
+
+    /**
      * generates XML files
      */
     public void generateXmlPostFiles() {
@@ -90,8 +112,10 @@ public class XmlParseService {
                     // get corresponding metadata file of current post
                     PostMetaData metaData = postParseService.findCorrespondingMetadataFile(post);
 
-                    addFieldFromPost(post);
-                    addFieldFromMetaData(metaData);
+                    addPostFields(post);
+                    addMetaDataFields(metaData);
+                    addAuthorFields(metaData.getAuthor());
+                    addNeutralFields();
                     generateXmlPostFile(generateXmlFileName(metaData), "testUID");
                 });
         LOGGER.info("generating XML-files was successfull.");

@@ -8,7 +8,6 @@ import de.adesso.persistence.PostMetaData;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -104,7 +103,7 @@ public class ParseService {
             Author author = ays.findAuthorInAuthorsYamlFile(AUTHORS_YAML_FILE, authorName);
 
             // add author to the authors set.
-            postMetaData.getAuthors().add(author);
+            postMetaData.setAuthor(author);
 
             // postMetaData = mapper.readValue(mdHeader.getBytes(), PostMetaData.class);
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");

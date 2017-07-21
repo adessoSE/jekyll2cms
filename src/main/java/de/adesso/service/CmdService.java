@@ -109,10 +109,10 @@ public class CmdService {
         jekyllService.runJekyllBuild();
     }
 
-    /*private void generate() {
+    @SuppressWarnings("unused")
+    private void generate() {
         xmlParseService.generateXmlPostFiles();
-    }*/
-
+    }
 
     /**
      * Filters out all spring related arguments.
