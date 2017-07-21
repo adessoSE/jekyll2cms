@@ -18,7 +18,7 @@
 - [ ] Unit Tests
 - [ ] Remove Database feature
 - [ ] Add MIT Licensing
-- [ ] Get server data for running Jekyll2Cms
+- [ ] Ask for server data for running Jekyll2Cms
   
 ### SubTasks:
 - [ ] Documentation
