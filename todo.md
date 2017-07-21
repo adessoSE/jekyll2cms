@@ -16,7 +16,7 @@
 - [ ] Exception Handling
 - [ ] Unit Tests
 - [x] Remove Database feature
-- [ ] Add MIT Licensing
+- [x] Add MIT Licensing
 - [ ] Ask for server data for running Jekyll2Cms
   
 ### SubTasks:
