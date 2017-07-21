@@ -39,6 +39,7 @@ public class InitializationService {
 		// TODO: exception handling to define
 		try {
 			this.repositoryService.cloneRemoteRepo();
+			this.repositoryService.triggerXMLgenerator();
 			new Thread() {
 				@Override
 				public void run() {
