@@ -1,7 +1,8 @@
 ## ToDo
 
 - [ ] Build Jekyll templates
-   - [ ] Create required and optional HTML tags
+- [ ] Create required and optional HTML tags
+   - [ ] **Clearify what is meant by required and optional tags**
 - [ ] Create job for GitHub-Pull
   - [ ] Detect new and changed posts
   - [ ] Generate XML from new and changed posts
@@ -15,6 +16,9 @@
   - create adesso-style preview
 - [ ] Exception Handling
 - [ ] Unit Tests
+- [ ] Remove Database feature
+- [ ] Add MIT Licensing
+- [ ] Get server data for running Jekyll2Cms
   
 ### SubTasks:
 - [ ] Documentation
