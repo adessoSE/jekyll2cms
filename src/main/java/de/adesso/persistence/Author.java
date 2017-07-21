@@ -3,10 +3,7 @@ package de.adesso.persistence;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.ManyToMany;
+import javax.persistence.*;
 import java.util.Set;
 
 @Entity
@@ -17,6 +14,7 @@ public class Author {
 
     private String name;
     @JsonProperty("git_username")
+    @Column(unique = true)
     private String gitUsername;
     @JsonProperty("picture_url")
     private String pictureUrl;

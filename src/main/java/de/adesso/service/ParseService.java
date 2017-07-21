@@ -8,6 +8,7 @@ import de.adesso.persistence.PostMetaData;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +27,10 @@ public class ParseService {
 
     @Value("${repository.local.authorsfile}")
     private String AUTHORS_YAML_FILE;
+
+    @Autowired
+    private PersistenceService persistenceService;
+
     /**
      * Parses the meta data (header) of a jekyll markdown file into a PostMetaData object.
      *
@@ -71,15 +76,16 @@ public class ParseService {
         String mdHeader = "";
         final String headerIndicator = "---";
         if(mdFileData.startsWith(headerIndicator)) {
-            mdHeader = mdFileData.split(headerIndicator, 4)[1];
+            mdHeader = mdFileData.split(headerIndicator, 3)[1];
         }
         return mdHeader;
     }
 
     /**
-     * Creates an object from a String that has a YAML syntax.
+     * Creates a metadata object from the header (yaml format) of the post file (markdown file).
+     * Also, it creates an author object from the given author within the header and saves it to the database.
      *
-     * @param mdHeader String from which the PostMetaData object should be created
+     * @param mdHeader - header of post as String from which the PostMetaData object should be created
      * @return parsed PostMetaData
      */
     private PostMetaData getPostMetaData(String mdHeader) {
@@ -87,20 +93,26 @@ public class ParseService {
         String method = "getPostMetaData";
 
         PostMetaData postMetaData = null;
-        ObjectMapper mapper = null;
+        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 
         try {
             // map Header to PostMetaData object
-            mapper = new ObjectMapper(new YAMLFactory());
             postMetaData = mapper.readValue(mdHeader.getBytes(), PostMetaData.class);
 
-            // mapper = new ObjectMapper(new YAMLFactory());
+            // Get author node using JsonNode
             JsonNode root = mapper.readTree(mdHeader);
-
-            // Get author node
             String authorName = root.findValue("author").asText();
 
+            // find the author found in the mdHeader in the authors yaml file and create an author object from the information
             Author author = ays.findAuthorInAuthorsYamlFile(AUTHORS_YAML_FILE, authorName);
+            if(!persistenceService.authorExists(author.getName())) {
+                persistenceService.saveAuthor(author);
+            }
+            else {
+               author = persistenceService.findAuthorByNameAndGitUsername(author.getName(), author.getGitUsername());
+            }
+
+            // add author to the authors set.
             postMetaData.getAuthors().add(author);
 
             // postMetaData = mapper.readValue(mdHeader.getBytes(), PostMetaData.class);

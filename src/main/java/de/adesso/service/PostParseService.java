@@ -1,6 +1,5 @@
 package de.adesso.service;
 
-import de.adesso.persistence.Author;
 import de.adesso.persistence.Image;
 import de.adesso.persistence.Post;
 import de.adesso.persistence.PostMetaData;
@@ -97,7 +96,6 @@ public class PostParseService {
                             && htmlContent.equals(post.getContent())) {
                         postMetaData = parseService.getMetaInformationFromPost(metadataFile);
                         postMetaData.setPost(post);
-                        // postMetaData.getAuthors();
                         return postMetaData;
                     }
                 }

@@ -1,9 +1,6 @@
 package de.adesso.service;
 
-import de.adesso.persistence.Post;
-import de.adesso.persistence.PostMetaData;
-import de.adesso.persistence.PostMetaDataRepository;
-import de.adesso.persistence.PostRepository;
+import de.adesso.persistence.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,31 +15,45 @@ public class PersistenceService {
     private PostRepository postRepository;
     // private ImageRepository imageRepository;
     private PostParseService postParseService;
+    private AuthorRepository authorRepository;
 
     @Autowired
     public PersistenceService(PostMetaDataRepository metaDataRepo, PostRepository postRepository,
-                              PostParseService postParseService) {
+                              PostParseService postParseService, AuthorRepository authorRepository) {
         this.metaDataRepo = metaDataRepo;
         this.postRepository = postRepository;
         this.postParseService = postParseService;
+        this.authorRepository = authorRepository;
     }
 
     public void updateDatabase() {
         LOGGER.info("Updating database...");
         postParseService.getAllHtmlPosts()
                 .forEach(post -> {
-                    //savePost(post);
+                    savePost(post);
                     // get images of current post
 //                    postParseService.extractImages(post)
 //                            .forEach(image -> {
 //                                saveImage(image);
 //                            });
                     // get corresponding metadata file of current post
-                    // TODO add PostMetaData metadata = ... 
-                    postParseService.findCorrespondingMetadataFile(post);
-                    //saveMetaData(metaData);
+
+                    PostMetaData metadata = postParseService.findCorrespondingMetadataFile(post);
+                    saveMetaData(metadata);
                 });
         LOGGER.info("Updating database was successful.");
+    }
+
+    public void saveAuthor(Author author) {
+        authorRepository.save(author);
+    }
+    public Author findAuthorByNameAndGitUsername(String name, String gitUserName) {
+        Author author = authorRepository.findOneByNameAndAndGitUsername(name, gitUserName);
+        return author;
+    }
+
+    public boolean authorExists(String authorName) {
+        return authorRepository.findByName(authorName) != null;
     }
 
     public void saveMetaData(PostMetaData metadata) {

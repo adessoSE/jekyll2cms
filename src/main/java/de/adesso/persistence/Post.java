@@ -17,9 +17,11 @@ public class Post {
     private Long id;
 
     /* The content of the post */
+    @Column(columnDefinition = "TEXT")
     private String content;
 
     /* The teaserHtml text of the post */
+    @Column(columnDefinition = "TEXT")
     private String teaserHtml;
 
     /* hash value of post content */

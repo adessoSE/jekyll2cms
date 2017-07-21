@@ -2,6 +2,7 @@ package de.adesso.service;
 
 import de.adesso.persistence.Post;
 import de.adesso.persistence.PostMetaData;
+import de.adesso.util.XmlFieldName;
 import de.adesso.xml.Document;
 import de.adesso.xml.Documents;
 import de.adesso.xml.Field;
@@ -19,6 +20,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This class creates XML files.
+ */
 @Service
 public class XmlParseService {
 
@@ -29,6 +33,7 @@ public class XmlParseService {
 
     private PostParseService postParseService;
 
+    /** List of Field objects */
     private List<Field> fields;
 
     @Autowired
@@ -39,33 +44,45 @@ public class XmlParseService {
     public XmlParseService(){
     }
 
+    /**
+     * creates Field objects corresponding to given Post objects properties.
+     * @param post
+     */
     public void addFieldFromPost(Post post) {
-        Field field = new Field("teaser", post.getTeaserHtml());
+        Field field = new Field(XmlFieldName.TEASER.getXmlFieldName(), post.getTeaserHtml());
         this.fields.add(field);
-        field = new Field("content", post.getContent());
+        field = new Field(XmlFieldName.CONTENT.getXmlFieldName(), post.getContent());
         this.fields.add(field);
     }
 
+    /**
+     * creates Field objects corresponding to given PostMetaData objects properties.
+     * @param metaData
+     */
     public void addFieldFromMetaData(PostMetaData metaData) {
 
-        Field field = new Field("title", metaData.getTitle());
+
+        Field field = new Field(XmlFieldName.TITLE.getXmlFieldName(), metaData.getTitle());
         this.fields.add(field);
-        field = new Field("subline", metaData.getSubline());
+        field = new Field(XmlFieldName.SUBLINE.getXmlFieldName(), metaData.getSubline());
         this.fields.add(field);
-        field = new Field("layout", metaData.getLayout());
+        field = new Field(XmlFieldName.LAYOUT.getXmlFieldName(), metaData.getLayout());
         this.fields.add(field);
-        field = new Field("categories", metaData.getCategories());
+        field = new Field(XmlFieldName.CATEGORIES.getXmlFieldName(), metaData.getCategories());
         this.fields.add(field);
-        field = new Field("tags", metaData.getTags());
+        field = new Field(XmlFieldName.TAGS.getXmlFieldName(), metaData.getTags());
         this.fields.add(field);
-        field = new Field("date_date", metaData.getDate().toString());
+        field = new Field(XmlFieldName.DATE_DATE.getXmlFieldName(), metaData.getDate().toString());
         this.fields.add(field);
-        field = new Field("change_date", metaData.getModifiedDate() != null
+        field = new Field(XmlFieldName.CHANGE_DATE.getXmlFieldName(), metaData.getModifiedDate() != null
                 ? metaData.getModifiedDate().toString()
                 : metaData.getDate().toString() );
         this.fields.add(field);
     }
 
+    /**
+     * generates XML files
+     */
     public void generateXmlPostFiles() {
         fields = new ArrayList<>();
         postParseService.getAllHtmlPosts()
@@ -81,15 +98,25 @@ public class XmlParseService {
 
     }
 
+    /**
+     * Generates XML file name.
+     * @param postMetaData - PostMetaData object
+     * @return String
+     */
     private String generateXmlFileName(PostMetaData postMetaData) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         return String.format(XML_OUTPUT_PATH + "%s-%s.xml", sdf.format(postMetaData.getDate()), postMetaData.getTitle());
     }
 
-    public void generateXmlPostFile(String filePath, String documentUID) {
+    /**
+     * Generates XML file.
+     * @param fileOutputPath - output file path
+     * @param documentUID
+     */
+    public void generateXmlPostFile(String fileOutputPath, String documentUID) {
         try {
-            File file = new File(filePath);
-            LOGGER.info("Creating following XML file: {}", filePath);
+            File file = new File(fileOutputPath);
+            LOGGER.info("Creating following XML file: {}", fileOutputPath);
             JAXBContext jaxbContext = JAXBContext.newInstance(Documents.class);
 
             /* **** Populate XML Elements **** */
@@ -109,7 +136,5 @@ public class XmlParseService {
         } catch (JAXBException e) {
             e.printStackTrace();
         }
-
-
     }
 }
