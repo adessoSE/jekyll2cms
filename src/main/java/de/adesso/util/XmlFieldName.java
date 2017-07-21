@@ -13,7 +13,10 @@ public enum XmlFieldName {
     CATEGORIES("categories"),
     TAGS("tags"),
     DATE_DATE("date_date"),
-    CHANGE_DATE("change_date");
+    CHANGE_DATE("change_date"),
+    AUTHOR_FIRST_NAME("author_first_name"),
+    AUTHOR_LAST_NAME("author_last_name"),
+    LANGUAGE_MULTI_KEYWORD("language_multi_keyword");
 
     private String XmlFieldName;
 

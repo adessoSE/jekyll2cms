@@ -11,6 +11,12 @@ public class Author {
 
     private String name;
 
+    @JsonProperty("first_name")
+    private String firstName;
+
+    @JsonProperty("last_name")
+    private String lastName;
+
     @JsonProperty("git_username")
     private String gitUsername;
 
@@ -46,6 +52,22 @@ public class Author {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 
     public String getGitUsername() {
@@ -97,34 +119,15 @@ public class Author {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        Author author = (Author) o;
-
-        if (!id.equals(author.id)) return false;
-        return name.equals(author.name);
-    }
-
-    @Override
-    public int hashCode() {
-        int result = 23;
-        result = 31 * result + name.hashCode();
-        return result;
-    }
-
-    @Override
     public String toString() {
         return "Author{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
+                "firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
                 ", gitUsername='" + gitUsername + '\'' +
                 ", pictureUrl='" + pictureUrl + '\'' +
                 ", bio='" + bio + '\'' +
                 ", github='" + github + '\'' +
                 ", email='" + email + '\'' +
-                ", posts=" + posts +
                 '}';
     }
 }
