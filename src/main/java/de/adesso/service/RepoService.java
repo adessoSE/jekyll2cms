@@ -89,7 +89,7 @@ public class RepoService {
 			df.setRepository(git.getRepository());
 			List<DiffEntry> entries = df.scan(oldHeadIter, newHeadIter);
 			if (entries == null || entries.size() == 0) {
-				System.out.println("No updates found");
+				LOGGER.info("No updates found.");
 			} else {
 				this.triggerXMLgenerator();
 			}
@@ -103,8 +103,8 @@ public class RepoService {
 		}
 	}
 
-	private void triggerXMLgenerator() {
-		System.out.println("Generate XML files from jekyll builts and push them to remote repository");
+	public void triggerXMLgenerator() {
+		LOGGER.info("Generate XML files from jekyll builts and push them to remote repository");
 		xmlParseService.generateXmlFiles();
 		//TODO: trigger next steps of the defined application lifecycle
 	}
