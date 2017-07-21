@@ -2,7 +2,7 @@
 
 - [ ] Build Jekyll templates
 - [ ] Create required and optional tags
-   - [ ] **Clearify what is meant by required and optional tags**
+   - [ ] **Clarify what is meant by required and optional tags**
 - [ ] Create job for GitHub-Pull
   - [ ] Detect new and changed posts
   - [ ] Generate XML from new and changed posts
@@ -15,7 +15,7 @@
   - create adesso-style preview
 - [ ] Exception Handling
 - [ ] Unit Tests
-- [ ] Remove Database feature
+- [x] Remove Database feature
 - [ ] Add MIT Licensing
 - [ ] Ask for server data for running Jekyll2Cms
   
