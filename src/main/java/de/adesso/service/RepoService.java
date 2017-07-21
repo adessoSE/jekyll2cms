@@ -11,6 +11,7 @@ import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -36,6 +37,9 @@ public class RepoService {
 	private String REMOTE_REPO_URL;
 
 	private ObjectId oldHead;
+
+	@Autowired
+	private XmlParseService xmlParseService;
 
 	private Git localGit;
 
@@ -101,6 +105,7 @@ public class RepoService {
 
 	private void triggerXMLgenerator() {
 		System.out.println("Generate XML files from jekyll builts and push them to remote repository");
+		xmlParseService.generateXmlFiles();
 		//TODO: trigger next steps of the defined application lifecycle
 	}
 
