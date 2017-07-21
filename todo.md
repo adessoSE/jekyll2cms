@@ -9,7 +9,6 @@
   - [ ] Push generated XML to GitHub
 - [x] Read metadata from markdown files
 - [x] Read author information from authors.yml file
-- [ ] persist information to database
 - [x] Build Jekyll-blog 
 - [ ] Set up a GitHub-preview for review process of written blog posts
   - Hoster example: https://www.netlify.com/
