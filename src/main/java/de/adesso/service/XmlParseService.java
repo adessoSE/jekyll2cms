@@ -105,7 +105,7 @@ public class XmlParseService {
     /**
      * generates XML files
      */
-    public void generateXmlPostFiles() {
+    public void generateXmlFiles() {
         fields = new ArrayList<>();
         postParseService.getAllHtmlPosts()
                 .forEach(post -> {
@@ -116,7 +116,7 @@ public class XmlParseService {
                     addMetaDataFields(metaData);
                     addAuthorFields(metaData.getAuthor());
                     addNeutralFields();
-                    generateXmlPostFile(generateXmlFileName(metaData), "testUID");
+                    generateXmlFile(generateXmlFileName(metaData), "testUID");
                 });
         LOGGER.info("generating XML-files was successfull.");
 
@@ -137,7 +137,7 @@ public class XmlParseService {
      * @param fileOutputPath - output file path
      * @param documentUID
      */
-    public void generateXmlPostFile(String fileOutputPath, String documentUID) {
+    public void generateXmlFile(String fileOutputPath, String documentUID) {
         try {
             File file = new File(fileOutputPath);
             LOGGER.info("Creating following XML file: {}", fileOutputPath);
