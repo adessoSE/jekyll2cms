@@ -1,6 +1,7 @@
 package de.adesso;
 
-import de.adesso.service.CmdService;
+import de.adesso.service.InitializationService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -10,19 +11,17 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class Jekyll2cmsApplication implements ApplicationRunner {
 
-    @Autowired
-    private CmdService cmdService;
+	@Autowired
+	private InitializationService initService;
 
-    public static void main(String[] args) {
-        // TODO: Replace in production
-        // SpringApplication.run(Jekyll2cmsApplication.class, args).close();
-        SpringApplication.run(Jekyll2cmsApplication.class, args);
-    }
+	public static void main(String[] args) {
+		SpringApplication.run(Jekyll2cmsApplication.class, args);
+	}
 
-    @Override
-    public void run(ApplicationArguments args) throws Exception {
-        cmdService.init(args);
-        boolean isParsed = cmdService.parse();
-        if (isParsed) cmdService.execute();
-    }
+	@Override
+	public void run(ApplicationArguments args) throws Exception {
+		if (!initService.init()) {
+			System.exit(0);
+		}
+	}
 }
