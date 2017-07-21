@@ -10,5 +10,6 @@ The main purpose of this project is to create a simple application which is inte
 Build a jar file and execute it:
 ```
 gradlew build
+
 java -jar build/libs/jekyll2cms-0.0.1.jar
 ```
