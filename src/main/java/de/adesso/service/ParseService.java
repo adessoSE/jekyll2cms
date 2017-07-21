@@ -28,9 +28,6 @@ public class ParseService {
     @Value("${repository.local.authorsfile}")
     private String AUTHORS_YAML_FILE;
 
-    @Autowired
-    private PersistenceService persistenceService;
-
     /**
      * Parses the meta data (header) of a jekyll markdown file into a PostMetaData object.
      *
@@ -105,12 +102,6 @@ public class ParseService {
 
             // find the author found in the mdHeader in the authors yaml file and create an author object from the information
             Author author = ays.findAuthorInAuthorsYamlFile(AUTHORS_YAML_FILE, authorName);
-            if(!persistenceService.authorExists(author.getName())) {
-                persistenceService.saveAuthor(author);
-            }
-            else {
-               author = persistenceService.findAuthorByNameAndGitUsername(author.getName(), author.getGitUsername());
-            }
 
             // add author to the authors set.
             postMetaData.getAuthors().add(author);

@@ -92,7 +92,7 @@ public class XmlParseService {
 
                     addFieldFromPost(post);
                     addFieldFromMetaData(metaData);
-                    generateXmlPostFile(generateXmlFileName(metaData), post.getHashValue());
+                    generateXmlPostFile(generateXmlFileName(metaData), "testUID");
                 });
         LOGGER.info("generating XML-files was successfull.");
 
