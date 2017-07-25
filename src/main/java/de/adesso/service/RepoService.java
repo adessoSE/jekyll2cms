@@ -56,6 +56,7 @@ public class RepoService {
 			if (!localRepositoryExists()) {
 				localGit = Git.cloneRepository().setURI(REMOTE_REPO_URL).setDirectory(new File(LOCAL_REPO_PATH)).call();
 				LOGGER.info("Repository cloned successfully");
+				this.triggerXMLgenerator();
 			} else {
 				LOGGER.warn("Remote repository is already cloned into local repository");
 				localGit = Git.open(new File(LOCAL_REPO_PATH + "/.git"));
@@ -106,7 +107,6 @@ public class RepoService {
 	public void triggerXMLgenerator() {
 		LOGGER.info("Generate XML files from jekyll builts and push them to remote repository");
 		xmlParseService.generateXmlFiles();
-		//TODO: trigger next steps of the defined application lifecycle
 	}
 
 	/**
