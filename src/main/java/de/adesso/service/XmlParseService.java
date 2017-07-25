@@ -37,7 +37,7 @@ public class XmlParseService {
     /** List of Field objects */
     private List<Field> fields;
 
-    private static String LANGUAGE_DE = "DE";
+    private static String LANGUAGE_DE = "de";
 
     @Autowired
     public XmlParseService(PostParseService postParseService) {
@@ -63,8 +63,6 @@ public class XmlParseService {
      * @param metaData
      */
     public void addMetaDataFields(PostMetaData metaData) {
-
-
         Field field = new Field(XmlFieldName.TITLE.getXmlFieldName(), metaData.getTitle());
         this.fields.add(field);
         field = new Field(XmlFieldName.SUBLINE.getXmlFieldName(), metaData.getSubline());
@@ -106,9 +104,9 @@ public class XmlParseService {
      * generates XML files
      */
     public void generateXmlFiles() {
-        fields = new ArrayList<>();
         postParseService.getAllHtmlPosts()
                 .forEach(post -> {
+                    fields = new ArrayList<>();
                     // get corresponding metadata file of current post
                     PostMetaData metaData = postParseService.findCorrespondingMetadataFile(post);
 
@@ -119,7 +117,6 @@ public class XmlParseService {
                     generateXmlFile(generateXmlFileName(metaData), "testUID");
                 });
         LOGGER.info("generating XML-files was successfull.");
-
     }
 
     /**
@@ -152,7 +149,6 @@ public class XmlParseService {
             documents.getDocuments().add(doc);
 
             Marshaller marshaller = null;
-
             marshaller = jaxbContext.createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
             marshaller.marshal(documents, file);
