@@ -44,8 +44,7 @@ public class XmlParseService {
         this.postParseService = postParseService;
     }
 
-    public XmlParseService(){
-    }
+    public XmlParseService(){}
 
     /**
      * creates Field objects corresponding to given Post objects properties.
