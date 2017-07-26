@@ -1,6 +1,7 @@
 package de.adesso.persistence;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.Date;
 
@@ -16,6 +17,12 @@ public class PostMetaData {
 
     private String categories;
 
+    @JsonIgnore
+    private Date firstCommitDate;
+
+    @JsonIgnore
+    private Date lastCommitDate;
+
     // TODO: check correct date format or change to a date object
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private Date date;
@@ -27,6 +34,10 @@ public class PostMetaData {
     private String tags;
 
     private String subline;
+
+    /* e.g. _posts/yyyy-MM-dd-Title.markdown */
+    @JsonIgnore
+    private String repositoryFilePath;
 
     private Author author;
 
@@ -104,6 +115,30 @@ public class PostMetaData {
         this.author = author;
     }
 
+    public String getRepositoryFilePath() {
+        return repositoryFilePath;
+    }
+
+    public void setRepositoryFilePath(String repositoryFilePath) {
+        this.repositoryFilePath = repositoryFilePath;
+    }
+
+    public Date getFirstCommitDate() {
+        return firstCommitDate;
+    }
+
+    public void setFirstCommitDate(Date firstCommitDate) {
+        this.firstCommitDate = firstCommitDate;
+    }
+
+    public Date getLastCommitDate() {
+        return lastCommitDate;
+    }
+
+    public void setLastCommitDate(Date lastCommitDate) {
+        this.lastCommitDate = lastCommitDate;
+    }
+
     @Override
     public String toString() {
         return "PostMetaData{" +
@@ -115,7 +150,10 @@ public class PostMetaData {
                 ", tags='" + tags + '\'' +
                 ", subline='" + subline + '\'' +
                 ", author='" + author + '\'' +
-                ", post=" + post +
+                ", post=" + post + '\'' +
+                ", repositoryFilePath=" + (repositoryFilePath == null ? "Not set yet." : repositoryFilePath) + '\'' +
+                ", firstCommitDate=" + (firstCommitDate == null ? "Not set yet." : firstCommitDate) +
+                ", lastCommitDate=" + (lastCommitDate == null ? "Not set yet." : lastCommitDate) + '\'' +
                 '}';
     }
 }
