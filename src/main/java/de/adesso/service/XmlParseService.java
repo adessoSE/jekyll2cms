@@ -34,7 +34,9 @@ public class XmlParseService {
 
     private PostParseService postParseService;
 
-    /** List of Field objects */
+    /**
+     * List of Field objects
+     */
     private List<Field> fields;
 
     private static String LANGUAGE_DE = "de";
@@ -44,10 +46,12 @@ public class XmlParseService {
         this.postParseService = postParseService;
     }
 
-    public XmlParseService(){}
+    public XmlParseService() {
+    }
 
     /**
      * creates Field objects corresponding to given Post objects properties.
+     *
      * @param post
      */
     public void addPostFields(Post post) {
@@ -59,9 +63,12 @@ public class XmlParseService {
 
     /**
      * creates Field objects corresponding to given PostMetaData objects properties.
+     *
      * @param metaData
      */
     public void addMetaDataFields(PostMetaData metaData) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+
         Field field = new Field(XmlFieldName.TITLE.getXmlFieldName(), metaData.getTitle());
         this.fields.add(field);
         field = new Field(XmlFieldName.SUBLINE.getXmlFieldName(), metaData.getSubline());
@@ -72,16 +79,17 @@ public class XmlParseService {
         this.fields.add(field);
         field = new Field(XmlFieldName.TAGS.getXmlFieldName(), metaData.getTags());
         this.fields.add(field);
-        field = new Field(XmlFieldName.DATE_DATE.getXmlFieldName(), metaData.getDate().toString());
+        field = new Field(XmlFieldName.DATE_DATE.getXmlFieldName(), dateFormat.format(metaData.getFirstCommitDate()));
         this.fields.add(field);
         field = new Field(XmlFieldName.CHANGE_DATE.getXmlFieldName(), metaData.getModifiedDate() != null
-                ? metaData.getModifiedDate().toString()
-                : metaData.getDate().toString() );
+                ? dateFormat.format(metaData.getModifiedDate())
+                : dateFormat.format(metaData.getFirstCommitDate()));
         this.fields.add(field);
     }
 
     /**
      * creates Field objects corresponding to given Author objects properties.
+     *
      * @param author
      */
     public void addAuthorFields(Author author) {
@@ -109,10 +117,10 @@ public class XmlParseService {
                     // get corresponding metadata file of current post
                     PostMetaData metaData = postParseService.findCorrespondingMetadataFile(post);
 
-                    addPostFields(post);
                     addMetaDataFields(metaData);
                     addAuthorFields(metaData.getAuthor());
                     addNeutralFields();
+                    addPostFields(post);
                     generateXmlFile(generateXmlFileName(metaData), "testUID");
                 });
         LOGGER.info("generating XML-files was successfull.");
@@ -120,6 +128,7 @@ public class XmlParseService {
 
     /**
      * Generates XML file name.
+     *
      * @param postMetaData - PostMetaData object
      * @return String
      */
@@ -130,6 +139,7 @@ public class XmlParseService {
 
     /**
      * Generates XML file.
+     *
      * @param fileOutputPath - output file path
      * @param documentUID
      */
