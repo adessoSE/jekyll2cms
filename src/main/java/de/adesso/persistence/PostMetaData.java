@@ -152,8 +152,8 @@ public class PostMetaData {
                 ", author='" + author + '\'' +
                 ", post=" + post + '\'' +
                 ", repositoryFilePath=" + (repositoryFilePath == null ? "Not set yet." : repositoryFilePath) + '\'' +
-                ", firstCommitDate=" + (firstCommitDate == null ? "Not set yet." : firstCommitDate) +
-                ", lastCommitDate=" + (lastCommitDate == null ? "Not set yet." : lastCommitDate) + '\'' +
+                ", firstCommitDate=" + (firstCommitDate == null ? "Not set yet." : firstCommitDate) + '\'' +
+                ", lastCommitDate=" + (lastCommitDate == null ? "Not set yet." : lastCommitDate) +
                 '}';
     }
 }
