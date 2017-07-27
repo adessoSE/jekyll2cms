@@ -3,22 +3,13 @@ package de.adesso.persistence;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import javax.persistence.*;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
 
 /**
  * This class creates an Object containing the meta information (header) of the blog post
  * that was created using markdown language of jekyll.
  */
-@Entity
 public class PostMetaData {
-
-    @Id
-    @GeneratedValue
-    private Long id;
 
     private String title;
 
@@ -26,8 +17,14 @@ public class PostMetaData {
 
     private String categories;
 
+    @JsonIgnore
+    private Date firstCommitDate;
+
+    @JsonIgnore
+    private Date lastCommitDate;
+
     // TODO: check correct date format or change to a date object
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd hh:mm")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private Date date;
 
     // TODO: check correct date format or change to a date object
@@ -38,42 +35,13 @@ public class PostMetaData {
 
     private String subline;
 
-    private String languageMultiKeyword;
-
-    private String contentTypeMultiKeyword;
-
-    private String mimeTypeMultiKeyword;
-
-    /* hash value of post content */
-    private String hashValue;
-
-    @ManyToMany(cascade = {CascadeType.PERSIST})
-    @JoinTable(
-            name = "post_author_relation",
-            joinColumns = {@JoinColumn(name = "post_meta_data_id")},
-            inverseJoinColumns = {@JoinColumn(name = "author_id")}
-    )
+    /* e.g. _posts/yyyy-MM-dd-Title.markdown */
     @JsonIgnore
-    private Set<Author> authors;
+    private String repositoryFilePath;
 
-    @JsonIgnore
-    private String author;
+    private Author author;
 
-    @OneToOne
-    @JoinColumn(name = "post_id", unique = true)
     private Post post;
-
-    public PostMetaData() {
-        authors = new HashSet<>();
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public String getTitle() {
         return title;
@@ -139,86 +107,53 @@ public class PostMetaData {
         this.subline = subline;
     }
 
-    public Set<Author> getAuthors() {
-        return authors;
-    }
-
-    public void setAuthors(Set<Author> authors) {
-        this.authors = authors;
-    }
-
-    public String getLanguageMultiKeyword() {
-        return languageMultiKeyword;
-    }
-
-    public void setLanguageMultiKeyword(String languageMultiKeyword) {
-        this.languageMultiKeyword = languageMultiKeyword;
-    }
-
-    public String getContentTypeMultiKeyword() {
-        return contentTypeMultiKeyword;
-    }
-
-    public void setContentTypeMultiKeyword(String contentTypeMultiKeyword) {
-        this.contentTypeMultiKeyword = contentTypeMultiKeyword;
-    }
-
-    public String getMimeTypeMultiKeyword() {
-        return mimeTypeMultiKeyword;
-    }
-
-    public void setMimeTypeMultiKeyword(String mimeTypeMultiKeyword) {
-        this.mimeTypeMultiKeyword = mimeTypeMultiKeyword;
-    }
-
-    public String getHashValue() {
-        return hashValue;
-    }
-
-    public void setHashValue(String hashValue) {
-        this.hashValue = hashValue;
-    }
-
-    public String getAuthor() {
+    public Author getAuthor() {
         return author;
     }
 
-    public void setAuthor(String author) {
+    public void setAuthor(Author author) {
         this.author = author;
     }
 
-    public String printAuthorsAsString() {
-        StringBuilder author = new StringBuilder();
-        if(authors != null) {
-            final Iterator<Author> itr = authors.iterator();
+    public String getRepositoryFilePath() {
+        return repositoryFilePath;
+    }
 
-            while(itr.hasNext()) {
-                Author a = itr.next();
-                author.append(a.toString());
-                if(itr.hasNext()) {
-                    author.append(",");
-                }
-            }
-        }
-        return author.toString();
+    public void setRepositoryFilePath(String repositoryFilePath) {
+        this.repositoryFilePath = repositoryFilePath;
+    }
+
+    public Date getFirstCommitDate() {
+        return firstCommitDate;
+    }
+
+    public void setFirstCommitDate(Date firstCommitDate) {
+        this.firstCommitDate = firstCommitDate;
+    }
+
+    public Date getLastCommitDate() {
+        return lastCommitDate;
+    }
+
+    public void setLastCommitDate(Date lastCommitDate) {
+        this.lastCommitDate = lastCommitDate;
     }
 
     @Override
     public String toString() {
         return "PostMetaData{" +
-                "id=" + id +
-                ", title='" + title + '\'' +
+                "title='" + title + '\'' +
                 ", layout='" + layout + '\'' +
                 ", categories='" + categories + '\'' +
                 ", date=" + date +
                 ", modifiedDate=" + modifiedDate +
-                ", authors=" + printAuthorsAsString() +
                 ", tags='" + tags + '\'' +
                 ", subline='" + subline + '\'' +
-                ", languageMultiKeyword='" + languageMultiKeyword + '\'' +
-                ", contentTypeMultiKeyword='" + contentTypeMultiKeyword + '\'' +
-                ", mimeTypeMultiKeyword='" + mimeTypeMultiKeyword + '\'' +
-                ", post=" + post +
+                ", author='" + author + '\'' +
+                ", post=" + post + '\'' +
+                ", repositoryFilePath=" + (repositoryFilePath == null ? "Not set yet." : repositoryFilePath) + '\'' +
+                ", firstCommitDate=" + (firstCommitDate == null ? "Not set yet." : firstCommitDate) + '\'' +
+                ", lastCommitDate=" + (lastCommitDate == null ? "Not set yet." : lastCommitDate) +
                 '}';
     }
 }

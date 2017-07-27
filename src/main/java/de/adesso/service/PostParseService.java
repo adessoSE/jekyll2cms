@@ -1,6 +1,5 @@
 package de.adesso.service;
 
-import de.adesso.persistence.Author;
 import de.adesso.persistence.Image;
 import de.adesso.persistence.Post;
 import de.adesso.persistence.PostMetaData;
@@ -19,8 +18,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Stream;
 
 /**
@@ -41,6 +39,9 @@ public class PostParseService {
     @Autowired
     private ParseService parseService;
 
+    @Autowired
+    private RepoService repoService;
+
     /**
      * Searches HTML files within the given file path an generate posts from them.
      *
@@ -59,7 +60,6 @@ public class PostParseService {
                             String htmlContent = extractHtmlPostContent(new File(filePath));
                             Post post = new Post(htmlContent);
                             post.setTeaserHtml(extractPostContentFirstParagraph(htmlContent));
-                            post.generateHashValue(htmlContent);
                             posts.add(post);
                         }
                     });
@@ -80,7 +80,7 @@ public class PostParseService {
     public PostMetaData findCorrespondingMetadataFile(Post post) {
 
         List<File> htmlFiles = extractAllHtmlFilesFromDirectory();
-        File[] metadataFiles = new File(LOCAL_REPO_PATH + "/_posts").listFiles(File::isFile);
+        File[] metadataFiles = new File(LOCAL_REPO_PATH + "_posts").listFiles(File::isFile);
 
         PostMetaData postMetaData = null;
         for (File htmlFile : htmlFiles) {
@@ -92,12 +92,18 @@ public class PostParseService {
                 String htmlContent = extractHtmlPostContent(new File(htmlFilePath));
 
                 for (File metadataFile : metadataFiles) {
+                    String FileName = metadataFile.getName();
+                    String parent = metadataFile.getParent();
+                    // generates: _posts/filename.markdown
+                    String metadataRepositoryFilePath = String.format("%s/%s", parent.substring(parent.lastIndexOf('\\') + 1), FileName);
                     String metadataFileNameNoExt = cutOffFileExtension(metadataFile.getName());
                     if (metadataFileNameNoExt.equals(parentFileName + "-" + htmlFileNameNoExt)
                             && htmlContent.equals(post.getContent())) {
                         postMetaData = parseService.getMetaInformationFromPost(metadataFile);
                         postMetaData.setPost(post);
-                        // postMetaData.getAuthors();
+                        postMetaData.setRepositoryFilePath(metadataRepositoryFilePath);
+                        postMetaData.setFirstCommitDate(retrieveCommitTime(postMetaData.getRepositoryFilePath(), CommitOrder.FIRST));
+                        postMetaData.setLastCommitDate(retrieveCommitTime(postMetaData.getRepositoryFilePath(), CommitOrder.LAST));
                         return postMetaData;
                     }
                 }
@@ -136,10 +142,9 @@ public class PostParseService {
      */
     private String cutOffFileExtension(String fileName) {
         String fileNameWithoutExtension = "";
-        if(fileName.contains(".")) {
+        if (fileName.contains(".")) {
             fileNameWithoutExtension = fileName.substring(0, fileName.lastIndexOf("."));
-        }
-        else {
+        } else {
             fileNameWithoutExtension = fileName;
         }
         return fileNameWithoutExtension;
@@ -190,5 +195,41 @@ public class PostParseService {
             }
         }
         return htmlFiles;
+    }
+
+    /**
+     * retrieves date of the first commit of the provided file
+     *
+     * @param repoFilePath - provided file
+     * @return Date
+     */
+    private Date retrieveCommitTime(String repoFilePath, CommitOrder order) {
+        Date commitTime = null;
+        Map<String, List<Date>> commitTimes = repoService.retrieveCommitTimesOfPostFiles();
+        Set<String> filePaths = commitTimes.keySet();
+        if (filePaths.contains(repoFilePath)) {
+            switch (order) {
+                case FIRST:
+                    commitTime = commitTimes.get(repoFilePath).get(0);
+                    break;
+                case LAST:
+                    int last = commitTimes.get(repoFilePath).size() - 1;
+                    commitTime = commitTimes.get(repoFilePath).get(last);
+                    break;
+                default:
+                    commitTime = commitTimes.get(repoFilePath).get(0);
+            }
+        }
+        return commitTime;
+    }
+
+    /**
+     * Configures which commit should be retrieved with the method retrieveCommitTime(String, CommitOrder).
+     */
+    enum CommitOrder {
+        // First commit of file (for created date)
+        FIRST,
+        // Last commit of file (for modified date)
+        LAST
     }
 }

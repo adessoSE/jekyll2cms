@@ -31,3 +31,5 @@ nbdist/
 *.sass
 *.sass-cache
 _site/*
+/src/main/resources/application.properties
+/bin/application.properties

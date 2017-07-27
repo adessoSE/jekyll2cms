@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import de.adesso.persistence.Author;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -18,17 +20,22 @@ import java.util.List;
 @Service
 public class AuthorsYamlService {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(AuthorsYamlService.class);
+
     /**
      * Parses the given authors.yml file to a list of Authors.
      * @param authorsYamlFile - authors.yml file
      * @return List - a list of author objects.
      */
     public List<Author> parseAuthorsYamlFile(String authorsYamlFile) {
+        String method = "parseAuthorsYamlFile";
+
         List<Author> authors = new ArrayList<>();
         Author author = null;
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         JsonNode root = null;
         try {
+            LOGGER.info("Prasing authors in yaml file to List<Author>...");
             root = mapper.readTree(new File(authorsYamlFile));
             Iterator<JsonNode> authorIterator = root.iterator();
             while(authorIterator.hasNext()) {
@@ -37,8 +44,11 @@ public class AuthorsYamlService {
                 authors.add(author);
             }
 
-        } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.info("Successfully parsed authors!");
+
+        } catch (IOException ioe) {
+            LOGGER.error("In method {}: Error while trying to parse authors file. Error message: {} ", method, ioe.getMessage());
+            LOGGER.debug("ioe: ", ioe);
         }
 
         return authors;
@@ -56,13 +66,19 @@ public class AuthorsYamlService {
         JsonNode root = null;
         JsonNode authorNode = null;
         try {
+            LOGGER.info("Trying to find and map the author '{}' from file '{}' to an author object... ", name, authorsYamlFile);
             root = mapper.readTree(new File(authorsYamlFile));
             authorNode = root.findPath(name);
             if(authorNode != null) {
                 author = mapper.treeToValue(authorNode, Author.class);
+                LOGGER.info("Successfully found and mapped author '{}' ", name);
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+            else {
+                LOGGER.info("Could not find the author '{}' in the yaml file '{}'. Author is {}", name, authorsYamlFile, author);
+            }
+
+        } catch (IOException ioe) {
+            LOGGER.error("In method {}: Error while trying to find or map author '{}' in file '{}'. Error message: {}", name, authorsYamlFile, ioe.getMessage());
         }
 
         return author;
