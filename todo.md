@@ -2,7 +2,11 @@
 
 - [ ] Build Jekyll templates
 - [ ] Create required and optional tags
-   - [ ] **Clarify what is meant by required and optional tags**
+   - [x] **Clarify what is meant by required and optional tags**
+   
+     - required tags should be 'categories'-name in the frontmatter of each post. At least one must be selected.
+     
+     - optional tags should be the 'tags'-name in the frontmatter of each post and can be selected for providing more detailed  information about the subject.
 - [ ] Create job for GitHub-Pull
   - [x] Detect new and changed posts
   - [x] Generate XML from new and changed posts
