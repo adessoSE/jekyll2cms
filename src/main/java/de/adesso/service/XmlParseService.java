@@ -67,7 +67,7 @@ public class XmlParseService {
      * @param metaData
      */
     public void addMetaDataFields(PostMetaData metaData) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+        //SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 
         Field field = new Field(XmlFieldName.TITLE.getXmlFieldName(), metaData.getTitle());
         this.fields.add(field);
@@ -79,11 +79,12 @@ public class XmlParseService {
         this.fields.add(field);
         field = new Field(XmlFieldName.TAGS.getXmlFieldName(), metaData.getTags());
         this.fields.add(field);
-        field = new Field(XmlFieldName.DATE_DATE.getXmlFieldName(), dateFormat.format(metaData.getFirstCommitDate()));
-        this.fields.add(field);
-        field = new Field(XmlFieldName.CHANGE_DATE.getXmlFieldName(), metaData.getModifiedDate() != null
-                ? dateFormat.format(metaData.getModifiedDate())
-                : dateFormat.format(metaData.getFirstCommitDate()));
+        //TODO Error in method retrieveCommitTime in PostParse Server... uncomment the following lines if error is resolved
+//        field = new Field(XmlFieldName.DATE_DATE.getXmlFieldName(), dateFormat.format(metaData.getFirstCommitDate()));
+//        this.fields.add(field);
+//        field = new Field(XmlFieldName.CHANGE_DATE.getXmlFieldName(), metaData.getModifiedDate() != null
+//                ? dateFormat.format(metaData.getModifiedDate())
+//                : dateFormat.format(metaData.getFirstCommitDate()));
         this.fields.add(field);
     }
 

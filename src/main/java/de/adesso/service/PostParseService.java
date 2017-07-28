@@ -81,6 +81,8 @@ public class PostParseService {
 
         List<File> htmlFiles = extractAllHtmlFilesFromDirectory();
         File[] metadataFiles = new File(LOCAL_REPO_PATH + "_posts").listFiles(File::isFile);
+        
+       
 
         PostMetaData postMetaData = null;
         for (File htmlFile : htmlFiles) {
@@ -102,8 +104,9 @@ public class PostParseService {
                         postMetaData = parseService.getMetaInformationFromPost(metadataFile);
                         postMetaData.setPost(post);
                         postMetaData.setRepositoryFilePath(metadataRepositoryFilePath);
-                        postMetaData.setFirstCommitDate(retrieveCommitTime(postMetaData.getRepositoryFilePath(), CommitOrder.FIRST));
-                        postMetaData.setLastCommitDate(retrieveCommitTime(postMetaData.getRepositoryFilePath(), CommitOrder.LAST));
+                        // TODO: Error in method retrieveCommitTime - check out error and uncomment the following lines
+//                        postMetaData.setFirstCommitDate(retrieveCommitTime(postMetaData.getRepositoryFilePath(), CommitOrder.FIRST));
+//                        postMetaData.setLastCommitDate(retrieveCommitTime(postMetaData.getRepositoryFilePath(), CommitOrder.LAST));
                         return postMetaData;
                     }
                 }
@@ -203,25 +206,26 @@ public class PostParseService {
      * @param repoFilePath - provided file
      * @return Date
      */
-    private Date retrieveCommitTime(String repoFilePath, CommitOrder order) {
-        Date commitTime = null;
-        Map<String, List<Date>> commitTimes = repoService.retrieveCommitTimesOfPostFiles();
-        Set<String> filePaths = commitTimes.keySet();
-        if (filePaths.contains(repoFilePath)) {
-            switch (order) {
-                case FIRST:
-                    commitTime = commitTimes.get(repoFilePath).get(0);
-                    break;
-                case LAST:
-                    int last = commitTimes.get(repoFilePath).size() - 1;
-                    commitTime = commitTimes.get(repoFilePath).get(last);
-                    break;
-                default:
-                    commitTime = commitTimes.get(repoFilePath).get(0);
-            }
-        }
-        return commitTime;
-    }
+//    private Date retrieveCommitTime(String repoFilePath, CommitOrder order) {
+// 
+//        Date commitTime = null;
+//        Map<String, List<Date>> commitTimes = repoService.retrieveCommitTimesOfPostFiles();
+//        Set<String> filePaths = commitTimes.keySet();
+//        if (filePaths.contains(repoFilePath)) {
+//            switch (order) {
+//                case FIRST:
+//                    commitTime = commitTimes.get(repoFilePath).get(0);
+//                    break;
+//                case LAST:
+//                    int last = commitTimes.get(repoFilePath).size() - 1;
+//                    commitTime = commitTimes.get(repoFilePath).get(last);
+//                    break;
+//                default:
+//                    commitTime = commitTimes.get(repoFilePath).get(0);
+//            }
+//        }
+//        return commitTime;
+//    }
 
     /**
      * Configures which commit should be retrieved with the method retrieveCommitTime(String, CommitOrder).
