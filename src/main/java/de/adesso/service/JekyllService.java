@@ -18,44 +18,47 @@ import java.io.IOException;
 @Service
 public class JekyllService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(JekyllService.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(JekyllService.class);
 
-    @Value("${repository.local.path}")
-    private String LOCAL_REPO_PATH;
+	@Value("${repository.local.path}")
+	private String LOCAL_REPO_PATH;
 
-    @Value("${jekyll.path}")
-    private String JEKYLL_PATH;
+	@Value("${jekyll.path}")
+	private String JEKYLL_PATH;
 
-    /**
-     * This method executes "jekyll build" command in the local repository.
-     */
-    public void runJekyllBuild() {
-        String method = "runJekyllBuild";
-        String line = JEKYLL_PATH + " build";
+	private final static String JEKYLL_OPTION_BUILD = "build";
+	private final static String JEKYLL_OPTION_INCR = "--incremental";
 
-        ByteArrayOutputStream jekyllBuildOutput = new ByteArrayOutputStream();
-        CommandLine cmdLine = CommandLine.parse(line);
-        DefaultExecutor executor = new DefaultExecutor();
-        executor.setWorkingDirectory(new File(LOCAL_REPO_PATH));
-        PumpStreamHandler streamHandler = new PumpStreamHandler(jekyllBuildOutput);
-        executor.setStreamHandler(streamHandler);
+	private void printJekyllStatus(int exitValue, String outputResult) {
+		if (exitValue == 0) {
+			LOGGER.info("Jekyll watcher started with output: \n {}", outputResult);
+			LOGGER.info("Jekyll waiting for updates.");
+		} else {
+			LOGGER.error("Jekyll build was not successful.");
+		}
+	}
 
-        try {
-            int exitValue = executor.execute(cmdLine);
-            printJekyllBuildStatus(exitValue, jekyllBuildOutput.toString());
-        } catch (IOException e) {
-            LOGGER.error("In method {}: Error while executing jekyll build. Error message: {}", method, e.getMessage());
-            e.printStackTrace();
-        }
-
-    }
-
-    private void printJekyllBuildStatus(int exitValue, String outputResult) {
-        if (exitValue == 0) {
-            LOGGER.info("Jekyll build output: \n {}", outputResult);
-            LOGGER.info("Jekyll build was successful.");
-        } else {
-            LOGGER.error("Jekyll build was not successful.");
-        }
-    }
+	public boolean startJekyllCI() {
+		int exitValue = -1;
+		String line = JEKYLL_PATH;
+		ByteArrayOutputStream jekyllBuildOutput = new ByteArrayOutputStream();
+		CommandLine cmdLine = CommandLine.parse(line);
+		cmdLine.addArgument(JEKYLL_OPTION_BUILD);
+		cmdLine.addArgument(JEKYLL_OPTION_INCR);
+		DefaultExecutor executor = new DefaultExecutor();
+		executor.setWorkingDirectory(new File(LOCAL_REPO_PATH));
+		PumpStreamHandler streamHandler = new PumpStreamHandler(jekyllBuildOutput);
+		executor.setStreamHandler(streamHandler);
+		try {
+			LOGGER.info("Starting jekyll build");
+			exitValue = executor.execute(cmdLine);
+			LOGGER.info("Jekyll build command executed");
+		} catch (IOException e) {
+			LOGGER.error("Error while executing jekyll build. Error message: {}", e.getMessage());
+			e.printStackTrace();
+			return false;
+		}
+		printJekyllStatus(exitValue, jekyllBuildOutput.toString());
+		return true;
+	}
 }

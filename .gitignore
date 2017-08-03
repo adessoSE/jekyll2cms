@@ -33,4 +33,4 @@ nbdist/
 _site/*
 /src/main/resources/application.properties
 /bin/application.properties
-/bin
+de
