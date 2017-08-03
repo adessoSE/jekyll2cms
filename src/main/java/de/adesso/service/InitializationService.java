@@ -26,14 +26,21 @@ public class InitializationService {
 		try {
 			if (repositoryService.cloneRemoteRepo()) {
 				repositoryService.triggerBuildProcess();
+				return true;
 			}
-			return repositoryService.cloneRemoteRepo();
+			return false;
 		} catch (Exception e) {
 			LOGGER.error("Jekyll2cm couldn't be initialized successfully.", e);
 			return false;
 		}
 	}
-	
+
+	/**
+	 * Triggers the git-pull command to check if there are any updates on the remote
+	 * repository. The fixed rate value in the annotation defines the frequency in
+	 * ms, when to check for an update (i.e. 10000ms = 10s ==> every 10 seconds the
+	 * repository will be pulled (fetch+merge)
+	 */
 	@Scheduled(fixedRate = 10000) // 3600000 = 1h (value in milliseconds)
 	public void pullRemoteRepo() {
 		this.repositoryService.pullRemoteRepo();

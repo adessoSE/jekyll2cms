@@ -41,26 +41,19 @@ public class RepoService {
 
 	/* contains old HEAD of repository */
 	private ObjectId oldHead;
+	
+	/* HEAD of repository */
+	private static final String HEAD = "HEAD^{tree}";
 
 	@Autowired
 	private JekyllService jekyllService;
 
-	@Autowired
-	private XmlParseService xmlParseService;
-
-	/* local Git */
 	private Git localGit;
 
-	/* HEAD of repository */
-	private static final String HEAD = "HEAD^{tree}";
-
-	/* Map that maps post file names to a list of commit dates */
-	private Map<String, List<Date>> postsMappedToListOfCommitTimes;
-
 	/**
-	 * Clones the remote repository (see in application.properties:
-	 * repository.remote.url) to a local repository (repository.local.path) if the
-	 * local repository is not already existing.
+	 * Clones the remote repository (defined in application.properties:
+	 * repository.remote.url) to the local file system (repository.local.path) -
+	 * only if the local repository does not already exist.
 	 */
 	public boolean cloneRemoteRepo() {
 		String method = "cloneRemoteRepo";
@@ -82,11 +75,11 @@ public class RepoService {
 
 	/**
 	 * Method checks if remote repository was updated. Before the git-pull command
-	 * is executed in method pullRemoteRepo(), the existing local repository will be
-	 * stored to variable 'oldHead'. After the git-pull command was executed, this
-	 * method will be called which compares the state of the old repository with the
-	 * state of the repository after executing the git-pull command. Changed files
-	 * will be logged
+	 * is executed in method pullRemoteRepo(), the state of the existing local
+	 * repository will be stored to variable 'oldHead'. After the git-pull command
+	 * was executed, this method will be called which compares the state of the old
+	 * repository with the state of the repository after executing the git-pull
+	 * command. Changed files will be logged
 	 *
 	 * @param git
 	 */
@@ -122,7 +115,7 @@ public class RepoService {
 		LOGGER.info(
 				"Start jekyll build process and generate XML files from jekyll builts and push them to remote repository");
 		if (jekyllService.startJekyllCI()) {
-			//xmlParseService.generateXmlFiles();
+			// TODO start git-push from this point
 		}
 	}
 
@@ -154,6 +147,10 @@ public class RepoService {
 
 	}
 
+	/**
+	 * Checks if the local repository exists and creates it matching the configuration in the builder.
+	 * @return true, if repository exists and could be built successful
+	 */
 	private boolean localRepositoryExists() {
 		String method = "localRepositoryExists";
 		try {
@@ -183,74 +180,4 @@ public class RepoService {
 		}
 		return null;
 	}
-
-	/**
-	 * Maps post files (markdown format) from the local repository to a list of
-	 * commit dates.
-	 *
-	 * @return Map
-	 */
-	// public Map<String, List<Date>> retrieveCommitTimesOfPostFiles() {
-	// localGit = openLocalGit();
-	// Repository repository = localGit.getRepository();
-	// ObjectId commitId = null;
-	// try (RevWalk walk = new RevWalk(repository)) {
-	// commitId = repository.resolve(Constants.HEAD);
-	// RevCommit commit = walk.parseCommit(commitId);
-	// RevTree tree = commit.getTree();
-	//
-	// // now use a TreeWalk to iterate over all files in the Tree recursively
-	// // you can set Filters to narrow down the results if needed
-	// try (TreeWalk treeWalk = new TreeWalk(repository)) {
-	// treeWalk.addTree(tree);
-	// treeWalk.setRecursive(false);
-	// treeWalk.setFilter(PathFilter.create(JEKYLL_POSTS_PATH));
-	// while (treeWalk.next()) {
-	// if (treeWalk.isSubtree()) {
-	// treeWalk.enterSubtree();
-	// } else {
-	// String filePath = treeWalk.getPathString();
-	// retrieveCommitTimesOfPostFile(filePath, repository);
-	// }
-	// }
-	// }
-	// } catch (IOException ioe) {
-	// ioe.printStackTrace();
-	// }
-	// return postsMappedToListOfCommitTimes;
-	// }
-	//
-	// /**
-	// * Retrieves the commit times of the given file from the given repository.
-	// *
-	// * @param relativeFilePath
-	// * - e.g. _posts/file.markdown
-	// * @param repository
-	// * - Repository where the jekyll site lives.
-	// */
-	// public void retrieveCommitTimesOfPostFile(String relativeFilePath, Repository
-	// repository) {
-	// if (postsMappedToListOfCommitTimes == null) {
-	// postsMappedToListOfCommitTimes = new HashMap<>();
-	// }
-	// if (postsMappedToListOfCommitTimes.get(relativeFilePath) == null) {
-	// postsMappedToListOfCommitTimes.put(relativeFilePath, new ArrayList<>());
-	// }
-	//
-	// try (Git git = new Git(repository)) {
-	// Iterable<RevCommit> logs = git.log().addPath(relativeFilePath).call();
-	// for (RevCommit rev : logs) {
-	// // alternative: rev.getCommitterIdent().getWhen(). Is of type Date and
-	// returns
-	// // same result.
-	// Date d = new Date(rev.getCommitTime() * 1000L);
-	// postsMappedToListOfCommitTimes.get(relativeFilePath).add(d);
-	// }
-	// Collections.sort(postsMappedToListOfCommitTimes.get(relativeFilePath));
-	// } catch (NoHeadException e) {
-	// e.printStackTrace();
-	// } catch (GitAPIException e) {
-	// e.printStackTrace();
-	// }
-	// }
 }
