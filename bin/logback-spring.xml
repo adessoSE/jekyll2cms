@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true">
+
+    <include resource="org/springframework/boot/logging/logback/base.xml"/>
+
+    <property name="LOG_PATH" value="logs" />
+    <property name="LOG_ARCHIVE" value="${LOG_PATH}/archive" />
+
+    <!-- >>> configuration for development profile <<< -->
+    <springProfile name="dev">
+        <!-- Sends logs to console. -->
+        <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+            <layout class="ch.qos.logback.classic.PatternLayout">
+                <Pattern>
+                    %d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n
+                </Pattern>
+            </layout>
+        </appender>
+
+        <logger name="de.adesso" level="DEBUG" additivity="false">
+            <appender-ref ref="CONSOLE"/>
+        </logger>
+
+        <root level="ERROR">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+    </springProfile>
+
+    <!-- >>> configuration for production profile <<< -->
+    <springProfile name="prod">
+        <!-- Sends logs to file abd console -->
+        <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+            <layout class="ch.qos.logback.classic.PatternLayout">
+                <Pattern>
+                    %d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n
+                </Pattern>
+            </layout>
+        </appender>
+
+        <appender name="ROLLING-FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>${LOG_PATH}/logfile.log</file>
+            <encoder>
+                <pattern>
+                    %d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n
+                </pattern>
+            </encoder>
+            <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+                <!-- daily rollover -->
+                <fileNamePattern>${LOG_ARCHIVE}/logfile_archive-%d{yyyyMMdd}.log</fileNamePattern>
+
+                <!-- keep 30 days' worth of history capped at 1MB total size -->
+                <maxHistory>30</maxHistory>
+                <totalSizeCap>1MB</totalSizeCap>
+            </rollingPolicy>
+        </appender>
+
+        <logger name="de.adesso" level="INFO" additivity="false">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="ROLLING-FILE"/>
+        </logger>
+
+        <root level="WARN">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="ROLLING-FILE" />
+        </root>
+    </springProfile>
+
+</configuration>
