@@ -8,6 +8,7 @@ module Jekyll
       layout_path = CGI.escape(layout)
       url = resource.url
       ext = File.extname(url)
+      fileName = File.basename(url, ".*") 
 
       
       if url.include?(':layout')
@@ -18,9 +19,9 @@ module Jekyll
         "#{url}/#{layout_path}/"
       else
         if layout=="post-xml"
-            url.gsub(/\/$|#{ext}$/) { |url_end| "/#{layout_path}.xml" }
+            url.gsub(/\/$|#{ext}$/) { |url_end| "/#{fileName}.xml" }
         else
-            url.gsub(/\/$|#{ext}$/) { |url_end| "/#{layout_path}#{url_end}" }
+            url.gsub(/\/$|#{ext}$/) { |url_end| "/#{fileName}#{url_end}" }
         end
         
       end
