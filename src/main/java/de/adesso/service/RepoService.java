@@ -21,6 +21,8 @@ import org.springframework.stereotype.Service;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 
 /**
@@ -39,9 +41,15 @@ public class RepoService {
 	@Value("${jekyll.path.posts}")
 	private String JEKYLL_POSTS_PATH;
 
+	@Value("${repository.local.htmlposts.path}")
+	private String LOCAL_HTML_POSTS;
+
+	@Value("${repository.local.firstspirit-xml.path}")
+	private String FIRSTSPIRIT_XML_PATH;
+
 	/* contains old HEAD of repository */
 	private ObjectId oldHead;
-	
+
 	/* HEAD of repository */
 	private static final String HEAD = "HEAD^{tree}";
 
@@ -100,6 +108,8 @@ public class RepoService {
 			} else {
 				LOGGER.info("Updates found.");
 				this.triggerBuildProcess();
+				this.copyGeneratedFiles(entries);
+
 			}
 			for (DiffEntry entry : entries) {
 				LOGGER.info("The file " + entry.getNewPath() + " was updated!!");
@@ -111,11 +121,117 @@ public class RepoService {
 		}
 	}
 
+	/**
+	 * After a change in a markdown post was detected, the jekyll-build process
+	 * generates html and xml files to the corresponding markdown file. The xml
+	 * output has to be copied to an intended folder
+	 * 
+	 * @param entries
+	 *            List with all changed files
+	 */
+	private void copyGeneratedFiles(List<DiffEntry> entries) {
+
+		entries.forEach((entry) -> {
+
+			/*
+			 * Assumption: every-blog- post-file with ending "markdown" has the following
+			 * structure: _posts/2017-08-01-new-post-for-netlify-test.markdown
+			 */
+
+			/*
+			 * separate "_posts" from "2017-08-01-new-post-for-netlify-test.markdown" in
+			 * file path
+			 */
+			String[] splitFilePath = entry.getNewPath().split("/");
+
+			/*
+			 * only if changed file is in folder "_posts", then a post defined in markdown
+			 * was created or updated; other files are ignored
+			 */
+			if (splitFilePath[0].equals("_posts")) {
+
+				String[] splitFileName = splitFilePath[1].split("-");
+
+				/*
+				 * Get date "2017-08-01" from file name
+				 * "2017-08-01-new-post-for-netlify-test.markdown"
+				 */
+				String fileDate = splitFileName[0] + "-" + splitFileName[1] + "-" + splitFileName[2]; //
+
+				/*
+				 * The part of the file name which is not the date is the file name of the
+				 * jekyll xml built. The following method call extracts the file name
+				 * "new-post-for-netlify-test.xml" from
+				 * "2017-08-01-new-post-for-netlify-test.markdown"
+				 */
+				String fileName = this.reconstructFileName(splitFileName);
+				String xmlFileName = fileName + ".xml";
+
+				/*
+				 * The Jeykyll xml built is located at
+				 * "/_site/blog-posts/2017-08-01/new-post-for-netlify-test/new-post-for-netlify-
+				 * test.xml
+				 */
+				File source = new File(LOCAL_HTML_POSTS + "/" + fileDate + "/" + fileName + "/" + xmlFileName);
+				File dest = new File(FIRSTSPIRIT_XML_PATH + "/" + xmlFileName);
+				this.copyFile(source, dest);
+			}
+		});
+	}
+
+	/**
+	 * Copy a file
+	 * 
+	 * @param source
+	 *            Source of the file
+	 * @param dest
+	 *            Destination of the file
+	 */
+	private void copyFile(File source, File dest) {
+		try {
+			LOGGER.info("Copy file from " + source.getAbsolutePath() + " to " + dest.getAbsolutePath());
+			Files.copy(source.toPath(), dest.toPath(), StandardCopyOption.REPLACE_EXISTING,
+					StandardCopyOption.COPY_ATTRIBUTES);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Reconstructs the file name from an array.
+	 * 
+	 * Example: Array looks like: {"new","post","for","netlify","test.markdown"}.
+	 * This method will "return new-post-for-netlify-test"
+	 * 
+	 * @param splitFileName
+	 *            Array with the divided file name
+	 * @return reconstructed file name
+	 */
+	private String reconstructFileName(String[] splitFileName) {
+		String fileName = "";
+		for (int i = 3; i < splitFileName.length; i++) {
+
+			if (i < splitFileName.length - 1) {
+				fileName += splitFileName[i];
+				fileName += "-";
+			}
+			if (i == splitFileName.length - 1) {
+				fileName += splitFileName[i].split("\\.")[0];
+			}
+		}
+
+		return fileName;
+	}
+
+	/**
+	 * Starts the jekyll build process
+	 */
 	public void triggerBuildProcess() {
 		LOGGER.info(
 				"Start jekyll build process and generate XML files from jekyll builts and push them to remote repository");
-		if (jekyllService.startJekyllCI()) {
-			// TODO start git-push from this point
+		if (!jekyllService.startJekyllCI()) {
+			// TODO define error message
 		}
 	}
 
@@ -148,7 +264,9 @@ public class RepoService {
 	}
 
 	/**
-	 * Checks if the local repository exists and creates it matching the configuration in the builder.
+	 * Checks if the local repository exists and creates it matching the
+	 * configuration in the builder.
+	 * 
 	 * @return true, if repository exists and could be built successful
 	 */
 	private boolean localRepositoryExists() {
