@@ -13,6 +13,8 @@ public class InitializationService {
 
 	@Autowired
 	private RepoService repositoryService;
+	
+	private final static long pollInterval = 10000;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(InitializationService.class);
 
@@ -42,7 +44,7 @@ public class InitializationService {
 	 * ms, when to check for an update (i.e. 10000ms = 10s ==> every 10 seconds the
 	 * repository will be pulled (fetch+merge)
 	 */
-	@Scheduled(fixedRate = 10000) // 3600000 = 1h (value in milliseconds)
+	@Scheduled(fixedRate = pollInterval) // 3600000 = 1h (value in milliseconds)
 	public void pullRemoteRepo() {
 		this.repositoryService.pullRemoteRepo();
 	}
