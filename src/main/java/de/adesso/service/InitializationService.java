@@ -26,6 +26,8 @@ public class InitializationService {
 		try {
 			if (repositoryService.cloneRemoteRepo()) {
 				repositoryService.triggerBuildProcess();
+				repositoryService.copyAllGeneratedXmlFiles();
+				repositoryService.pushRepo();
 				return true;
 			}
 			return false;
