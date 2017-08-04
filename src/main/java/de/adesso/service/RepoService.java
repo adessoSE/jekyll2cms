@@ -189,7 +189,7 @@ public class RepoService {
 				 * test.xml
 				 */
 				File source = new File(LOCAL_HTML_POSTS + "/" + fileDate + "/" + fileName + "/" + xmlFileName);
-				File dest = new File(FIRSTSPIRIT_XML_PATH + "/" + fileDate + "-" + xmlFileName);
+				File dest = new File(FIRSTSPIRIT_XML_PATH + "/" + fileDate + "/" + fileDate + "-" + xmlFileName);
 				this.copyFile(source, dest);
 			}
 		});
@@ -205,11 +205,12 @@ public class RepoService {
 		File file = new File(LOCAL_HTML_POSTS);
 		scanDirectory(file, allFiles);
 		/*
-		 * Filter: take only XML-files - other files will be ingnored
+		 * Filter: take only XML-files - other files will be ignored
 		 */
 		allFiles.stream().filter(File::isFile).filter((f) -> {
 			return FilenameUtils.getExtension(f.getAbsolutePath()).equals("xml");
 		}).forEach((f) -> {
+			String fileDate = FilenameUtils.getBaseName(new File(f.getParent()).getParent());
 			File dest = new File(
 					/*
 					 * XML File located at
@@ -217,8 +218,8 @@ public class RepoService {
 					 * desired to be copied to
 					 * "assets/first-spirit-xml/2016-05-12-welcome-to-jekyll"
 					 */
-					FIRSTSPIRIT_XML_PATH + "/" + FilenameUtils.getBaseName(new File(f.getParent()).getParent()) + "-"
-							+ FilenameUtils.getBaseName(f.getAbsolutePath()));
+					FIRSTSPIRIT_XML_PATH + "/" + fileDate + "/" + fileDate + "-"
+							+ FilenameUtils.getBaseName(f.getAbsolutePath() + ".xml"));
 			this.copyFile(f, dest);
 		});
 
@@ -254,6 +255,9 @@ public class RepoService {
 	private void copyFile(File source, File dest) {
 		try {
 			LOGGER.info("Copy file from " + source.getAbsolutePath() + " to " + dest.getAbsolutePath());
+			if (!dest.exists()) {
+				dest.getParentFile().mkdir();
+			}
 			Files.copy(source.toPath(), dest.toPath(), StandardCopyOption.REPLACE_EXISTING,
 					StandardCopyOption.COPY_ATTRIBUTES);
 		} catch (IOException e) {
