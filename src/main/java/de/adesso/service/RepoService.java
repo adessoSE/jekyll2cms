@@ -2,6 +2,7 @@ package de.adesso.service;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.PullResult;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
@@ -11,6 +12,8 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.merge.MergeStrategy;
 
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
+import org.eclipse.jgit.transport.CredentialsProvider;
+import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +38,7 @@ public class RepoService {
 
 	@Value("${repository.local.path}")
 	private String LOCAL_REPO_PATH;
+
 	@Value("${repository.remote.url}")
 	private String REMOTE_REPO_URL;
 
@@ -47,11 +51,22 @@ public class RepoService {
 	@Value("${repository.local.firstspirit-xml.path}")
 	private String FIRSTSPIRIT_XML_PATH;
 
+	@Value("${repository.local.user.name}")
+	private String GIT_AUTHOR_NAME;
+
+	@Value("${repository.local.user.mail}")
+	private String GIT_AUTHOR_MAIL;
+
+	@Value("${repository.local.user.password}")
+	private String GIT_AUTHOR_PASSWORD;
+
 	/* contains old HEAD of repository */
 	private ObjectId oldHead;
 
 	/* HEAD of repository */
 	private static final String HEAD = "HEAD^{tree}";
+
+	private final String GIT_COMMIT_MESSAGE = "New First Spirit XML files added automatically by jekyll2cms";
 
 	@Autowired
 	private JekyllService jekyllService;
@@ -108,8 +123,8 @@ public class RepoService {
 			} else {
 				LOGGER.info("Updates found.");
 				this.triggerBuildProcess();
-				this.copyGeneratedFiles(entries);
-
+				this.copyGeneratedXmlFiles(entries);
+				this.pushRepo();
 			}
 			for (DiffEntry entry : entries) {
 				LOGGER.info("The file " + entry.getNewPath() + " was updated!!");
@@ -129,7 +144,7 @@ public class RepoService {
 	 * @param entries
 	 *            List with all changed files
 	 */
-	private void copyGeneratedFiles(List<DiffEntry> entries) {
+	private void copyGeneratedXmlFiles(List<DiffEntry> entries) {
 
 		entries.forEach((entry) -> {
 
@@ -173,7 +188,7 @@ public class RepoService {
 				 * test.xml
 				 */
 				File source = new File(LOCAL_HTML_POSTS + "/" + fileDate + "/" + fileName + "/" + xmlFileName);
-				File dest = new File(FIRSTSPIRIT_XML_PATH + "/" + xmlFileName);
+				File dest = new File(FIRSTSPIRIT_XML_PATH + "/" + fileDate + "-" + xmlFileName);
 				this.copyFile(source, dest);
 			}
 		});
@@ -198,6 +213,8 @@ public class RepoService {
 		}
 	}
 
+	
+
 	/**
 	 * Reconstructs the file name from an array.
 	 * 
@@ -220,7 +237,6 @@ public class RepoService {
 				fileName += splitFileName[i].split("\\.")[0];
 			}
 		}
-
 		return fileName;
 	}
 
@@ -235,6 +251,29 @@ public class RepoService {
 		}
 	}
 
+	private void pushRepo() {
+		/*
+		 * Assumption: the XML-posts will be pushed into the same repository where the
+		 * markdown-posts were pushed, too. If another repository is intended for the
+		 * First-Spirit-XML files, another implementation (other remote repository etc.)
+		 * is necessary
+		 */
+		if (localGit != null) {
+			try {
+				LOGGER.info("Pushing XML files to repository");
+				localGit.add().addFilepattern(".").setUpdate(false).call();
+				localGit.commit().setAll(true).setMessage(GIT_COMMIT_MESSAGE)
+						.setAuthor(GIT_AUTHOR_NAME, GIT_AUTHOR_MAIL).call();
+				CredentialsProvider cp = new UsernamePasswordCredentialsProvider(GIT_AUTHOR_NAME, GIT_AUTHOR_PASSWORD);
+				localGit.push().setForce(true).setCredentialsProvider(cp).call();
+				LOGGER.info("Pushing XML files was successful");
+			} catch (GitAPIException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+
 	/**
 	 * pulls the remote git repository to receive changes.
 	 */
@@ -246,7 +285,6 @@ public class RepoService {
 			try (Git git = new Git(repository)) {
 
 				this.oldHead = repository.resolve(RepoService.HEAD);
-
 				PullResult pullResult = git.pull().setStrategy(MergeStrategy.THEIRS).call();
 				LOGGER.info("Fetch result: " + pullResult.getFetchResult().getMessages());
 				LOGGER.info("Merge result: " + pullResult.getMergeResult().toString());
@@ -255,12 +293,10 @@ public class RepoService {
 			} catch (Exception e) {
 				LOGGER.error("In method " + method + ": Error while pulling remote git repository.", e);
 			}
-
 			localGit.close();
 		} else {
 			LOGGER.warn("Repository not cloned yet");
 		}
-
 	}
 
 	/**
