@@ -172,7 +172,7 @@ public class RepoService {
 				 * Get date "2017-08-01" from file name
 				 * "2017-08-01-new-post-for-netlify-test.markdown"
 				 */
-				String fileDate = splitFileName[0] + "-" + splitFileName[1] + "-" + splitFileName[2]; //
+				String fileDate = splitFileName[0] + "-" + splitFileName[1] + "-" + splitFileName[2];
 
 				/*
 				 * The part of the file name which is not the date is the file name of the
@@ -257,8 +257,7 @@ public class RepoService {
 			Files.copy(source.toPath(), dest.toPath(), StandardCopyOption.REPLACE_EXISTING,
 					StandardCopyOption.COPY_ATTRIBUTES);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOGGER.error("An error occured while copying generated XML files to destinantion");
 		}
 	}
 
@@ -294,7 +293,7 @@ public class RepoService {
 		LOGGER.info(
 				"Start jekyll build process and generate XML files from jekyll builts and push them to remote repository");
 		if (!jekyllService.startJekyllCI()) {
-			// TODO define error message
+			LOGGER.error("An error occured while building the sources with jekyll");
 		}
 	}
 
@@ -318,8 +317,7 @@ public class RepoService {
 				localGit.push().setForce(true).setCredentialsProvider(cp).call();
 				LOGGER.info("Pushing XML files was successful");
 			} catch (GitAPIException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				LOGGER.error("An error occured while pushing files to remote repository");
 			}
 		}
 	}

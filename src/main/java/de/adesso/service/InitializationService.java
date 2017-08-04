@@ -22,7 +22,6 @@ public class InitializationService {
 	 * @return true, if initialization was successful. Return false otherwise.
 	 */
 	public boolean init() {
-		// TODO: exception handling to define
 		try {
 			if (repositoryService.cloneRemoteRepo()) {
 				repositoryService.triggerBuildProcess();
