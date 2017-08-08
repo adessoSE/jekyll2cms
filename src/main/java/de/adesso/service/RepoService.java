@@ -1,244 +1,391 @@
 package de.adesso.service;
 
+import org.apache.commons.io.FilenameUtils;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.PullResult;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.api.errors.NoHeadException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
-import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.revwalk.RevTree;
-import org.eclipse.jgit.revwalk.RevWalk;
+import org.eclipse.jgit.merge.MergeStrategy;
+
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
+import org.eclipse.jgit.transport.CredentialsProvider;
+import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
-import org.eclipse.jgit.treewalk.TreeWalk;
-import org.eclipse.jgit.treewalk.filter.PathFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 
 /**
  * This service helps managing repositories with the help of JGit.
  */
 @Service
-@EnableScheduling
 public class RepoService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RepoService.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(RepoService.class);
 
-    @Value("${repository.local.path}")
-    private String LOCAL_REPO_PATH;
-    @Value("${repository.remote.url}")
-    private String REMOTE_REPO_URL;
+	@Value("${repository.local.path}")
+	private String LOCAL_REPO_PATH;
 
-    @Value("${jekyll.path.posts}")
-    private String JEKYLL_POSTS_PATH;
+	@Value("${repository.remote.url}")
+	private String REMOTE_REPO_URL;
 
-    /* contains old HEAD of repository */
-    private ObjectId oldHead;
+	@Value("${jekyll.path.posts}")
+	private String JEKYLL_POSTS_PATH;
 
-    @Autowired
-    private XmlParseService xmlParseService;
+	@Value("${repository.local.htmlposts.path}")
+	private String LOCAL_HTML_POSTS;
 
-    /* local Git */
-    private Git localGit;
+	@Value("${repository.local.firstspirit-xml.path}")
+	private String FIRSTSPIRIT_XML_PATH;
 
-    /* HEAD of repository */
-    private static final String HEAD = "HEAD^{tree}";
+	@Value("${repository.local.user.name}")
+	private String GIT_AUTHOR_NAME;
 
-    /* Map that maps post file names to a list of commit dates */
-    private Map<String, List<Date>> postsMappedToListOfCommitTimes;
+	@Value("${repository.local.user.mail}")
+	private String GIT_AUTHOR_MAIL;
 
-    /**
-     * Clones the remote repository (see in application.properties:
-     * repository.remote.url) to a local repository (repository.local.path) if the
-     * local repository is not already existing.
-     */
-    public void cloneRemoteRepo() {
-        String method = "cloneRemoteRepo";
-        try {
-            if (!localRepositoryExists()) {
-                localGit = Git.cloneRepository().setURI(REMOTE_REPO_URL).setDirectory(new File(LOCAL_REPO_PATH)).call();
-                LOGGER.info("Repository cloned successfully");
-            } else {
-                LOGGER.warn("Remote repository is already cloned into local repository");
-                localGit = openLocalGit();
-                pullRemoteRepo();
-            }
-        } catch (Exception e) {
-            LOGGER.error("In method " + method + ": Error while cloning remote git respository", e);
-        }
-    }
+	@Value("${repository.local.user.password}")
+	private String GIT_AUTHOR_PASSWORD;
 
-    /**
-     * Method checks if remote repository was updated. Before the git-pull command
-     * is executed in method pullRemoteRepo(), the existing local repository will be
-     * stored to variable 'oldHead'. After the git-pull command was executed, this
-     * method will be called which compares the state of the old repository with the
-     * state of the repository after executing the git-pull command. Changed files
-     * will be logged
-     *
-     * @param git
-     */
-    private void checkForUpdates(Git git) {
-        LOGGER.info("Checking for Updates");
-        try {
-            ObjectReader reader = git.getRepository().newObjectReader();
-            CanonicalTreeParser oldHeadIter = new CanonicalTreeParser();
-            oldHeadIter.reset(reader, oldHead);
-            CanonicalTreeParser newHeadIter = new CanonicalTreeParser();
-            ObjectId newTree = git.getRepository().resolve(RepoService.HEAD);
-            newHeadIter.reset(reader, newTree);
-            DiffFormatter df = new DiffFormatter(new ByteArrayOutputStream());
-            df.setRepository(git.getRepository());
-            List<DiffEntry> entries = df.scan(oldHeadIter, newHeadIter);
-            if (entries == null || entries.size() == 0) {
-                LOGGER.info("No updates found.");
-            } else {
-                this.triggerXMLgenerator();
-            }
-            for (DiffEntry entry : entries) {
-                LOGGER.info("The file " + entry.getNewPath() + " was updated!!");
-            }
-            df.close();
-        } catch (IOException e) {
-            LOGGER.error("Error while checking for updated files");
-            e.printStackTrace();
-        }
-    }
+	/* contains old HEAD of repository */
+	private ObjectId oldHead;
 
-    public void triggerXMLgenerator() {
-        LOGGER.info("Generate XML files from jekyll builts and push them to remote repository");
-        xmlParseService.generateXmlFiles();
-    }
+	/* HEAD of repository */
+	private static final String HEAD = "HEAD^{tree}";
 
-    /**
-     * pulls the remote git repository to receive changes.
-     */
-    @Scheduled(fixedRate = 10000) // 3600000 = 1h (value in milliseconds)
-    public void pullRemoteRepo() {
-        String method = "pullRemoteRepo";
-        LOGGER.info("Trying to pull remote repository...");
-        if (localGit != null) {
-            Repository repository = localGit.getRepository();
-            try (Git git = new Git(repository)) {
-                this.oldHead = repository.resolve(RepoService.HEAD);
-                git.pull().call();
-                this.checkForUpdates(git);
-                localGit.close();
-            } catch (Exception e) {
-                LOGGER.error("In method " + method + ": Error while pulling remote git repository.", e);
-            }
-        }
+	private final String GIT_COMMIT_MESSAGE = "New First Spirit XML files added automatically by jekyll2cms";
 
-    }
+	@Autowired
+	private JekyllService jekyllService;
 
-    private boolean localRepositoryExists() {
-        String method = "localRepositoryExists";
-        try {
-            FileRepositoryBuilder repositoryBuilder = new FileRepositoryBuilder();
-            repositoryBuilder.setGitDir(new File(LOCAL_REPO_PATH + ".git"));
-            repositoryBuilder.setMustExist(true);
-            repositoryBuilder.build();
-        } catch (RepositoryNotFoundException e) {
-            LOGGER.error("In method {}: Could not find repository: Error message: {}", method, e.getMessage());
-            return false;
-        } catch (IOException e) {
-            LOGGER.error("In method {}: Error while accessing file: Error message: {}", method, e.getMessage());
-        }
-        return true;
-    }
+	private Git localGit;
 
-    /**
-     * Opens the local jekyll repository.
-     *
-     * @return Git
-     */
-    private Git openLocalGit() {
-        try {
-            return Git.open(new File(LOCAL_REPO_PATH + ".git"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
+	/**
+	 * Clones the remote repository (defined in application.properties:
+	 * repository.remote.url) to the local file system (repository.local.path) -
+	 * only if the local repository does not already exist.
+	 */
+	public boolean cloneRemoteRepo() {
+		String method = "cloneRemoteRepo";
+		try {
+			if (!localRepositoryExists()) {
+				localGit = Git.cloneRepository().setURI(REMOTE_REPO_URL).setDirectory(new File(LOCAL_REPO_PATH)).call();
+				LOGGER.info("Repository cloned successfully");
+			} else {
+				LOGGER.warn("Remote repository is already cloned into local repository");
+				localGit = openLocalGit();
+			}
+		} catch (Exception e) {
+			LOGGER.error("In method " + method + ": Error while cloning remote git respository", e);
+			return false;
+		}
 
-    /**
-     * Maps post files (markdown format) from the local repository to a list of commit dates.
-     *
-     * @return Map
-     */
-    public Map<String, List<Date>> retrieveCommitTimesOfPostFiles() {
-        localGit = openLocalGit();
-        Repository repository = localGit.getRepository();
-        ObjectId commitId = null;
-        try (RevWalk walk = new RevWalk(repository)) {
-            commitId = repository.resolve(Constants.HEAD);
-            RevCommit commit = walk.parseCommit(commitId);
-            RevTree tree = commit.getTree();
+		return true;
+	}
 
-            // now use a TreeWalk to iterate over all files in the Tree recursively
-            // you can set Filters to narrow down the results if needed
-            try (TreeWalk treeWalk = new TreeWalk(repository)) {
-                treeWalk.addTree(tree);
-                treeWalk.setRecursive(false);
-                treeWalk.setFilter(PathFilter.create(JEKYLL_POSTS_PATH));
-                while (treeWalk.next()) {
-                    if (treeWalk.isSubtree()) {
-                        treeWalk.enterSubtree();
-                    } else {
-                        String filePath = treeWalk.getPathString();
-                        retrieveCommitTimesOfPostFile(filePath, repository);
-                    }
-                }
-            }
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-        }
+	/**
+	 * Method checks if remote repository was updated. Before the git-pull command
+	 * is executed in method pullRemoteRepo(), the state of the existing local
+	 * repository will be stored to variable 'oldHead'. After the git-pull command
+	 * was executed, this method will be called which compares the state of the old
+	 * repository with the state of the repository after executing the git-pull
+	 * command. Changed files will be logged
+	 *
+	 * @param git
+	 */
+	private void checkForUpdates(Git git) {
+		LOGGER.info("Checking for Updates");
+		try {
+			ObjectReader reader = git.getRepository().newObjectReader();
+			CanonicalTreeParser oldHeadIter = new CanonicalTreeParser();
+			oldHeadIter.reset(reader, oldHead);
+			CanonicalTreeParser newHeadIter = new CanonicalTreeParser();
+			ObjectId newTree = git.getRepository().resolve(RepoService.HEAD);
+			newHeadIter.reset(reader, newTree);
+			DiffFormatter df = new DiffFormatter(new ByteArrayOutputStream());
+			df.setRepository(git.getRepository());
+			List<DiffEntry> entries = df.scan(oldHeadIter, newHeadIter);
+			if (entries == null || entries.size() == 0) {
+				LOGGER.info("No updates found.");
+			} else {
+				LOGGER.info("Updates found.");
+				this.triggerBuildProcess();
+				this.copyGeneratedXmlFiles(entries);
+				this.pushRepo();
+			}
+			for (DiffEntry entry : entries) {
+				LOGGER.info("The file " + entry.getNewPath() + " was updated!!");
+			}
+			df.close();
+		} catch (IOException e) {
+			LOGGER.error("Error while checking for updated files");
+			e.printStackTrace();
+		}
+	}
 
-        return postsMappedToListOfCommitTimes;
-    }
+	/**
+	 * After a change in a markdown post was detected, the jekyll-build process
+	 * generates html and xml files to the corresponding markdown file. The xml
+	 * output has to be copied to an intended folder
+	 * 
+	 * @param entries
+	 *            List with all changed files
+	 */
+	private void copyGeneratedXmlFiles(List<DiffEntry> entries) {
 
-    /**
-     * Retrieves the commit times of the given file from the given repository.
-     *
-     * @param relativeFilePath - e.g. _posts/file.markdown
-     * @param repository       - Repository where the jekyll site lives.
-     */
-    public void retrieveCommitTimesOfPostFile(String relativeFilePath, Repository repository) {
-        if (postsMappedToListOfCommitTimes == null) {
-            postsMappedToListOfCommitTimes = new HashMap<>();
-        }
-        if (postsMappedToListOfCommitTimes.get(relativeFilePath) == null) {
-            postsMappedToListOfCommitTimes.put(relativeFilePath, new ArrayList<>());
-        }
+		entries.forEach((entry) -> {
 
-        try (Git git = new Git(repository)) {
-            Iterable<RevCommit> logs = git.log()
-                    .addPath(relativeFilePath).call();
-            for (RevCommit rev : logs) {
-                // alternative: rev.getCommitterIdent().getWhen(). Is of type Date and returns same result.
-                Date d = new Date(rev.getCommitTime() * 1000L);
-                postsMappedToListOfCommitTimes.get(relativeFilePath).add(d);
-            }
-            Collections.sort(postsMappedToListOfCommitTimes.get(relativeFilePath));
-        } catch (NoHeadException e) {
-            e.printStackTrace();
-        } catch (GitAPIException e) {
-            e.printStackTrace();
-        }
-    }
+			/*
+			 * Assumption: every-blog- post-file with ending "markdown" has the following
+			 * structure: _posts/2017-08-01-new-post-for-netlify-test.markdown
+			 */
+
+			/*
+			 * separate "_posts" from "2017-08-01-new-post-for-netlify-test.markdown" in
+			 * file path
+			 */
+			String[] splitFilePath = entry.getNewPath().split("/");
+
+			/*
+			 * only if changed file is in folder "_posts", then a post defined in markdown
+			 * was created or updated; other files are ignored
+			 */
+			if (splitFilePath[0].equals("_posts")) {
+
+				String[] splitFileName = splitFilePath[1].split("-");
+
+				/*
+				 * Get date "2017-08-01" from file name
+				 * "2017-08-01-new-post-for-netlify-test.markdown"
+				 */
+				String fileDate = splitFileName[0] + "-" + splitFileName[1] + "-" + splitFileName[2];
+
+				/*
+				 * The part of the file name which is not the date is the file name of the
+				 * jekyll xml built. The following method call extracts the file name
+				 * "new-post-for-netlify-test.xml" from
+				 * "2017-08-01-new-post-for-netlify-test.markdown"
+				 */
+				String fileName = this.reconstructFileName(splitFileName);
+				String xmlFileName = fileName + ".xml";
+
+				/*
+				 * The Jeykyll xml built is located at
+				 * "/_site/blog-posts/2017-08-01/new-post-for-netlify-test/new-post-for-netlify-
+				 * test.xml
+				 */
+				File source = new File(LOCAL_HTML_POSTS + "/" + fileDate + "/" + fileName + "/" + xmlFileName);
+				File dest = new File(FIRSTSPIRIT_XML_PATH + "/" + fileDate + "/" + fileDate + "-" + xmlFileName);
+				this.copyFile(source, dest);
+			}
+		});
+	}
+
+	/**
+	 * Copy all XML files that were generated by jekyll.
+	 * 
+	 * This method is useful after starting and initializing the application
+	 */
+	public void copyAllGeneratedXmlFiles() {
+		Collection<File> allFiles = new ArrayList<File>();
+		File file = new File(LOCAL_HTML_POSTS);
+		scanDirectory(file, allFiles);
+		/*
+		 * Filter: take only XML-files - other files will be ignored
+		 */
+		allFiles.stream().filter(File::isFile).filter((f) -> {
+			return FilenameUtils.getExtension(f.getAbsolutePath()).equals("xml");
+		}).forEach((f) -> {
+			String fileDate = FilenameUtils.getBaseName(new File(f.getParent()).getParent());
+			File dest = new File(
+					/*
+					 * XML File located at
+					 * "_site/blog-posts/2016-05-12/welcome-to-jekyll/welcome-to-jekyll.xml" and is
+					 * desired to be copied to
+					 * "assets/first-spirit-xml/2016-05-12-welcome-to-jekyll"
+					 */
+					FIRSTSPIRIT_XML_PATH + "/" + fileDate + "/" + fileDate + "-"
+							+ FilenameUtils.getBaseName(f.getAbsolutePath() + ".xml"));
+			this.copyFile(f, dest);
+		});
+
+	}
+
+	/**
+	 * Auxiliary-method for opyAllGeneratedXmlFiles() - a file directory will be
+	 * scanned and all files are collected
+	 * 
+	 * @param file
+	 *            root directory - scan starts here
+	 * @param all
+	 *            Collection where results are added to
+	 */
+	private void scanDirectory(File file, Collection<File> all) {
+		File[] children = file.listFiles();
+		if (children != null) {
+			for (File child : children) {
+				all.add(child);
+				scanDirectory(child, all);
+			}
+		}
+	}
+
+	/**
+	 * Copy a file
+	 * 
+	 * @param source
+	 *            Source of the file
+	 * @param dest
+	 *            Destination of the file
+	 */
+	private void copyFile(File source, File dest) {
+		try {
+			if (source.lastModified() != dest.lastModified()) {
+				LOGGER.info("Copy file from " + source.getAbsolutePath() + " to " + dest.getAbsolutePath());
+				if (!dest.exists()) {
+					dest.getParentFile().mkdir();
+				}
+				Files.copy(source.toPath(), dest.toPath(), StandardCopyOption.REPLACE_EXISTING,
+						StandardCopyOption.COPY_ATTRIBUTES);
+			}
+		} catch (IOException e) {
+			LOGGER.error("An error occured while copying generated XML files to destinantion");
+		}
+	}
+
+	/**
+	 * Reconstructs the file name from an array.
+	 * 
+	 * Example: Array looks like: {"new","post","for","netlify","test.markdown"}.
+	 * This method will "return new-post-for-netlify-test"
+	 * 
+	 * @param splitFileName
+	 *            Array with the divided file name
+	 * @return reconstructed file name
+	 */
+	private String reconstructFileName(String[] splitFileName) {
+		String fileName = "";
+		for (int i = 3; i < splitFileName.length; i++) {
+
+			if (i < splitFileName.length - 1) {
+				fileName += splitFileName[i];
+				fileName += "-";
+			}
+			if (i == splitFileName.length - 1) {
+				fileName += splitFileName[i].split("\\.")[0];
+			}
+		}
+		return fileName;
+	}
+
+	/**
+	 * Starts the jekyll build process
+	 */
+	public void triggerBuildProcess() {
+		LOGGER.info(
+				"Start jekyll build process and generate XML files from jekyll builts and push them to remote repository");
+		if (!jekyllService.startJekyllCI()) {
+			LOGGER.error("An error occured while building the sources with jekyll");
+		}
+	}
+
+	/**
+	 * Pushes all files that changed locally
+	 */
+	public void pushRepo() {
+		/*
+		 * Assumption: the XML-posts will be pushed into the same repository where the
+		 * markdown-posts were pushed, too. If another repository is intended for the
+		 * First-Spirit-XML files, another implementation (other remote repository etc.)
+		 * is necessary
+		 */
+		if (localGit != null) {
+			try {
+				LOGGER.info("Pushing XML files to repository");
+				localGit.add().addFilepattern(".").setUpdate(false).call();
+				localGit.commit().setAll(true).setMessage(GIT_COMMIT_MESSAGE)
+						.setAuthor(GIT_AUTHOR_NAME, GIT_AUTHOR_MAIL).call();
+				CredentialsProvider cp = new UsernamePasswordCredentialsProvider(GIT_AUTHOR_NAME, GIT_AUTHOR_PASSWORD);
+				localGit.push().setForce(true).setCredentialsProvider(cp).call();
+				LOGGER.info("Pushing XML files was successful");
+			} catch (GitAPIException e) {
+				LOGGER.error("An error occured while pushing files to remote repository");
+			}
+		}
+	}
+
+	/**
+	 * pulls the remote git repository to receive changes.
+	 */
+	public void pullRemoteRepo() {
+		String method = "pullRemoteRepo";
+		LOGGER.info("Trying to pull remote repository...");
+		if (localGit != null) {
+			Repository repository = localGit.getRepository();
+			try (Git git = new Git(repository)) {
+
+				this.oldHead = repository.resolve(RepoService.HEAD);
+				PullResult pullResult = git.pull().setStrategy(MergeStrategy.THEIRS).call();
+				LOGGER.info("Fetch result: " + pullResult.getFetchResult().getMessages());
+				LOGGER.info("Merge result: " + pullResult.getMergeResult().toString());
+				LOGGER.info("Merge status: " + pullResult.getMergeResult().getMergeStatus());
+				this.checkForUpdates(git);
+			} catch (Exception e) {
+				LOGGER.error("In method " + method + ": Error while pulling remote git repository.", e);
+			}
+			localGit.close();
+		} else {
+			LOGGER.warn("Repository not cloned yet");
+		}
+	}
+
+	/**
+	 * Checks if the local repository exists and creates it matching the
+	 * configuration in the builder.
+	 * 
+	 * @return true, if repository exists and could be built successful
+	 */
+	private boolean localRepositoryExists() {
+		String method = "localRepositoryExists";
+		try {
+			FileRepositoryBuilder repositoryBuilder = new FileRepositoryBuilder();
+			repositoryBuilder.setGitDir(new File(LOCAL_REPO_PATH + ".git"));
+			repositoryBuilder.setMustExist(true);
+			repositoryBuilder.build();
+		} catch (RepositoryNotFoundException e) {
+			LOGGER.error("In method {}: Could not find repository: Error message: {}", method, e.getMessage());
+			return false;
+		} catch (IOException e) {
+			LOGGER.error("In method {}: Error while accessing file: Error message: {}", method, e.getMessage());
+		}
+		return true;
+	}
+
+	/**
+	 * Opens the local jekyll repository.
+	 *
+	 * @return Git
+	 */
+	private Git openLocalGit() {
+		try {
+			return Git.open(new File(LOCAL_REPO_PATH + ".git"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 }
