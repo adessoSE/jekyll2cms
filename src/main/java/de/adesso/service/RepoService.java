@@ -254,12 +254,14 @@ public class RepoService {
 	 */
 	private void copyFile(File source, File dest) {
 		try {
-			LOGGER.info("Copy file from " + source.getAbsolutePath() + " to " + dest.getAbsolutePath());
-			if (!dest.exists()) {
-				dest.getParentFile().mkdir();
+			if (source.lastModified() != dest.lastModified()) {
+				LOGGER.info("Copy file from " + source.getAbsolutePath() + " to " + dest.getAbsolutePath());
+				if (!dest.exists()) {
+					dest.getParentFile().mkdir();
+				}
+				Files.copy(source.toPath(), dest.toPath(), StandardCopyOption.REPLACE_EXISTING,
+						StandardCopyOption.COPY_ATTRIBUTES);
 			}
-			Files.copy(source.toPath(), dest.toPath(), StandardCopyOption.REPLACE_EXISTING,
-					StandardCopyOption.COPY_ATTRIBUTES);
 		} catch (IOException e) {
 			LOGGER.error("An error occured while copying generated XML files to destinantion");
 		}
