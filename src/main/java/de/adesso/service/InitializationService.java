@@ -26,6 +26,7 @@ public class InitializationService {
 	public boolean init() {
 		try {
 			if (repositoryService.cloneRemoteRepo()) {
+				repositoryService.pullRemoteRepo();
 				repositoryService.triggerBuildProcess();
 				repositoryService.copyAllGeneratedXmlFiles();
 				repositoryService.pushRepo();
