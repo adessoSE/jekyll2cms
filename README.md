@@ -24,7 +24,7 @@ Open a new terminal window in the root folder of the project an run
 `java -jar build/libs/jekyll2cms-0.0.1.jar`
 
 ## How to work with jeyll2cms
-After you started the application without faults, it will clone the remote repository. If there is already a local clone, the repository will fetch and merge (pull) updates automatically. The received blog-content in markdown will be transformed into First-Spirit-compatible XML, which is stored in the folder you defined in the application properties and pushed back to the remote repository. 
+After you started the application without faults, it will clone the remote repository. If there is already a local clone, the repository will fetch and merge (pull) updates automatically. The received blog-content, which is writen in markdown, will be transformed into First-Spirit-compatible XML, which is stored in the folder you defined in the application properties and pushed back to the remote repository. 
 
 To check for updates, jekyll2cms executes every 10 seconds a new pull to check regularly for new blog posts. If the application detects a change in markdown-file, the XML will be updated and pushed to the remote repository.  
 
