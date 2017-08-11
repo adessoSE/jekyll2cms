@@ -38,6 +38,11 @@ public class JekyllService {
 		}
 	}
 
+	
+	/**
+	 * Starts the jekyll build process (jekyll build --incremental)
+	 * @return true, if jekyll build was successful
+	 */
 	public boolean startJekyllCI() {
 		int exitValue = -1;
 		String line = JEKYLL_PATH;
