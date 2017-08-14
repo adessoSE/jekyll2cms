@@ -8,7 +8,7 @@ Before you can start the application, make sure that the following components ar
 
 * Git (v2.4 or higher) [Download](https://git-scm.com/downloads)
 * Java Development Kit (JDK) (v1.8 or higher)  [Download](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
-* jekyll (v3.4.0 or higher)  [Download and getting started](https://jekyllrb.com/)
+* jekyll (v3.5.0 or higher)  [Download and getting started](https://jekyllrb.com/)
 
 You can check if the tools are installed correctly by trying to execute them with the version command (e.g. `git --version`)
 
@@ -32,18 +32,26 @@ To check for updates, jekyll2cms executes every 10 seconds a new pull to check r
 If you want to create a blog post, you must define a markdown file which follows the following structure:
 
 	---
-	layout: [post, post-xml] # DO NOT EDIT THIS LINE
-	title:  "Testing commit history for New Post" # INSERT THE TITLE OF YOUR BLOGPOST HERE
-	date:   2017-08-01 # INSERT THE DATE YOU WANT TO PUBLISH THE BLOG POST
-	modified_date: 
-	author: shahin # INSERT YOUR NAME
-	tags: test commit history # INSERT TAGS CORRESPONDING TO THE POST
-	categories: tech-blog testing # INSERT CATEGORIES THE BLOGPOST BELONGS TO
-	---
-	# INSERT YOUR CONTENT HERE. YOU WILL FIND AN INTRODUCTION TO MARKDOWN HERE https://de.wikipedia.org/wiki/Markdown
-	Here is the first phrase of the blog post. 
-	
-	This is the beginning of the second paragraph of the blog post. **This line will be printed in bold font**
+    # layout is required. DO NOT CHANGE.
+    layout: [post, post-xml]
+    # title is required. Add the title of your post.
+    title:  "adesso AG Blog Post Example"
+    # date is required. If possible, also provide a time. e.g. 2017-08-10 10:25:00.
+    date:   2017-08-10 10:25:00 
+    # If you are modifying an existing post, provide a date for it.
+    modified_date:
+    # author must be your name used in the _data/authors.yml file.
+    author: jondoe
+    # Categories are written inside square brackets '[cat1, cat2]' and are separated by commas.
+    # add at least one category name.
+    categories: [Technologie]
+    # Tags are written inside square brackets '[tag1, tag2]' and are separated by commas.
+    # tags are optional, but help to narrow down the subject of the blog post
+    tags: [Digitalisierung, Banken]
+    ---
+    You’ll find this post in the `_posts` directory.
+    
+    To add new posts, simply add a file in the `_posts` directory that follows the convention `YYYY-MM-DD-name-of-post.markdown` and includes the necessary front matter. Take a look at the source for this post to get an idea about how it works.
 	
 
 
