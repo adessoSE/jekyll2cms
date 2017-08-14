@@ -43,9 +43,6 @@ public class RepoService {
 	@Value("${repository.remote.url}")
 	private String REMOTE_REPO_URL;
 
-	@Value("${jekyll.path.posts}")
-	private String JEKYLL_POSTS_PATH;
-
 	@Value("${repository.local.htmlposts.path}")
 	private String LOCAL_HTML_POSTS;
 
