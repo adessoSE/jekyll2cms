@@ -1,5 +1,8 @@
 ## ToDo
 
+- [ ] XML files inside assets/first-spirit-xml must also be deleted when deleting a post file.
+- [ ] For responsive behavior of the blog, create different image resolutions from post images.
+    - [ ] **needs clarification**
 - [x] Build Jekyll templates
 - [ ] Create required and optional tags
    - [x] **Clarify what is meant by required and optional tags**
@@ -13,15 +16,16 @@
 - [x] Read metadata from markdown files
 - [x] Read author information from authors.yml file
 - [x] Build Jekyll-blog 
-- [ ] Set up a GitHub-preview for review process of written blog posts
-  - Hoster example: https://www.netlify.com/
-  - create adesso-style preview
-- [ ] Exception Handling
-- [ ] Unit Tests
 - [x] Remove Database feature
 - [x] Add MIT Licensing
 - [x] Ask for server data for running Jekyll2Cms (using iot server from ceverke)
-  
-### SubTasks:
-- [ ] Documentation
+- [x] Write a README for Jekyll2Cms and DevBlog
+- [ ] Exception Handling
 - [ ] Refactoring
+- [ ] Unit Tests
+- [ ] Set up a GitHub-preview for review process of written blog posts
+  - [ ] **needs clarification**
+  - Hoster example: https://www.netlify.com/
+  - create adesso-style preview
+- [ ] git hooks/webhooks for pre-commit. Check if the required fields are filled and have a valid format in the Front Matter of the post files before committing.
+- [ ] **++nice-to-have++** A Frontend for configuring the jekyll2Cms application.properties.
