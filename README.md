@@ -8,7 +8,7 @@ Before you can start the application, make sure that the following components ar
 
 * Git (v2.4 or higher) [Download](https://git-scm.com/downloads)
 * Java Development Kit (JDK) (v1.8 or higher)  [Download](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
-* jekyll (v3.4.0 or higher)  [Download and getting started](https://jekyllrb.com/)
+* jekyll (v3.5.0 or higher)  [Download and getting started](https://jekyllrb.com/)
 
 You can check if the tools are installed correctly by trying to execute them with the version command (e.g. `git --version`)
 
