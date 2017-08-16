@@ -26,6 +26,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
 
@@ -146,16 +147,28 @@ public class RepoService {
 
 		entries.forEach((entry) -> {
 
+			String [] splitFilePath;
 			/*
 			 * Assumption: every-blog- post-file with ending "markdown" has the following
 			 * structure: _posts/2017-08-01-new-post-for-netlify-test.markdown
 			 */
 
-			/*
-			 * separate "_posts" from "2017-08-01-new-post-for-netlify-test.markdown" in
-			 * file path
-			 */
-			String[] splitFilePath = entry.getNewPath().split("/");
+			if(entry.getChangeType() == DiffEntry.ChangeType.DELETE){
+
+				LOGGER.info("Found deleted Post!");
+				System.err.println(DiffEntry.ChangeType.DELETE);
+
+				/*
+				 * separate "_posts" or other folders for example the folders for the categorie
+				 * from "2017-08-01-new-post-for-netlify-test.markdown" in
+				 * file path
+				 */
+				splitFilePath = entry.getOldPath().split("/");
+				System.err.println(entry.getOldPath());
+			}
+			else {
+				splitFilePath = entry.getNewPath().split("/");
+			}
 
 			/*
 			 * only if changed file is in folder "_posts", then a post defined in markdown
@@ -187,7 +200,26 @@ public class RepoService {
 				 */
 				File source = new File(LOCAL_HTML_POSTS + "/" + fileDate + "/" + fileName + "/" + xmlFileName);
 				File dest = new File(FIRSTSPIRIT_XML_PATH + "/" + fileDate + "/" + fileDate + "-" + xmlFileName);
-				this.copyFile(source, dest);
+				Path dirPath = new File(FIRSTSPIRIT_XML_PATH + "/" + fileDate).toPath();
+
+				if(entry.getChangeType()== DiffEntry.ChangeType.DELETE)
+				{
+					try {
+						Files.delete(dest.toPath());
+						/* Checking if the directory of the File is empty
+						 * Then delete it
+						 */
+						if(!Files.newDirectoryStream(dirPath).iterator().hasNext()){
+							Files.delete(dirPath);
+						}
+
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+				else{
+					this.copyFile(source, dest);
+				}
 			}
 		});
 	}
