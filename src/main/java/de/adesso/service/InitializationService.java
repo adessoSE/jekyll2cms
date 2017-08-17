@@ -29,7 +29,7 @@ public class InitializationService {
 				repositoryService.pullRemoteRepo();
 				repositoryService.triggerBuildProcess();
 				repositoryService.copyAllGeneratedXmlFiles();
-				repositoryService.pushRepo();
+				//repositoryService.pushRepo();
 				return true;
 			}
 			return false;

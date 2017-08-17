@@ -123,10 +123,17 @@ public class RepoService {
 				LOGGER.info("Updates found.");
 				this.triggerBuildProcess();
 				this.copyGeneratedXmlFiles(entries);
-				this.pushRepo();
+				this.pushRepo(entries);
 			}
 			for (DiffEntry entry : entries) {
-				LOGGER.info("The file " + entry.getNewPath() + " was updated!!");
+				//Checking for deleted Files to get the old Path
+				if(entry.getChangeType() == DiffEntry.ChangeType.DELETE) {
+					LOGGER.info("The file " + entry.getOldPath() + " was deleted!");
+				}
+				else {
+					LOGGER.info("The file " + entry.getNewPath() + " was updated!!");
+				}
+
 			}
 			df.close();
 		} catch (IOException e) {
@@ -153,10 +160,13 @@ public class RepoService {
 			 * structure: _posts/2017-08-01-new-post-for-netlify-test.markdown
 			 */
 
+			/*
+			 * Before getting the file Name
+			 * Evaluation if the data is an deleted Data
+			 */
 			if(entry.getChangeType() == DiffEntry.ChangeType.DELETE){
 
 				LOGGER.info("Found deleted Post!");
-				System.err.println(DiffEntry.ChangeType.DELETE);
 
 				/*
 				 * separate "_posts" or other folders for example the folders for the categorie
@@ -164,7 +174,7 @@ public class RepoService {
 				 * file path
 				 */
 				splitFilePath = entry.getOldPath().split("/");
-				System.err.println(entry.getOldPath());
+				LOGGER.info("The File to be deleted: "+entry.getOldPath());
 			}
 			else {
 				splitFilePath = entry.getNewPath().split("/");
@@ -212,7 +222,6 @@ public class RepoService {
 						if(!Files.newDirectoryStream(dirPath).iterator().hasNext()){
 							Files.delete(dirPath);
 						}
-
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
@@ -290,6 +299,9 @@ public class RepoService {
 				}
 				Files.copy(source.toPath(), dest.toPath(), StandardCopyOption.REPLACE_EXISTING,
 						StandardCopyOption.COPY_ATTRIBUTES);
+				//Deletes the source XML-File from the
+				//_site/blog-posts/YYYY-MM-DD/... folder
+				Files.delete(source.toPath());
 			}
 		} catch (IOException e) {
 			LOGGER.error("An error occured while copying generated XML files to destinantion");
@@ -334,8 +346,9 @@ public class RepoService {
 
 	/**
 	 * Pushes all files that changed locally
+	 * And check for deleted Data
 	 */
-	public void pushRepo() {
+	public void pushRepo(List<DiffEntry> entries) {
 		/*
 		 * Assumption: the XML-posts will be pushed into the same repository where the
 		 * markdown-posts were pushed, too. If another repository is intended for the
@@ -346,6 +359,10 @@ public class RepoService {
 			try {
 				LOGGER.info("Pushing XML files to repository");
 				localGit.add().addFilepattern(".").setUpdate(false).call();
+				//Iterates through entries to find deleted File
+				if (entries.iterator().next().getChangeType() == DiffEntry.ChangeType.DELETE){
+					localGit.add().addFilepattern("-A").setUpdate(false).call();
+				}
 				localGit.commit().setAll(true).setMessage(GIT_COMMIT_MESSAGE)
 						.setAuthor(GIT_AUTHOR_NAME, GIT_AUTHOR_MAIL).call();
 				CredentialsProvider cp = new UsernamePasswordCredentialsProvider(GIT_AUTHOR_NAME, GIT_AUTHOR_PASSWORD);
