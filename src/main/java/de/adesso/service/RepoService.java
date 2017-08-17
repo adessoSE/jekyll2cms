@@ -133,7 +133,6 @@ public class RepoService {
 				else {
 					LOGGER.info("The file " + entry.getNewPath() + " was updated!!");
 				}
-
 			}
 			df.close();
 		} catch (IOException e) {
@@ -159,7 +158,6 @@ public class RepoService {
 			 * Assumption: every-blog- post-file with ending "markdown" has the following
 			 * structure: _posts/2017-08-01-new-post-for-netlify-test.markdown
 			 */
-
 			/*
 			 * Before getting the file Name
 			 * Evaluation if the data is an deleted Data
@@ -167,7 +165,6 @@ public class RepoService {
 			if(entry.getChangeType() == DiffEntry.ChangeType.DELETE){
 
 				LOGGER.info("Found deleted Post!");
-
 				/*
 				 * separate "_posts" or other folders for example the folders for the categorie
 				 * from "2017-08-01-new-post-for-netlify-test.markdown" in
