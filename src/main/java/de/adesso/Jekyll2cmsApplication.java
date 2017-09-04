@@ -21,7 +21,7 @@ public class Jekyll2cmsApplication implements ApplicationRunner {
 	@Override
 	public void run(ApplicationArguments args) throws Exception {
 		if (!initService.init()) {
-			System.exit(0);
+			System.exit(1);
 		}
 	}
 }

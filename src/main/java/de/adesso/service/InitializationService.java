@@ -12,7 +12,16 @@ import org.springframework.stereotype.Service;
 public class InitializationService {
 
 	@Autowired
-	private RepoService repositoryService;
+	private MarkdownTransformer markdownTransformer;
+
+	@Autowired
+	private GitRepoCloner repoCloner;
+
+	@Autowired
+	private GitRepoPuller repoPuller;
+
+	@Autowired
+	private GitRepoPusher repoPusher;
 	
 	private final static long pollInterval = 10000;
 
@@ -25,11 +34,10 @@ public class InitializationService {
 	 */
 	public boolean init() {
 		try {
-			if (repositoryService.cloneRemoteRepo()) {
-				repositoryService.pullRemoteRepo();
-				repositoryService.triggerBuildProcess();
-				repositoryService.copyAllGeneratedXmlFiles();
-				//repositoryService.pushRepo();
+			if (repoCloner.cloneRemoteRepo()) {
+				repoPuller.pullRemoteRepo();
+				repoPusher.triggerBuildProcess();
+				markdownTransformer.copyAllGeneratedXmlFiles(); //GitRepoDiffer.copyAllGeneratedXmlFiles
 				return true;
 			}
 			return false;
@@ -47,7 +55,7 @@ public class InitializationService {
 	 */
 	@Scheduled(fixedRate = pollInterval) // 3600000 = 1h (value in milliseconds)
 	public void pullRemoteRepo() {
-		this.repositoryService.pullRemoteRepo();
+		this.repoPuller.pullRemoteRepo();
 	}
 
 }
