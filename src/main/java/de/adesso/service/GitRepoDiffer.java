@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Date;
@@ -31,11 +32,20 @@ public class GitRepoDiffer {
     @Value("${repository.local.JSON.path}")
     private String JSON_PATH;
 
+    @Value("${repository.local.image.path}")
+    private String LOCAL_SITE_IMAGE;
+
+    @Value("${repository.local.image.destination.path}")
+    private String LOCAL_DEST_IMAGE;
+
     @Autowired
     private GitRepoPusher repoPusher;
 
     @Autowired
     private MarkdownTransformer markdownTransformer;
+
+    @Autowired
+    private FileTransfer imageTransfer;
 
     /**
      * Method checks if remote repository was updated. Before the git-pull command
@@ -90,8 +100,11 @@ public class GitRepoDiffer {
             }
             else{
                 LOGGER.info("Updates found.");
+                imageTransfer.deleteImages(new File(LOCAL_DEST_IMAGE + "/Cropped_Resized"));
                 repoPusher.triggerBuildProcess();
                 markdownTransformer.copyGeneratedXmlFiles(entries);
+                LOGGER.info("Copy Images from devblog/_site/assets/images folder to devblog/assets/images");
+                imageTransfer.moveGeneratedImages(new File(LOCAL_SITE_IMAGE), new File(LOCAL_DEST_IMAGE));
                 repoPusher.pushRepo(entries);
             }
 
