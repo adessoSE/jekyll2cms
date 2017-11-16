@@ -100,6 +100,7 @@ public class GitRepoPusher {
                 LOGGER.info("Pushing XML files was successful");
             } catch (GitAPIException e) {
                 LOGGER.error("An error occured while pushing files to remote repository");
+                e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
             }
