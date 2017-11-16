@@ -18,5 +18,5 @@ RUN apk add imagemagick
 ADD build/libs/jekyll2cms-0.0.1.jar jekyll2cms/jekyll2cms-0.0.1.jar
 #RUN java -jar jekyll2cms/jekyll2cms-0.0.1.jar
 #Start Jekyll2cms when container starts
-#ENTRYPOINT ["java", "-jar", "jekyll2cms/jekyll2cms-0.0.1.jar"]
+ENTRYPOINT ["java", "-jar", "jekyll2cms/jekyll2cms-0.0.1.jar"]
 EXPOSE 8080
