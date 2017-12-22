@@ -23,7 +23,7 @@ public class InitializationService {
 	@Autowired
 	private GitRepoPusher repoPusher;
 	
-	private final static long pollInterval = 10000;
+	private final static long pollInterval = 60000;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(InitializationService.class);
 
