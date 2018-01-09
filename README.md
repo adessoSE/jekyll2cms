@@ -23,6 +23,18 @@ After you have done the configuration, you can build the application. Open a new
 Open a new terminal window in the root folder of the project an run 
 `java -jar build/libs/jekyll2cms-0.0.1.jar`
 
+### Run with Docker
+If you want to run the application with Docker you need to build an Image with the Dockerfile.
+
+To do so: (In the project-directory)
+
+1. Rebuild your app with `gradlew build`
+2. Run `docker build -t jekyll2cms:latest` to build an actual image
+3. Push your Image to a registry ([see the documentation](https://docs.docker.com/engine/reference/commandline/push/)) or run it locally
+4. Run the image `docker run -d --name jekyll2cms jekyll2cms:latest`
+
+To see the logs use `docker logs jekyll2cms`.
+
 ## How to work with jeyll2cms
 After you started the application without faults, it will clone the remote repository. If there is already a local clone, the repository will fetch and merge (pull) updates automatically. The received blog-content in markdown will be transformed into First-Spirit-compatible XML, which is stored in the folder you defined in the application properties and pushed back to the remote repository. 
 
