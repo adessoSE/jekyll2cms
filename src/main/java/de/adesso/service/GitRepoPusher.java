@@ -45,12 +45,14 @@ public class GitRepoPusher {
     /**
      * Starts the jekyll build process
      */
-    public void triggerBuildProcess() {
+    public boolean triggerBuildProcess() {
         LOGGER.info(
                 "Start jekyll build process and generate XML files from jekyll builts and push them to remote repository");
         if (!jekyllService.startJekyllCI()) {
             LOGGER.error("An error occured while building the sources with jekyll");
+            return false;
         }
+        return true;
     }
 
     /**

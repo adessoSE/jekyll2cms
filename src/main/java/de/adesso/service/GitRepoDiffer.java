@@ -101,11 +101,16 @@ public class GitRepoDiffer {
             else{
                 LOGGER.info("Updates found.");
                 imageTransfer.deleteImages(new File(LOCAL_DEST_IMAGE + "/Cropped_Resized"));
-                repoPusher.triggerBuildProcess();
-                markdownTransformer.copyGeneratedXmlFiles(entries);
-                LOGGER.info("Copy Images from devblog/_site/assets/images folder to devblog/assets/images");
-                imageTransfer.moveGeneratedImages(new File(LOCAL_SITE_IMAGE), new File(LOCAL_DEST_IMAGE));
-                repoPusher.pushRepo(entries);
+                if(repoPusher.triggerBuildProcess())
+                {
+                    markdownTransformer.copyGeneratedXmlFiles(entries);
+                    LOGGER.info("Copy Images from devblog/_site/assets/images folder to devblog/assets/images");
+                    imageTransfer.moveGeneratedImages(new File(LOCAL_SITE_IMAGE), new File(LOCAL_DEST_IMAGE));
+                    repoPusher.pushRepo(entries);
+                }
+                else {
+                    LOGGER.info("No Updates, so no push.");
+                }
             }
 
             for (DiffEntry entry : entries) {

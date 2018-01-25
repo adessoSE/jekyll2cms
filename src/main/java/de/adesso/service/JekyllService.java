@@ -55,7 +55,7 @@ public class JekyllService {
 		PumpStreamHandler streamHandler = new PumpStreamHandler(jekyllBuildOutput);
 		executor.setStreamHandler(streamHandler);
 		try {
-			LOGGER.info("Starting jekyll build");
+			LOGGER.info("Starting jekyll build with command: " + cmdLine.toString());
 			exitValue = executor.execute(cmdLine);
 			LOGGER.info("Jekyll build command executed");
 		} catch (IOException e) {
