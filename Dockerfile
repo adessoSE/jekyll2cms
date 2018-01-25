@@ -6,7 +6,7 @@ RUN echo "Jekyll version:" && jekyll -v
 RUN echo "Bundler version:" && bundle -v
 
 # Install OpenJdk 8
-RUN apk --update add openjdk8
+RUN apk --update add openjdk8-jre
 CMD ["/usr/bin/java", "-version"]
 RUN echo "Java Version" java -version
 
