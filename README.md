@@ -1,6 +1,6 @@
 # Jekyll2cms - Getting started
 
-The main purpose of this web application is to automatically extract blog posts, defined in markdown-format,  from a **[Github Pages](https://pages.github.com/)** repository and to convert it into an XML-format with the help of **[jekyll](https://jekyllrb.com/)**. This XML format is compatible with CMS "First-Spirit" from **[E-Spirit](http://www.e-spirit.com/de/)**, a member of the **[adesso Group](www.adesso.de)** . The main goal of this project is to provide a developer friendly way (using pure git) for submitting blog posts to a CMS based web site.
+The main purpose of this web application is to automatically extract blog posts, defined in markdown-format,  from a **[Github Pages](https://pages.github.com/)** repository and to convert it into an XML-format with the help of **[jekyll](https://jekyllrb.com/)**. This XML format is compatible with the CMS "First-Spirit" from **[E-Spirit](http://www.e-spirit.com/de/)**, a member of the **[adesso Group](https://www.adesso.de)** . The main goal of this project is to provide a developer friendly way (using git and markdown) for submitting blog posts to a CMS based web site.
 
 ## Prerequisites
 
@@ -15,7 +15,7 @@ You can check if the tools are installed correctly by trying to execute them wit
 ## How to run jekyll2cms
 
 ### Before you start
-If all necessary tools are installed, you can checkout *jekyll2cms* on GitHub. Use [this link](https://github.com/adessoAG/jekyll2cms.git) as clone URI. After the checkout, you first need to configure and build the application before you can start it. In the folder `src/main/resources/` you will find a file named  application-sample.properties. Rename the file to application.properties and open it for inserting your local configuration. It is necessary, for example, to define to which local destination the remote repository is cloned to (repository.local.path) and, of course, the URL of the remote repository (repository.remote.url) which contains the markdown files.  It is assumed that the XML output is also pushed to the same remote repository. You must also specify the destination path for the generated XML files and the login data of a user who is allowed to push on the remote repository. The comments in the sample file should help you doing the configuration right. Note that the remote repository must have the same structure as you require in the application.properties (e.g. if you require the blog post files in markdown in a folder `/_posts`, make sure that this folder exists on the remote repository). 
+If all necessary tools are installed, you can checkout *jekyll2cms*, using [this link](https://github.com/adessoAG/jekyll2cms.git) as clone URI. Before starting the application, you first need to configure and build it. You will find a file named `application-sample.properties` in the directory `src/main/resources/`. Rename the file to `application.properties` and open it to insert your local configuration. It is necessary, for example, to define to which local destination the remote repository is cloned to (`repository.local.path`) and, of course, the URL of the remote repository (`repository.remote.url`) which contains the markdown files. The generated XML files will be pushed to the same repository. You also have to specify the destination path for the generated XML files and the login data of a user who is allowed to push on the remote repository. The comments in the sample file should help you doing the configuration right. Note that the remote repository must have the same structure as you require in the `application.properties` (e.g. if you expect the markdown files in a folder `/_posts`, make sure that this folder exists on the remote repository). 
 
 After you have done the configuration, you can build the application. Open a new terminal window in the root directory of the project and run `gradlew build`. The output should be BUILD SUCESSFUL. 
 
@@ -30,20 +30,19 @@ To do so: (In the project-directory)
 
 1. Rebuild your app with `gradlew build`
 2. Run `docker build -t jekyll2cms:latest` to build an actual image
-3. Push your Image to a registry ([see the documentation](https://docs.docker.com/engine/reference/commandline/push/)) or run it locally
-4. Run the image `docker run -d --name jekyll2cms jekyll2cms:latest`
+3. Run the image locally with `docker run -d --name jekyll2cms jekyll2cms:latest`
+4. To see the logs use `docker logs jekyll2cms`
+5. If you want to deploy it, push your image to a registry ([see the documentation](https://docs.docker.com/engine/reference/commandline/push/))
 
-To see the logs use `docker logs jekyll2cms`.
+## How to work with jekyll2cms
+After you successfully started the application, it will clone the remote repository. If there is already a local clone, updates will be pulled automatically. The received blog-content in markdown will be transformed into FirstSpirit compatible XML, which is stored in the directory you defined in the `application.properties` file and pushed back to the remote repository. 
 
-## How to work with jeyll2cms
-After you started the application without faults, it will clone the remote repository. If there is already a local clone, the repository will fetch and merge (pull) updates automatically. The received blog-content in markdown will be transformed into First-Spirit-compatible XML, which is stored in the folder you defined in the application properties and pushed back to the remote repository. 
-
-To check for updates, jekyll2cms executes every 10 seconds a new pull to check regularly for new blog posts. If the application detects a change in markdown-file, the XML will be updated and pushed to the remote repository.  
+Jekyll2cms updates the repository every 10 seconds to check for new blog posts. If the application detects changes in a markdown-file, the XML files will be updated and pushed to the remote repository.  
 
 ### Add Blogpost
-If you want to create a blog post, you must define a markdown file which follows the following structure:
+To add new posts, simply add a file in the directory you configured in the `jekyll.path.posts` property that follows the convention `YYYY-MM-DD-name-of-post.markdown` and includes the necessary [front matter](https://jekyllrb.com/docs/frontmatter/), which should look something like this:
 
-	---
+    ---
     # layout is required. DO NOT CHANGE.
     layout: [post, post-xml]
     # title is required. Add the title of your post.
@@ -61,19 +60,16 @@ If you want to create a blog post, you must define a markdown file which follows
     # tags are optional, but help to narrow down the subject of the blog post
     tags: [Digitalisierung, Banken]
     ---
-    You’ll find this post in the `_posts` directory.
-    
-    To add new posts, simply add a file in the `_posts` directory that follows the convention `YYYY-MM-DD-name-of-post.markdown` and includes the necessary front matter. Take a look at the source for this post to get an idea about how it works.
-	
 
+You can find more examples for blog posts in the [adesso devblog repository](https://github.com/adessoAG/devblog/tree/master/_posts).
 
-The markdown file must be stored to the folder you defined in the property jekyll.path.posts. For creating or modifying it is recommended not to work on the same local clone as jekyll2cms does. It is better to have a second clone at other location on your local system. It is also possible to edit the markdown files directly with the help of the GitHub-GUI (if you work with GitHub; in general you can use every Git-based system to work with jekyll2cms). The local clone defined in repository.local.path should only be used by jekyll2cms.  
+For creating or modifying posts, it is recommended not to work on the same local clone as jekyll2cms does to prevent unpredictable errors. If you like,  you can also edit the markdown files directly with the help of the web interface of your desired git service, for example GitHub.
 
 ### See XML result
-After adding or updating a markdown file, jekyll2cms will detect the changes when the next pull-command is executed (currently every 10th second). The XML output will be created and pushed immediately to the remote repository so that it can be received by the end user with the next manual pull.  
+After adding or updating a markdown file and waiting for a couple of seconds, jekyll2cms will detect the changes. The XML file will be created and pushed immediately to the remote repository so that it can be included into the CMS by the end user with the next manual pull.  
 
 ## Questions?
-In general, there is no support for this software available. For any questions, feedback or issues write a mail to info[replace with the at-sign]adesso.de and ask for the Open Source Team. 
+In general, we do not provide any official support for this software. If you have any questions, feedback or issues, create an issue on GitHub or write a mail to info[replace with the at-sign]adesso.de and ask for the Open Source Team. 
 
 ## License
 This software is released under MIT-License. Copyright (c) 2017 adesso AG, 44269 Dortmund
