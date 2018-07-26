@@ -104,6 +104,7 @@ public class MarkdownTransformer {
                 }
             }
         });
+        fileTransfer.deleteXmlFromSiteFolder();
     }
 
     /**
@@ -132,6 +133,7 @@ public class MarkdownTransformer {
                             + FilenameUtils.getBaseName(f.getAbsolutePath() + ".xml"));
             fileTransfer.copyFile(f, dest);
         });
+        fileTransfer.deleteXmlFromSiteFolder();
     }
 
     /**
