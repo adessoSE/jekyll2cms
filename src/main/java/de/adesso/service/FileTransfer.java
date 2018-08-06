@@ -40,12 +40,6 @@ public class FileTransfer {
                 }
                 Files.copy(source.toPath(), dest.toPath(), StandardCopyOption.REPLACE_EXISTING,
                         StandardCopyOption.COPY_ATTRIBUTES);
-				/*
-				 * Deletes all XML-Files in the
-				 * _site/blog-posts/... folder
-				 */
-                this.deleteXmlFromSiteFolder();
-
             }
         } catch (IOException e) {
             LOGGER.error("An error occured while copying generated XML files to destinantion");
