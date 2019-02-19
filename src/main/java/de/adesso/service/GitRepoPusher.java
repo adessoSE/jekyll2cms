@@ -40,6 +40,9 @@ public class GitRepoPusher {
     @Autowired
     private JekyllService jekyllService;
 
+    @Autowired
+    private EmailService emailService;
+
     private Git localGit;
 
     /**
@@ -100,11 +103,19 @@ public class GitRepoPusher {
                 CredentialsProvider cp = new UsernamePasswordCredentialsProvider(GIT_AUTHOR_NAME, GIT_AUTHOR_PASSWORD);
                 localGit.push().setForce(true).setCredentialsProvider(cp).call();
                 LOGGER.info("Pushing XML files was successful");
+                emailService.sendSimpleEmail("Success",
+                        "Pushing XML files was successful");
             } catch (GitAPIException e) {
                 LOGGER.error("An error occured while pushing files to remote repository");
                 e.printStackTrace();
+                emailService.sendSimpleEmail("Fail",
+                        "An error occured with the jekyll2cms application while pushing files to remote repository. \n " +
+                                "This is the stacktrace: \n " + e.getStackTrace());
             } catch (IOException e) {
                 e.printStackTrace();
+                emailService.sendSimpleEmail("Fail",
+                        "An error occured with the jekyll2cms application while pushing files to remote repository. \n " +
+                                "This is the stacktrace: \n " + e.getStackTrace());
             }
         }
     }
