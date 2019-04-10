@@ -3,6 +3,7 @@ package de.adesso.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -10,6 +11,12 @@ import org.springframework.stereotype.Service;
 @Service
 @EnableScheduling
 public class InitializationService {
+
+	@Value("${repository.remote.url}")
+	private String REPOSITORY_REMOTE_URL;
+
+	@Value("${jekyll2cms.start.notification}")
+	private boolean JEKYLL2CMS_START_NOTIFICATION;
 
 	@Autowired
 	private MarkdownTransformer markdownTransformer;
@@ -22,6 +29,9 @@ public class InitializationService {
 
 	@Autowired
 	private GitRepoPusher repoPusher;
+
+	@Autowired
+	private EmailService emailService;
 	
 	private final static long pollInterval = 60000;
 
@@ -38,6 +48,11 @@ public class InitializationService {
 				repoPuller.pullRemoteRepo();
 				repoPusher.triggerBuildProcess();
 				markdownTransformer.copyAllGeneratedXmlFiles(); //GitRepoDiffer.copyAllGeneratedXmlFiles
+				if(JEKYLL2CMS_START_NOTIFICATION) {
+					emailService.sendSimpleEmail("Jekyll2cms startet", "Jekyll2cms for: " +
+							REPOSITORY_REMOTE_URL
+							+ " has been successfully started.");
+				}
 				return true;
 			}
 			return false;
