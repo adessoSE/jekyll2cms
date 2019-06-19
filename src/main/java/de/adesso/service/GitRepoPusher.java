@@ -94,7 +94,7 @@ public class GitRepoPusher {
                 commitInfo.put("Name", personIdent.getName());
                 commitInfo.put("Email", personIdent.getEmailAddress());
                 commitInfo.put("Date", personIdent.getWhen().toString());
-                commitInfo.put("CommitID", localGit.getRepository().getRef("HEAD").getObjectId().getName());
+                commitInfo.put("CommitID", localGit.getRepository().resolve("HEAD").getName());
 
                 FileWriter jsonFile = new FileWriter(JSON_PATH);
                 jsonFile.write(commitInfo.toJSONString());

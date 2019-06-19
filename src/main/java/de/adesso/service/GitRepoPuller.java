@@ -37,11 +37,11 @@ public class GitRepoPuller {
 				 * Getting The Commit Information of the Remote Repository
 				 */
                 RevWalk walker = new RevWalk(repository);
-                RevCommit commit = walker.parseCommit(repository.getRef("HEAD").getObjectId());
+                RevCommit commit = walker.parseCommit(repository.resolve("HEAD"));
                 Date commitTime = commit.getAuthorIdent().getWhen();
                 String commiterName = commit.getAuthorIdent().getName();
                 String commitEmail = commit.getAuthorIdent().getEmailAddress();
-                String commitID = repository.getRef("HEAD").getObjectId().getName();
+                String commitID = repository.resolve("HEAD").getName();
 
                 PullResult pullResult = git.pull().setStrategy(MergeStrategy.THEIRS).call();
                 LOGGER.info("Fetch result: " + pullResult.getFetchResult().getMessages());
