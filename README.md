@@ -1,4 +1,19 @@
-# Jekyll2cms - Getting started
+# 1) Only using Jekyll2cms for Blogpost Conversion
+
+If you wrote a blogpost and it got reviewed, you almost got everything done to publish it to the adesso blog. (blog.adesso.de)
+The last step is to convert the post in the markdown-format (ending.md) your wrote into an XML-Format for the CMS adesso is using to display the blogcontent and other content.
+You dont need to do that by hand, just execute the jekyll2cms with Docker this command:
+
+ ```docker run -d --name jekyll2cms smahler/jekyll2cms:1.0.5```
+ 
+ After some minutes you should see a commit in the adesso/devblog -Repository from a User called Jekyll2cms.
+ Then stop the docker-container and delete the image with:
+ 
+```docker stop jekyll2cms``` <br>
+```docker rmi jekyll2cms```
+
+
+# 2) Developing Jekyll2cms - Getting started
 
 The main purpose of this web application is to automatically extract blog posts, defined in markdown-format,  from a **[Github Pages](https://pages.github.com/)** repository and to convert it into an XML-format with the help of **[jekyll](https://jekyllrb.com/)**. This XML format is compatible with the CMS "First-Spirit" from **[E-Spirit](http://www.e-spirit.com/de/)**, a member of the **[adesso Group](https://www.adesso.de)** . The main goal of this project is to provide a developer friendly way (using git and markdown) for submitting blog posts to a CMS based web site.
 
