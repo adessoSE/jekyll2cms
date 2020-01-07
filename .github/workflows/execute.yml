@@ -3,7 +3,7 @@ name: Execute on devblog master-push
 on: repository_dispatch
 
 jobs:
-  executeJekyll2cms:
+  execute_jeyll2cms:
     name: buildJekyll2cms
     runs-on: ubuntu-latest
     steps:
