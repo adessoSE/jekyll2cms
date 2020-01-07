@@ -26,4 +26,5 @@ jobs:
         automatic_release_tag: latest
         files: |
           LICENSE.md
+          README.md
           ./build/libs/*.jar
