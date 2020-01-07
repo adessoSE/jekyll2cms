@@ -4,6 +4,14 @@ on: repository_dispatch
 
 jobs:
   execute_jeyll2cms:
+    env:
+      REPOSITORY_LOCAL_USER_MAIL: ${{secrets.REPOSITORY_LOCAL_USER_MAIL}}
+      REPOSITORY_LOCAL_USER_NAME: ${{secrets.REPOSITORY_LOCAL_USER_NAME}}
+      REPOSITORY_LOCAL_USER_PASSWORD: ${{secrets.REPOSITORY_LOCAL_USER_PASSWORD}}
+      REPOSITORY_REMOTE_URL: ${{secrets.REPOSITORY_REMOTE_URL}}
+      SPRING_MAIL_PASSWORD: ${{secrets.SPRING_MAIL_PASSWORD}}
+      SPRING_MAIL_RECEIPIENT: ${{secrets.SPRING_MAIL_RECEIPIENT}}
+      SPRING_MAIL_USERNAME: ${{secrets.SPRING_MAIL_USERNAME}}
     name: buildJekyll2cms
     runs-on: ubuntu-latest
     steps:
