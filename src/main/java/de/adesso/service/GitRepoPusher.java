@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 import java.io.FileWriter;
@@ -23,27 +24,36 @@ public class GitRepoPusher {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MarkdownTransformer.class);
 
+    private Environment environment;
+
     @Value("${repository.local.user.name}")
-    private String GIT_AUTHOR_NAME;
+    private String GIT_AUTHOR_NAME = environment.getProperty("REPOSITORY_LOCAL_USER_NAME");
 
     @Value("${repository.local.user.mail}")
-    private String GIT_AUTHOR_MAIL;
+    private String GIT_AUTHOR_MAIL = environment.getProperty("REPOSITORY_LOCAL_USER_MAIL");
 
     @Value("${repository.local.user.password}")
-    private String GIT_AUTHOR_PASSWORD;
+    private String GIT_AUTHOR_PASSWORD = environment.getProperty("REPOSITORY_LOCAL_USER_PASSWORD");
 
     @Value("${repository.local.JSON.path}")
     private String JSON_PATH;
 
     private final String GIT_COMMIT_MESSAGE = "New First Spirit XML files added automatically by jekyll2cms";
 
-    @Autowired
     private JekyllService jekyllService;
 
-    @Autowired
     private EmailService emailService;
 
     private Git localGit;
+
+    public GitRepoPusher(@Autowired Environment environment,
+                         @Autowired JekyllService jekyllService,
+                         @Autowired EmailService emailService
+            ) {
+        this.environment = environment;
+        this.jekyllService = jekyllService;
+        this.emailService = emailService;
+    }
 
     /**
      * Starts the jekyll build process

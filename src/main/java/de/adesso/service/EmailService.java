@@ -1,7 +1,9 @@
 package de.adesso.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -9,12 +11,16 @@ import org.springframework.stereotype.Service;
 @Service
 public class EmailService {
 
+    private Environment environment;
+
     @Value("${spring.mail.receipient}")
-    private String RECEIPIENT;
+    private String RECEIPIENT = environment.getProperty("SPRING_MAIL_RECEIPIENT");;
 
     private JavaMailSender emailSender;
 
-    public EmailService(@Qualifier("newMailSender") JavaMailSender emailSender) {
+    public EmailService(@Autowired Environment environment,
+                        @Qualifier("newMailSender") JavaMailSender emailSender) {
+        this.environment = environment;
         this.emailSender = emailSender;
     }
 
