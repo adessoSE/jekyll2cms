@@ -1,6 +1,7 @@
 name: Execute on devblog master-push
-
-on: repository_dispatch
+on:
+  repository_dispatch:
+    types: executeJekyll2cms
 
 jobs:
   executeJekyll2cms:
