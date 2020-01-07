@@ -1,0 +1,19 @@
+name: Execute on devblog master-push
+
+on: repository_dispatch
+
+jobs:
+  executeJekyll2cms:
+    name: buildJekyll2cms
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@master
+    - name: Set up JDK 1.8
+      uses: actions/setup-java@v1
+      with:
+        java-version: 1.8
+    - name: Build with Gradle
+      run: ./gradlew build
+    - name: Execute Jekyll2cms
+      run: java -jar ./build/libs/jekyll2cms-0.0.1-SNAPSHOT.jar
