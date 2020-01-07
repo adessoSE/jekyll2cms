@@ -3,7 +3,7 @@ name: Execute on devblog master-push
 on: repository_dispatch
 
 jobs:
-  execute_jekyll2cms:
+  executeJekyll2cms:
     env:
       REPOSITORY_LOCAL_USER_MAIL: ${{secrets.REPOSITORY_LOCAL_USER_MAIL}}
       REPOSITORY_LOCAL_USER_NAME: ${{secrets.REPOSITORY_LOCAL_USER_NAME}}
@@ -12,7 +12,7 @@ jobs:
       SPRING_MAIL_PASSWORD: ${{secrets.SPRING_MAIL_PASSWORD}}
       SPRING_MAIL_RECEIPIENT: ${{secrets.SPRING_MAIL_RECEIPIENT}}
       SPRING_MAIL_USERNAME: ${{secrets.SPRING_MAIL_USERNAME}}
-    name: buildJekyll2cms
+    name: executeJekyll2cms
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
