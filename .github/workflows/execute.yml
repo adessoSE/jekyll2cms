@@ -19,9 +19,9 @@ jobs:
     timeout-minutes: 10
     steps:
     - name: Do Something Based On Triggered Event Data
-        run:| 
-          'echo "Event text:" \ 
-            ${{ github.event.client_payload.text }}"'
+      run: | 
+        echo "Event text:
+        ${{ github.event.client_payload.text }}"
     - name: Checkout Code
       uses: actions/checkout@master
     - name: Set up JDK 1.8
