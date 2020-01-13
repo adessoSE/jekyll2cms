@@ -31,4 +31,4 @@ jobs:
     - name: Build with Gradle
       run: ./gradlew build
     - name: Execute Jekyll2cms
-      run: java -jar ./build/libs/jekyll2cms-0.0.1-SNAPSHOT.jar
+      run: java -jar ./build/libs/*.jar
