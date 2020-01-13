@@ -14,7 +14,7 @@ jobs:
       SPRING_MAIL_PASSWORD: ${{secrets.SPRING_MAIL_PASSWORD}}
       SPRING_MAIL_RECEIPIENT: ${{secrets.SPRING_MAIL_RECEIPIENT}}
       SPRING_MAIL_USERNAME: ${{secrets.SPRING_MAIL_USERNAME}}
-      JEKYLL_START_NOTIFICATION: ${{secrets.JEKYLL_START_NOTIFICATION}}
+      JEKYLL2CMS_START_NOTIFICATION: ${{secrets.JEKYLL_START_NOTIFICATION}}
     name: executeJekyll2cms
     runs-on: ubuntu-latest
     timeout-minutes: 10
