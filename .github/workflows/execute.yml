@@ -37,6 +37,11 @@ jobs:
     - name: Build with Gradle
       run: ./gradlew build
     - name: setup jekyll env
-      run: sudo apt-get install ruby-full build-essential zlib1g-dev
+      run: sudo apt-get install ruby-full build-essential zlib1g-dev \
+           echo '# Install Ruby Gems to ~/gems' >> ~/.bashrc \
+           echo 'export GEM_HOME="$HOME/gems"' >> ~/.bashrc \
+           echo 'export PATH="$HOME/gems/bin:$PATH"' >> ~/.bashrc \
+           source ~/.bashrc \
+           gem install jekyll bundler
     - name: Execute Jekyll2cms
       run: java -jar ./build/libs/*.jar
