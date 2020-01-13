@@ -37,6 +37,6 @@ jobs:
     - name: Build with Gradle
       run: ./gradlew build
     - name: setup jekyll env
-      uses: BryanSchuetz/jekyll-deploy-gh-pages@master
+      run: sudo apt-get install ruby-full build-essential zlib1g-dev
     - name: Execute Jekyll2cms
       run: java -jar ./build/libs/*.jar
