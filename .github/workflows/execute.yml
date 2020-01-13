@@ -1,7 +1,9 @@
 name: Execute on devblog master-push
 
-on: [repository_dispatch]
-  
+on:
+  repository_dispatch:
+    types: do-trigger-jekyll2cms
+    
 jobs:
   executeJekyll2cms:
     env:
@@ -16,9 +18,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-    - name: Event Information
-      run: |
-          echo "Event '${{ github.event.action }}' received from '${{ github.event.client_payload.repository }}'"
+    - name: Do Something Based On Triggered Event Data
+        run:| 
+          'echo "Event text:" \ 
+            ${{ github.event.client_payload.text }}"'
     - name: Checkout Code
       uses: actions/checkout@master
     - name: Set up JDK 1.8
