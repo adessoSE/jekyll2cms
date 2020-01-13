@@ -36,5 +36,7 @@ jobs:
         java-version: 1.8
     - name: Build with Gradle
       run: ./gradlew build
+    - name: setup jekyll env
+      uses: BryanSchuetz/jekyll-deploy-gh-pages@master
     - name: Execute Jekyll2cms
       run: java -jar ./build/libs/*.jar
