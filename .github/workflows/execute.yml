@@ -39,6 +39,6 @@ jobs:
     - name: setup jekyll env
       run: sudo apt-get install ruby-full build-essential zlib1g-dev
     - name: setup jekyll env 2
-      run: sudo gem install jekyll -v 3.8.5
+      run: sudo gem install jekyll -v 3.8.5 imagemagick
     - name: Execute Jekyll2cms
       run: java -jar ./build/libs/*.jar
