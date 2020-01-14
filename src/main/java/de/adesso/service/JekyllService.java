@@ -48,7 +48,7 @@ public class JekyllService {
     public boolean startJekyllCI() {
 
 
-		/*boolean isWindows = System.getProperty("os.name")
+		boolean isWindows = System.getProperty("os.name")
 				.toLowerCase().startsWith("windows");
 
 		ProcessBuilder builder = new ProcessBuilder();
@@ -74,9 +74,9 @@ public class JekyllService {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		assert exitCode == 0;*/
+		assert exitCode == 0;
 
-        LOGGER.info("startJekyllCI()");
+        /*LOGGER.info("startJekyllCI()");
         boolean isWindows = System.getProperty("os.name").toLowerCase().startsWith("windows");
 
         int exitValue = -1;
@@ -90,10 +90,12 @@ public class JekyllService {
             cmdLine.addArgument("/c");
             cmdLine.addArgument(JEKYLL_PATH);
             cmdLine.addArgument(JEKYLL_OPTION_BUILD);
+            cmdLine.addArgument(JEKYLL_OPTION_INCR);
         } else {
             line = JEKYLL_PATH;
             cmdLine = CommandLine.parse(line);
             cmdLine.addArgument(JEKYLL_OPTION_BUILD);
+            cmdLine.addArgument(JEKYLL_OPTION_INCR);
         }
         //cmdLine.addArgument(JEKYLL_OPTION_INCR);
         DefaultExecutor executor = new DefaultExecutor();
@@ -110,7 +112,7 @@ public class JekyllService {
             e.printStackTrace();
             return false;
         }
-        printJekyllStatus(exitValue, jekyllBuildOutput.toString());
+        printJekyllStatus(exitValue, jekyllBuildOutput.toString());*/
         return true;
     }
 }

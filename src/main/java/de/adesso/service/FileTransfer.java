@@ -54,7 +54,7 @@ public class FileTransfer {
      */
     void deleteXmlFromSiteFolder() {
         LOGGER.info("Paths: " + Paths.get(LOCAL_HTML_POSTS));
-        /*try (Stream<Path> stream = Files.find(Paths.get(LOCAL_HTML_POSTS), 5,
+        try (Stream<Path> stream = Files.find(Paths.get(LOCAL_HTML_POSTS), 5,
                 (path, attr) -> path.getFileName().toString().endsWith(".xml"))) {
             stream.forEach(path -> {
                 try {
@@ -65,7 +65,7 @@ public class FileTransfer {
             });
         } catch (IOException e) {
             e.printStackTrace();
-        }*/
+        }
     }
 
     void moveGeneratedImages(File srcFolder, File destFolder){
