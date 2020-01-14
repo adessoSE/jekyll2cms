@@ -14,7 +14,7 @@ import java.util.stream.Stream;
 @Service
 public class FileTransfer {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MarkdownTransformer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FileTransfer.class);
 
     @Value("${repository.local.htmlposts.path}")
     private String LOCAL_HTML_POSTS;
@@ -53,7 +53,8 @@ public class FileTransfer {
      * Folder
      */
     void deleteXmlFromSiteFolder() {
-        try (Stream<Path> stream = Files.find(Paths.get(LOCAL_HTML_POSTS), 5,
+        LOGGER.info("Paths: " + Paths.get(LOCAL_HTML_POSTS));
+        /*try (Stream<Path> stream = Files.find(Paths.get(LOCAL_HTML_POSTS), 5,
                 (path, attr) -> path.getFileName().toString().endsWith(".xml"))) {
             stream.forEach(path -> {
                 try {
@@ -64,7 +65,7 @@ public class FileTransfer {
             });
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        }*/
     }
 
     void moveGeneratedImages(File srcFolder, File destFolder){

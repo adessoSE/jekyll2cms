@@ -16,7 +16,7 @@ public class InitializationService {
 	private String REPOSITORY_REMOTE_URL;
 
 	@Value("${jekyll2cms.start.notification}")
-	private boolean JEKYLL2CMS_START_NOTIFICATION;
+	private String JEKYLL2CMS_START_NOTIFICATION;
 
 	@Autowired
 	private MarkdownTransformer markdownTransformer;
@@ -33,7 +33,7 @@ public class InitializationService {
 	@Autowired
 	private EmailService emailService;
 	
-	private final static long pollInterval = 60000;
+	private final static long pollInterval = 20000;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(InitializationService.class);
 
@@ -48,7 +48,7 @@ public class InitializationService {
 				repoPuller.pullRemoteRepo();
 				repoPusher.triggerBuildProcess();
 				markdownTransformer.copyAllGeneratedXmlFiles(); //GitRepoDiffer.copyAllGeneratedXmlFiles
-				if(JEKYLL2CMS_START_NOTIFICATION) {
+				if(JEKYLL2CMS_START_NOTIFICATION.equals("yes")) {
 					emailService.sendSimpleEmail("Jekyll2cms startet", "Jekyll2cms for: " +
 							REPOSITORY_REMOTE_URL
 							+ " has been successfully started.");

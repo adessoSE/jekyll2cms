@@ -14,8 +14,7 @@ RUN apk add imagemagick
 
 #RUN gem install bundler multipart-post faraday sass pathutil sawyer octokit jekyll-gist mini_magick jekyll-minimagick liquid-md5
 
-ADD build/libs/jekyll2cms-0.0.1.jar /jekyll2cms/jekyll2cms-0.0.1.jar
+ADD build/libs/jekyll2cms-0.0.2.jar /jekyll2cms/jekyll2cms-0.0.2.jar
 #RUN java -jar jekyll2cms/jekyll2cms-0.0.1.jar
 #Start Jekyll2cms when container starts
-ENTRYPOINT ["bash","-c","rm -f repo && java -jar /jekyll2cms/jekyll2cms-0.0.1.jar"]
-EXPOSE 8080
+ENTRYPOINT ["bash","-c","rm -f repo && java -jar /jekyll2cms/jekyll2cms-0.0.2.jar"]
