@@ -18,17 +18,11 @@ public class GitRepoCloner {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MarkdownTransformer.class);
 
-    private Environment environment;
-
     @Value("${repository.local.path}")
     private String LOCAL_REPO_PATH;
 
-    @Value("${repository.remote.url}")
-    private String REMOTE_REPO_URL = environment.getProperty("REPOSITORY_REMOTE_URL");
-
-    public GitRepoCloner(@Autowired Environment environment){
-        this.environment = environment;
-    }
+    @Value("#{environment.REPOSITORY_REMOTE_URL}")
+    private String REMOTE_REPO_URL;
 
     /**
      * Clones the remote repository (defined in application.properties:

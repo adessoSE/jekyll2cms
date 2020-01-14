@@ -13,10 +13,8 @@ import org.springframework.stereotype.Service;
 @EnableScheduling
 public class InitializationService {
 
-	private Environment environment;
-
-	@Value("${repository.remote.url}")
-	private String REPOSITORY_REMOTE_URL = environment.getProperty("REPOSITORY_REMOTE_URL");
+	@Value("#{environment.REPOSITORY_REMOTE_URL}")
+	private String REPOSITORY_REMOTE_URL;
 
 	@Value("${jekyll2cms.start.notification}")
 	private String JEKYLL2CMS_START_NOTIFICATION;
@@ -31,13 +29,11 @@ public class InitializationService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(InitializationService.class);
 
-	public InitializationService(@Autowired Environment environment,
-								 @Autowired MarkdownTransformer markdownTransformer,
+	public InitializationService(@Autowired MarkdownTransformer markdownTransformer,
 								 @Autowired GitRepoCloner gitRepoCloner,
 								 @Autowired GitRepoPuller gitRepoPuller,
 								 @Autowired GitRepoPusher gitRepoPusher,
 								 @Autowired EmailService emailService){
-		this.environment = environment;
 		this.markdownTransformer = markdownTransformer;
 		this.repoCloner = gitRepoCloner;
 		this.repoPuller = gitRepoPuller;

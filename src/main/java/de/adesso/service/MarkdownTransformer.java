@@ -28,8 +28,8 @@ public class MarkdownTransformer {
     @Value("${repository.local.path}")
     private String LOCAL_REPO_PATH;
 
-    @Value("${repository.remote.url}")
-    private String REPOSITORY_REMOTE_URL = environment.getProperty("REPOSITORY_REMOTE_URL");
+    @Value("#{environment.REPOSITORY_REMOTE_URL}")
+    private String REPOSITORY_REMOTE_URL;
 
     @Value("${repository.local.htmlposts.path}")
     private String LOCAL_HTML_POSTS;

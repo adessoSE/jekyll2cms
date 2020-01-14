@@ -11,16 +11,12 @@ import org.springframework.stereotype.Service;
 @Service
 public class EmailService {
 
-    private Environment environment;
-
-    @Value("${spring.mail.receipient}")
-    private String RECEIPIENT = environment.getProperty("SPRING_MAIL_RECEIPIENT");;
+    @Value("#{environment.SPRING_MAIL_RECEIPIENT}")
+    private String RECEIPIENT;
 
     private JavaMailSender emailSender;
 
-    public EmailService(@Autowired Environment environment,
-                        @Qualifier("newMailSender") JavaMailSender emailSender) {
-        this.environment = environment;
+    public EmailService(@Qualifier("newMailSender") JavaMailSender emailSender) {
         this.emailSender = emailSender;
     }
 

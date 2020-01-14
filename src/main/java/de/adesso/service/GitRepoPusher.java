@@ -24,16 +24,13 @@ public class GitRepoPusher {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MarkdownTransformer.class);
 
-    private Environment environment;
+    @Value("#{environment.REPOSITORY_LOCAL_USER_NAME}")
+    private String GIT_AUTHOR_NAME;
+    @Value("#{environment.REPOSITORY_LOCAL_USER_MAIL}")
+    private String GIT_AUTHOR_MAIL;
 
-    @Value("${repository.local.user.name}")
-    private String GIT_AUTHOR_NAME = environment.getProperty("REPOSITORY_LOCAL_USER_NAME");
-
-    @Value("${repository.local.user.mail}")
-    private String GIT_AUTHOR_MAIL = environment.getProperty("REPOSITORY_LOCAL_USER_MAIL");
-
-    @Value("${repository.local.user.password}")
-    private String GIT_AUTHOR_PASSWORD = environment.getProperty("REPOSITORY_LOCAL_USER_PASSWORD");
+    @Value("#{environment.REPOSITORY_LOCAL_USER_PASSWORD}")
+    private String GIT_AUTHOR_PASSWORD;
 
     @Value("${repository.local.JSON.path}")
     private String JSON_PATH;
@@ -46,11 +43,9 @@ public class GitRepoPusher {
 
     private Git localGit;
 
-    public GitRepoPusher(@Autowired Environment environment,
-                         @Autowired JekyllService jekyllService,
+    public GitRepoPusher(@Autowired JekyllService jekyllService,
                          @Autowired EmailService emailService
             ) {
-        this.environment = environment;
         this.jekyllService = jekyllService;
         this.emailService = emailService;
     }
