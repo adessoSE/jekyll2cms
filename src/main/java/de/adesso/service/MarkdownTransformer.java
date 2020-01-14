@@ -4,6 +4,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -22,11 +23,13 @@ import java.util.regex.Pattern;
 @Service
 public class MarkdownTransformer {
 
+    private Environment environment;
+
     @Value("${repository.local.path}")
     private String LOCAL_REPO_PATH;
 
     @Value("${repository.remote.url}")
-    private String REMOTE_REPO_URL;
+    private String REPOSITORY_REMOTE_URL = environment.getProperty("REPOSITORY_REMOTE_URL");
 
     @Value("${repository.local.htmlposts.path}")
     private String LOCAL_HTML_POSTS;
@@ -37,8 +40,13 @@ public class MarkdownTransformer {
     @Value("${repository.local.JSON.path}")
     private String JSON_PATH;
 
-    @Autowired
     private FileTransfer fileTransfer;
+
+    public MarkdownTransformer(@Autowired Environment environment,
+                               @Autowired FileTransfer fileTransfer) {
+        this.environment = environment;
+        this.fileTransfer = fileTransfer;
+    }
 
     /**
      * After a change in a markdown post was detected, the jekyll-build process

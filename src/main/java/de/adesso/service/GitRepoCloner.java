@@ -5,7 +5,9 @@ import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -16,11 +18,17 @@ public class GitRepoCloner {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MarkdownTransformer.class);
 
+    private Environment environment;
+
     @Value("${repository.local.path}")
     private String LOCAL_REPO_PATH;
 
     @Value("${repository.remote.url}")
-    private String REMOTE_REPO_URL;
+    private String REMOTE_REPO_URL = environment.getProperty("REPOSITORY_REMOTE_URL");
+
+    public GitRepoCloner(@Autowired Environment environment){
+        this.environment = environment;
+    }
 
     /**
      * Clones the remote repository (defined in application.properties:
