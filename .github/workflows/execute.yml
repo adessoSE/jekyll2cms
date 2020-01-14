@@ -38,6 +38,14 @@ jobs:
       run: ./gradlew build
     - name: setup jekyll env
       run: sudo apt-get install ruby-full build-essential zlib1g-dev
+    - name: setup jekyll env 1.1
+      run: echo '# Install Ruby Gems to ~/gems' >> ~/.bashrc 
+    - name: setup jekyll env 1.2
+      run: echo 'export GEM_HOME="$HOME/gems"' >> ~/.bashrc
+    - name: setup jekyll env 1.3
+      run: echo 'export PATH="$HOME/gems/bin:$PATH"' >> ~/.bashrc
+    - name: setup jekyll env 1.4
+      run: source ~/.bashrc
     - name: setup jekyll env 2
       run: sudo gem install jekyll --version 3.8.5
     - name: setup jekyll 3
