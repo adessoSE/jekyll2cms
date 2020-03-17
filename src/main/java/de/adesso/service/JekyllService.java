@@ -55,7 +55,7 @@ public class JekyllService {
 		if (isWindows) {
 			builder.command("cmd.exe", "/c", "jekyll", "build", "--incremental");
 		} else {
-			builder.command("sh", "-c", "jekyll", "build", "--incremental");
+			builder.command("sh", "-c", "chown -R jekyll /srv/jekyll/repo && jekyll build --incremental");
 		}
 		LOGGER.info("Builder working dir: " + LOCAL_REPO_PATH);
 		builder.directory(new File(LOCAL_REPO_PATH));
@@ -65,8 +65,8 @@ public class JekyllService {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		StreamGobbler streamGobbler =
-				new StreamGobbler(process.getInputStream(), System.out::println);
+		// pass every out line from process to sysout
+		StreamGobbler streamGobbler = new StreamGobbler(process.getInputStream(), System.out::println);
 		Executors.newSingleThreadExecutor().submit(streamGobbler);
 		int exitCode = 0;
 		try {
