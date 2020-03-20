@@ -16,12 +16,17 @@ import java.util.Date;
 @Service
 public class GitRepoPuller {
 
-    @Autowired
-    private GitRepoDiffer repoDiffer;
+    private final GitRepoDiffer repoDiffer;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MarkdownTransformer.class);
 
     private Git localGit;
+
+    @Autowired
+    public GitRepoPuller(GitRepoDiffer repoDiffer) {
+        this.repoDiffer = repoDiffer;
+    }
+
     /**
      * pulls the remote git repository to receive changes.
      */

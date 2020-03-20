@@ -16,6 +16,7 @@ public class EmailService {
 
     private JavaMailSender emailSender;
 
+    @Autowired
     public EmailService(@Qualifier("newMailSender") JavaMailSender emailSender) {
         this.emailSender = emailSender;
     }

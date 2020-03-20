@@ -42,8 +42,8 @@ public class MarkdownTransformer {
 
     private FileTransfer fileTransfer;
 
-    public MarkdownTransformer(@Autowired Environment environment,
-                               @Autowired FileTransfer fileTransfer) {
+    @Autowired
+    public MarkdownTransformer(Environment environment, FileTransfer fileTransfer) {
         this.environment = environment;
         this.fileTransfer = fileTransfer;
     }

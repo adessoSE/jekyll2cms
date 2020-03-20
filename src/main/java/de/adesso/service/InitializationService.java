@@ -9,6 +9,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
+
 @Service
 @EnableScheduling
 public class InitializationService {
@@ -29,11 +31,9 @@ public class InitializationService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(InitializationService.class);
 
-	public InitializationService(@Autowired MarkdownTransformer markdownTransformer,
-								 @Autowired GitRepoCloner gitRepoCloner,
-								 @Autowired GitRepoPuller gitRepoPuller,
-								 @Autowired GitRepoPusher gitRepoPusher,
-								 @Autowired EmailService emailService){
+	@Autowired
+	public InitializationService(MarkdownTransformer markdownTransformer, GitRepoCloner gitRepoCloner,
+								 GitRepoPuller gitRepoPuller, GitRepoPusher gitRepoPusher, EmailService emailService){
 		this.markdownTransformer = markdownTransformer;
 		this.repoCloner = gitRepoCloner;
 		this.repoPuller = gitRepoPuller;
@@ -46,7 +46,8 @@ public class InitializationService {
 	 *
 	 * @return true, if initialization was successful. Return false otherwise.
 	 */
-	public boolean init() {
+	@PostConstruct
+	public void init() {
 		try {
 			if (repoCloner.cloneRemoteRepo()) {
 				repoPuller.pullRemoteRepo();
@@ -57,12 +58,12 @@ public class InitializationService {
 							REPOSITORY_REMOTE_URL
 							+ " has been successfully started.");
 				}
-				return true;
+				System.exit(0);
 			}
-			return false;
+			System.exit(1);
 		} catch (Exception e) {
 			LOGGER.error("Jekyll2cm couldn't be initialized successfully.", e);
-			return false;
+			System.exit(1);
 		}
 	}
 

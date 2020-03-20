@@ -38,14 +38,16 @@ public class GitRepoDiffer {
     @Value("${repository.local.image.destination.path}")
     private String LOCAL_DEST_IMAGE;
 
-    @Autowired
-    private GitRepoPusher repoPusher;
+    private final GitRepoPusher repoPusher;
+    private final MarkdownTransformer markdownTransformer;
+    private final FileTransfer imageTransfer;
 
     @Autowired
-    private MarkdownTransformer markdownTransformer;
-
-    @Autowired
-    private FileTransfer imageTransfer;
+    public GitRepoDiffer(GitRepoPusher repoPusher, MarkdownTransformer markdownTransformer, FileTransfer imageTransfer) {
+        this.repoPusher = repoPusher;
+        this.markdownTransformer = markdownTransformer;
+        this.imageTransfer = imageTransfer;
+    }
 
     /**
      * Method checks if remote repository was updated. Before the git-pull command

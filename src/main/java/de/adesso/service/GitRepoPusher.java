@@ -43,9 +43,8 @@ public class GitRepoPusher {
 
     private Git localGit;
 
-    public GitRepoPusher(@Autowired JekyllService jekyllService,
-                         @Autowired EmailService emailService
-            ) {
+    @Autowired
+    public GitRepoPusher(JekyllService jekyllService, EmailService emailService) {
         this.jekyllService = jekyllService;
         this.emailService = emailService;
     }

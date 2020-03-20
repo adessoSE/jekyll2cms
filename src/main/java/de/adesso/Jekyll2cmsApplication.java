@@ -9,19 +9,9 @@ package de.adesso;
 		import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class Jekyll2cmsApplication implements ApplicationRunner {
-
-	@Autowired
-	private InitializationService initService;
+public class Jekyll2cmsApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(Jekyll2cmsApplication.class, args);
-	}
-
-	@Override
-	public void run(ApplicationArguments args) throws Exception {
-		if (!initService.init()) {
-			System.exit(1);
-		}
 	}
 }
