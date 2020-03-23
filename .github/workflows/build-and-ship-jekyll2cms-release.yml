@@ -1,0 +1,55 @@
+# Create a new jekyll2cms release and push it to Dockerhub
+name: build-and-ship-jekyll2cms-release
+
+on: 
+  push:
+    branches: 
+      - master
+
+jobs:
+  build-java-application:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout master branch
+      uses: actions/checkout@master
+
+    - name: Set up JDK 1.8
+      uses: actions/setup-java@v1
+      with:
+        java-version: 1.8
+
+    - name: Build with Gradle
+      run: ./gradlew build
+
+    - name: Tag build as release
+      uses: "marvinpinto/action-automatic-releases@latest"
+      with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        prerelease: false
+        automatic_release_tag: latest
+        files: |
+          LICENSE.md
+          README.md
+          ./build/libs/*.jar
+          
+  build-docker-image:
+      runs-on: ubuntu-latest
+
+      steps:
+        - uses: actions/checkout@master
+        
+        - name: Build Docker image
+          run: docker build . --tag jekyll2cms/jekyll2cms
+        
+  push-docker-image-to-hub:
+      runs-on: ubuntu-latest
+      
+      steps:
+        - uses: actions/checkout@master
+
+        - name: Login to Dockerhub
+          run: docker login --username=${{ secrets.DOCKERHUB_USER_NAME }} --email=${{ secrets.DOCKERHUB_USER_MAIL }} --password=${{ secrets.DOCKERHUB_USER_PASSWORD }}
+          
+        - name: Push Docker image to Dockerhub
+          run: docker push
