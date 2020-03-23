@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 @Service
 public class ConfigService {
 
-
     @Value("#{environment.SPRING_MAIL_RECEIPIENT}")
     private String RECEIPIENT;
 

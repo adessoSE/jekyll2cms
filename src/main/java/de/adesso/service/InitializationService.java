@@ -17,7 +17,6 @@ public class InitializationService {
 	private GitRepoCloner repoCloner;
 	private GitRepoPusher repoPusher;
 	private ConfigService configService;
-	private EmailService emailService;
 	private GitRepoDiffer repoDiffer;
 	private FileTransfer fileTransfer;
 	private JekyllService jekyllService;
@@ -26,12 +25,11 @@ public class InitializationService {
 
 	@Autowired
 	public InitializationService(MarkdownTransformer markdownTransformer, GitRepoCloner gitRepoCloner,
-								 GitRepoPusher gitRepoPusher, ConfigService configService, EmailService emailService, GitRepoDiffer repoDiffer, FileTransfer fileTransfer, JekyllService jekyllService){
+								 GitRepoPusher gitRepoPusher, ConfigService configService, GitRepoDiffer repoDiffer, FileTransfer fileTransfer, JekyllService jekyllService){
 		this.markdownTransformer = markdownTransformer;
 		this.repoCloner = gitRepoCloner;
 		this.repoPusher = gitRepoPusher;
 		this.configService = configService;
-		this.emailService = emailService;
 		this.repoDiffer = repoDiffer;
 		this.fileTransfer = fileTransfer;
 		this.jekyllService = jekyllService;
@@ -48,11 +46,11 @@ public class InitializationService {
 	@PostConstruct
 	public void init() {
 		try {
-			// TODO: Step 0: Check config
+			// Step 0: Check config
 			configService.checkConfiguration();
 			// Step 1: Clone repo
 			repoCloner.cloneRemoteRepo();
-			// TODO: Step 2: Transform repo using jekyll
+			// Step 2: Transform repo using jekyll
 			List<DiffEntry> entries = repoDiffer.checkForUpdates(); //TODO Refactor inner methods
 
 			fileTransfer.deleteImages(new File(configService.getLOCAL_DEST_IMAGE() + "/Cropped_Resized"));
@@ -61,9 +59,8 @@ public class InitializationService {
 			fileTransfer.moveGeneratedImages(new File(configService.getLOCAL_SITE_IMAGE()), new File(configService.getLOCAL_DEST_IMAGE()));
 			markdownTransformer.copyAllGeneratedXmlFiles();
 
-			// Step 3
+			// Step 3: Push changes
 			repoPusher.pushRepo(entries);
-			// TODO: Step 3: Push changes
 
 			// TODO: Step 4: Send Notifications (optional)
 //			emailService.sendSimpleEmail("Jekyll2cms startet", "Jekyll2cms for: " +
