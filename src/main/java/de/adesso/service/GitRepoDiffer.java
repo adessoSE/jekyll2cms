@@ -44,7 +44,7 @@ public class GitRepoDiffer {
     private final FileTransfer imageTransfer;
     private final JekyllService jekyllService;
     
-    private Git localGit;
+    private Repository repo;
 
     @Autowired
     public GitRepoDiffer(GitRepoPusher repoPusher, MarkdownTransformer markdownTransformer, FileTransfer imageTransfer, JekyllService jekyllService) {
@@ -58,23 +58,19 @@ public class GitRepoDiffer {
      * Gets the information of the newest commit
      */
     public void  getCommitInformation() {
-            Repository repo;
             try (Git git = new Git(repo = LocalRepoCreater.getLocalGit().getRepository())) {
                 //Getting The Commit Information of the Remote Repository
                 RevWalk walker = new RevWalk(repo);
                 RevCommit commit = walker.parseCommit(repo.resolve("HEAD"));
-                Date commitTime = commit.getAuthorIdent().getWhen();
-                String commiterName = commit.getAuthorIdent().getName();
-                String commitEmail = commit.getAuthorIdent().getEmailAddress();
                 String commitID = repo.resolve("HEAD").getName();
 
                 // compare local and remote branch
-                this.checkForUpdates(git, commiterName, commitEmail, commitTime, commitID);
+                this.checkForUpdates(commitID);
             } catch (Exception e) {
                 
             }
             finally {
-                localGit.close();    
+                LocalRepoCreater.getLocalGit().close();
             }
     } 
     
@@ -87,9 +83,8 @@ public class GitRepoDiffer {
      * repository with the state of the repository after executing the git-pull
      * command. Changed files will be logged
      *
-     * @param git
      */
-    private void checkForUpdates(Git git, String name, String email, Date timestamp, String commitID) {
+    private void checkForUpdates(String commitID) {
         LOGGER.info("Checking for Updates");
         JSONParser parser = new JSONParser();
         try {
@@ -101,8 +96,8 @@ public class GitRepoDiffer {
             Object object = parser.parse(new FileReader(JSON_PATH));
             JSONObject commitJSON = (JSONObject) object;
 
-            ObjectReader reader = git.getRepository().newObjectReader();
-            RevWalk revWalk = new RevWalk(git.getRepository());
+            ObjectReader reader = repo.newObjectReader();
+            RevWalk revWalk = new RevWalk(repo);
 
 			/*
 			 * Getting the old Head of the Repository
@@ -123,7 +118,7 @@ public class GitRepoDiffer {
             CanonicalTreeParser newHeadIter = new CanonicalTreeParser(null, reader, newTree);
 
             DiffFormatter df = new DiffFormatter(new ByteArrayOutputStream());
-            df.setRepository(git.getRepository());
+            df.setRepository(repo);
             List<DiffEntry> entries = df.scan(oldHeadIter, newHeadIter);
 
             // check if there is a diff between the local commit and the remote commit
@@ -135,9 +130,8 @@ public class GitRepoDiffer {
             //     copy all images
             //     commit and push to remote repo
             
-            // check if uptades found
-            if(commitJSON.get("Name").equals(name) && commitJSON.get("Email").equals(email)
-                    && commitJSON.get("Date").equals(timestamp.toString())&& commitJSON.get("CommitID").equals(commitID)){
+            // check if updades found
+            if(commitJSON.get("CommitID").equals(commitID)){
                 LOGGER.info("No updates found.");
             }
             else {
@@ -147,8 +141,10 @@ public class GitRepoDiffer {
 
 
 
+                LOGGER.info("Starting jekyll-cli");
                 // Step 2
                 jekyllService.startJekyllCI();
+                entries.forEach(entry -> System.out.println(entry.getChangeType() == DiffEntry.ChangeType.DELETE ? entry.getOldPath() : entry.getNewPath()));
                 // after jekyll build
                 // copy xml from _site to assets, if files were deleted, it tries to delete the folder if it is empty
                 markdownTransformer.copyGeneratedXmlFiles(entries);
@@ -158,6 +154,7 @@ public class GitRepoDiffer {
                 // push changes on repo
 
 
+                markdownTransformer.copyAllGeneratedXmlFiles();
 
                 // Step 3
                 repoPusher.pushRepo(entries);
