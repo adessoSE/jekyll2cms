@@ -41,12 +41,14 @@ public class GitRepoDiffer {
     private final GitRepoPusher repoPusher;
     private final MarkdownTransformer markdownTransformer;
     private final FileTransfer imageTransfer;
+    private final JekyllService jekyllService;
 
     @Autowired
-    public GitRepoDiffer(GitRepoPusher repoPusher, MarkdownTransformer markdownTransformer, FileTransfer imageTransfer) {
+    public GitRepoDiffer(GitRepoPusher repoPusher, MarkdownTransformer markdownTransformer, FileTransfer imageTransfer, JekyllService jekyllService) {
         this.repoPusher = repoPusher;
         this.markdownTransformer = markdownTransformer;
         this.imageTransfer = imageTransfer;
+        this.jekyllService = jekyllService;
     }
 
     /**
@@ -96,25 +98,48 @@ public class GitRepoDiffer {
             df.setRepository(git.getRepository());
             List<DiffEntry> entries = df.scan(oldHeadIter, newHeadIter);
 
+            // check if there is a diff between the local commit and the remote commit
+            // if there are no updates, return
+            // if there are updates
+            //   trigger build process
+            //   if build success
+            //     copy all generated xml based on the diff information between local and remote
+            //     copy all images
+            //     commit and push to remote repo
+
+
+
+
+            // check if uptades found
             if(commitJSON.get("Name").equals(name) && commitJSON.get("Email").equals(email)
                     && commitJSON.get("Date").equals(timestamp.toString())&& commitJSON.get("CommitID").equals(commitID)){
                 LOGGER.info("No updates found.");
             }
-            else{
+            else {
                 LOGGER.info("Updates found.");
                 imageTransfer.deleteImages(new File(LOCAL_DEST_IMAGE + "/Cropped_Resized"));
-                if(repoPusher.triggerBuildProcess())
-                {
-                    markdownTransformer.copyGeneratedXmlFiles(entries);
-                    LOGGER.info("Copy Images from devblog/_site/assets/images folder to devblog/assets/images");
-                    imageTransfer.moveGeneratedImages(new File(LOCAL_SITE_IMAGE), new File(LOCAL_DEST_IMAGE));
-                    repoPusher.pushRepo(entries);
-                }
-                else {
-                    LOGGER.info("No Updates, so no push.");
-                }
+                // if build process success, copy generated xml and images from _site to dest folder
+
+
+
+                // Step 2
+                jekyllService.startJekyllCI();
+                // after jekyll build
+                // copy xml from _site to assets, if files were deleted, it tries to delete the folder if it is empty
+                markdownTransformer.copyGeneratedXmlFiles(entries);
+                LOGGER.info("Copy Images from devblog/_site/assets/images folder to devblog/assets/images");
+                // copy all images from _site/assets to assets
+                imageTransfer.moveGeneratedImages(new File(LOCAL_SITE_IMAGE), new File(LOCAL_DEST_IMAGE));
+                // push changes on repo
+
+
+
+                // Step 3
+                repoPusher.pushRepo(entries);
             }
 
+
+            // TODO infos for commit message move logic to in repoPusher
             for (DiffEntry entry : entries) {
                 //Checking for deleted Files to get the old Path
                 if(entry.getChangeType() == DiffEntry.ChangeType.DELETE) {
@@ -125,11 +150,16 @@ public class GitRepoDiffer {
                 }
             }
             df.close();
+
         } catch (IOException e) {
             LOGGER.error("Error while checking for updated files");
             e.printStackTrace();
+            // TODO change exit code later
+            System.exit(11);
         } catch (ParseException e) {
             e.printStackTrace();
+            // TODO change exit code later
+            System.exit(12);
         }
     }
 }

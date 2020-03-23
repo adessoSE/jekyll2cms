@@ -48,10 +48,12 @@ public class GitRepoPuller {
                 String commitEmail = commit.getAuthorIdent().getEmailAddress();
                 String commitID = repository.resolve("HEAD").getName();
 
+                // get everything from the remote branch
                 PullResult pullResult = git.pull().setStrategy(MergeStrategy.THEIRS).call();
                 LOGGER.info("Fetch result: " + pullResult.getFetchResult().getMessages());
                 LOGGER.info("Merge result: " + pullResult.getMergeResult().toString());
                 LOGGER.info("Merge status: " + pullResult.getMergeResult().getMergeStatus());
+                // compare local and remote branch
                 repoDiffer.checkForUpdates(git, commiterName, commitEmail, commitTime, commitID);
             } catch (Exception e) {
                 LOGGER.error("In method " + method + ": Error while pulling remote git repository.", e);

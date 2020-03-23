@@ -4,78 +4,72 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.env.Environment;
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 
 @Service
-@EnableScheduling
 public class InitializationService {
-
-	@Value("#{environment.REPOSITORY_REMOTE_URL}")
-	private String REPOSITORY_REMOTE_URL;
 
 	@Value("${jekyll2cms.start.notification}")
 	private String JEKYLL2CMS_START_NOTIFICATION;
 
 	private MarkdownTransformer markdownTransformer;
 	private GitRepoCloner repoCloner;
-	private GitRepoPuller repoPuller;
 	private GitRepoPusher repoPusher;
+	private ConfigService configService;
 	private EmailService emailService;
 	
-	private final static long pollInterval = 20000;
-
 	private static final Logger LOGGER = LoggerFactory.getLogger(InitializationService.class);
 
 	@Autowired
 	public InitializationService(MarkdownTransformer markdownTransformer, GitRepoCloner gitRepoCloner,
-								 GitRepoPuller gitRepoPuller, GitRepoPusher gitRepoPusher, EmailService emailService){
+								 GitRepoPusher gitRepoPusher, ConfigService configService, EmailService emailService){
 		this.markdownTransformer = markdownTransformer;
 		this.repoCloner = gitRepoCloner;
-		this.repoPuller = gitRepoPuller;
 		this.repoPusher = gitRepoPusher;
+		this.configService = configService;
 		this.emailService = emailService;
 	}
 
 	/**
-	 * Initializes jekyll2cms lifecycle.
-	 *
-	 * @return true, if initialization was successful. Return false otherwise.
+	 * Init the Jekyll2cms process.
+	 * Step 0: Check config
+	 * Step 1: Clone repo
+ 	 * Step 2: Transform repo using jekyll
+	 * Step 3: Push changes
+	 * Step 4: Send Notifications (optional)
 	 */
 	@PostConstruct
 	public void init() {
 		try {
-			if (repoCloner.cloneRemoteRepo()) {
-				repoPuller.pullRemoteRepo();
-				repoPusher.triggerBuildProcess();
-				markdownTransformer.copyAllGeneratedXmlFiles(); //GitRepoDiffer.copyAllGeneratedXmlFiles
-				if(JEKYLL2CMS_START_NOTIFICATION.equals("yes")) {
-					emailService.sendSimpleEmail("Jekyll2cms startet", "Jekyll2cms for: " +
-							REPOSITORY_REMOTE_URL
-							+ " has been successfully started.");
-				}
-				System.exit(0);
-			}
-			System.exit(1);
-		} catch (Exception e) {
-			LOGGER.error("Jekyll2cm couldn't be initialized successfully.", e);
-			System.exit(1);
+
+			// TODO: Step 0: Check config
+			configService.checkConfiguration();
+			// Step 1: Clone repo
+			repoCloner.cloneRemoteRepo();
+			// TODO: Step 2: Transform repo using jekyll
+			// TODO: Step 3: Push changes
+			// TODO: Step 4: Send Notifications (optional)
+//			emailService.sendSimpleEmail("Jekyll2cms startet", "Jekyll2cms for: " +
+//				REPOSITORY_REMOTE_URL + " has been successfully started.");
+		} catch(Exception e) {
+
 		}
-	}
 
-	/**
-	 * Triggers the git-pull command to check if there are any updates on the remote
-	 * repository. The fixed rate value in the annotation defines the frequency in
-	 * ms, when to check for an update (i.e. 10000ms = 10s ==> every 10 seconds the
-	 * repository will be pulled (fetch+merge)
-	 */
-	@Scheduled(fixedDelay = pollInterval) // 3600000 = 1h (value in milliseconds)
-	public void pullRemoteRepo() {
-		this.repoPuller.pullRemoteRepo();
-	}
 
+
+//		try {
+//			if (repoCloner.cloneRemoteRepo()) {
+//				repoPuller.pullRemoteRepo();
+//				repoPusher.triggerBuildProcess();
+//				markdownTransformer.copyAllGeneratedXmlFiles(); //GitRepoDiffer.copyAllGeneratedXmlFiles
+//				System.exit(0);
+//			}
+//			System.exit(1);
+//		} catch (Exception e) {
+//			LOGGER.error("Jekyll2cm couldn't be initialized successfully.", e);
+//			System.exit(1);
+//		}
+	}
 }

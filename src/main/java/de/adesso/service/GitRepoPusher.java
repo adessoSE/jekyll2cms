@@ -50,19 +50,6 @@ public class GitRepoPusher {
     }
 
     /**
-     * Starts the jekyll build process
-     */
-    public boolean triggerBuildProcess() {
-        LOGGER.info(
-                "Start jekyll build process and generate XML files from jekyll builts and push them to remote repository");
-        if (!jekyllService.startJekyllCI()) {
-            LOGGER.error("An error occured while building the sources with jekyll");
-            return false;
-        }
-        return true;
-    }
-
-    /**
      * Pushes all files that changed locally
      * And check for deleted Data
      */
@@ -85,6 +72,7 @@ public class GitRepoPusher {
                     localGit.add().addFilepattern("-A").setUpdate(false).call();
                 }
 
+                // TODO: set message with new infos
                 PersonIdent personIdent = localGit.commit().setAll(true).setMessage(GIT_COMMIT_MESSAGE)
                         .setAuthor(GIT_AUTHOR_NAME, GIT_AUTHOR_MAIL).call().getAuthorIdent();
 
@@ -95,31 +83,28 @@ public class GitRepoPusher {
                  * The Remote Repo has the JSON File of the Commit
                  * before this Commit
                  */
+                // set information for json file
                 commitInfo.put("Name", personIdent.getName());
                 commitInfo.put("Email", personIdent.getEmailAddress());
                 commitInfo.put("Date", personIdent.getWhen().toString());
                 commitInfo.put("CommitID", localGit.getRepository().resolve("HEAD").getName());
 
+                // write json file
                 FileWriter jsonFile = new FileWriter(JSON_PATH);
                 jsonFile.write(commitInfo.toJSONString());
                 jsonFile.flush();
                 jsonFile.close();
+
                 CredentialsProvider cp = new UsernamePasswordCredentialsProvider(GIT_AUTHOR_NAME, GIT_AUTHOR_PASSWORD);
                 localGit.push().setForce(true).setCredentialsProvider(cp).call();
                 LOGGER.info("Pushing XML files was successful");
-                emailService.sendSimpleEmail("Success",
-                        "Pushing XML files was successful");
             } catch (GitAPIException e) {
                 LOGGER.error("An error occured while pushing files to remote repository");
                 e.printStackTrace();
-                emailService.sendSimpleEmail("Fail",
-                        "An error occured with the jekyll2cms application while pushing files to remote repository. \n " +
-                                "This is the stacktrace: \n " + e.getStackTrace());
+                System.exit(30);
             } catch (IOException e) {
                 e.printStackTrace();
-                emailService.sendSimpleEmail("Fail",
-                        "An error occured with the jekyll2cms application while pushing files to remote repository. \n " +
-                                "This is the stacktrace: \n " + e.getStackTrace());
+                System.exit(31);
             }
         }
     }
