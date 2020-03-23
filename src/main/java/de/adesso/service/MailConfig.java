@@ -23,16 +23,16 @@ public class MailConfig {
     @Qualifier("newMailSender")
     public JavaMailSender getJavaMailSender() {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-        mailSender.setHost("smtp.gmail.com");
-        mailSender.setPort(587);
+        mailSender.setHost(configService.getSPRING_MAIL_HOST());
+        mailSender.setPort(Integer.parseInt(configService.getSPRING_MAIL_PORT()));
 
         mailSender.setUsername(configService.getSPRING_MAIL_USERNAME());
         mailSender.setPassword(configService.getSPRING_MAIL_PASSWORD());
 
         Properties props = mailSender.getJavaMailProperties();
         props.put("mail.transport.protocol", "smtp");
-        props.put("mail.smtp.auth", "true");
-        props.put("mail.smtp.starttls.enable", "true");
+        props.put("mail.smtp.auth", configService.getSPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH());
+        props.put("mail.smtp.starttls.enable", configService.getSPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE());
         props.put("mail.debug", "true");
 
         return mailSender;

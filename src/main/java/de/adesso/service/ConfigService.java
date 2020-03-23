@@ -6,12 +6,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class ConfigService {
 
-    @Value("#{environment.SPRING_MAIL_RECEIPIENT}")
-    private String RECEIPIENT;
-
+    //REMOTE REPO
     @Value("#{environment.REPOSITORY_REMOTE_URL}")
     private String REPOSITORY_REMOTE_URL;
 
+    //GITHUB CREDENTIALS
     @Value("#{environment.REPOSITORY_LOCAL_USER_NAME}")
     private String GIT_AUTHOR_NAME;
 
@@ -21,11 +20,30 @@ public class ConfigService {
     @Value("#{environment.REPOSITORY_LOCAL_USER_PASSWORD}")
     private String GIT_AUTHOR_PASSWORD;
 
+    //SPRING MAIL CONFIG
+    @Value("#{environment.SPRING_MAIL_RECEIPIENT}")
+    private String RECEIPIENT;
+
     @Value("#{environment.SPRING_MAIL_USERNAME}")
     private String SPRING_MAIL_USERNAME;
 
     @Value("#{environment.SPRING_MAIL_PASSWORD}")
     private String SPRING_MAIL_PASSWORD;
+
+    @Value("#{environment.SPRING_MAIL_PORT}")
+    private String SPRING_MAIL_PORT;
+
+    @Value("#{environment.SPRING_MAIL_HOST}")
+    private String SPRING_MAIL_HOST;
+
+    @Value("#{environment.SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH}")
+    private String SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH;
+
+    @Value("#{environment.SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE}")
+    private String SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE;
+
+    @Value("#{environment.JEKYLL_START_NOTIFICATION}")
+    private String JEKYLL_START_NOTIFICATION;
 
     @Value("${repository.local.JSON.path}")
     private String JSON_PATH;
@@ -38,9 +56,6 @@ public class ConfigService {
 
     @Value("${repository.local.path}")
     private String LOCAL_REPO_PATH;
-
-    @Value("${jekyll2cms.start.notification}")
-    private String JEKYLL2CMS_START_NOTIFICATION;
 
     @Value("${repository.local.htmlposts.path}")
     private String LOCAL_HTML_POSTS;
@@ -63,9 +78,6 @@ public class ConfigService {
         return REPOSITORY_REMOTE_URL;
     }
 
-    public String getJEKYLL2CMS_START_NOTIFICATION() {
-        return JEKYLL2CMS_START_NOTIFICATION;
-    }
 
     public String getLOCAL_HTML_POSTS() {
         return LOCAL_HTML_POSTS;
@@ -109,5 +121,25 @@ public class ConfigService {
 
     public String getSPRING_MAIL_PASSWORD() {
         return SPRING_MAIL_PASSWORD;
+    }
+
+    public String getJEKYLL_START_NOTIFICATION() {
+        return JEKYLL_START_NOTIFICATION;
+    }
+
+    public String getSPRING_MAIL_PORT() {
+        return SPRING_MAIL_PORT;
+    }
+
+    public String getSPRING_MAIL_HOST() {
+        return SPRING_MAIL_HOST;
+    }
+
+    public String getSPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH() {
+        return SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH;
+    }
+
+    public String getSPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE() {
+        return SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE;
     }
 }
