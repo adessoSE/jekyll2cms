@@ -3,8 +3,6 @@ package de.adesso.service;
 import org.apache.commons.io.FilenameUtils;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -23,29 +21,14 @@ import java.util.regex.Pattern;
 @Service
 public class MarkdownTransformer {
 
-    private Environment environment;
-
-    @Value("${repository.local.path}")
-    private String LOCAL_REPO_PATH;
-
-    @Value("#{environment.REPOSITORY_REMOTE_URL}")
-    private String REPOSITORY_REMOTE_URL;
-
-    @Value("${repository.local.htmlposts.path}")
-    private String LOCAL_HTML_POSTS;
-
-    @Value("${repository.local.firstspirit-xml.path}")
-    private String FIRSTSPIRIT_XML_PATH;
-
-    @Value("${repository.local.JSON.path}")
-    private String JSON_PATH;
+    private final ConfigService configService;
 
     private FileTransfer fileTransfer;
 
     @Autowired
-    public MarkdownTransformer(Environment environment, FileTransfer fileTransfer) {
-        this.environment = environment;
+    public MarkdownTransformer(FileTransfer fileTransfer, ConfigService configService) {
         this.fileTransfer = fileTransfer;
+        this.configService = configService;
     }
 
     /**
@@ -91,9 +74,9 @@ public class MarkdownTransformer {
 				 * The Jeykyll xml built is located at
 				 * "/_site/blog-posts/2017-08-01/new-post-title/2017-08-01-new-post-title.xml
 				 */
-                File source = new File(String.format("%s%s/%s/%s/%s", LOCAL_HTML_POSTS, folderStructure, fileDate, fileName, xmlFileName));
-                File dest = new File(String.format("%s%s/%s/%s.xml", FIRSTSPIRIT_XML_PATH, folderStructure, fileDate, fullFileName));
-                Path dirPath = new File(String.format("%s%s/%s", FIRSTSPIRIT_XML_PATH, folderStructure, fileDate)).toPath();
+                File source = new File(String.format("%s%s/%s/%s/%s", configService.getLOCAL_HTML_POSTS(), folderStructure, fileDate, fileName, xmlFileName));
+                File dest = new File(String.format("%s%s/%s/%s.xml", configService.getFIRSTSPIRIT_XML_PATH(), folderStructure, fileDate, fullFileName));
+                Path dirPath = new File(String.format("%s%s/%s", configService.getFIRSTSPIRIT_XML_PATH(), folderStructure, fileDate)).toPath();
 
                 if (entry.getChangeType() == DiffEntry.ChangeType.DELETE) {
                     try {
@@ -121,7 +104,7 @@ public class MarkdownTransformer {
      */
     public void copyAllGeneratedXmlFiles() {
         Collection<File> allFiles = new ArrayList<File>();
-        File file = new File(LOCAL_HTML_POSTS);
+        File file = new File(configService.getLOCAL_HTML_POSTS());
         scanDirectory(file, allFiles);
 		/*
 		 * Filter: take only XML-files - other files will be ignored
@@ -137,7 +120,7 @@ public class MarkdownTransformer {
 					 * desired to be copied to
 					 * "assets/first-spirit-xml/2016-05-12-welcome-to-jekyll"
 					 */
-                    FIRSTSPIRIT_XML_PATH + "/" + fileDate + "/" + fileDate + "-"
+                    configService.getFIRSTSPIRIT_XML_PATH() + "/" + fileDate + "/" + fileDate + "-"
                             + FilenameUtils.getBaseName(f.getAbsolutePath() + ".xml"));
             fileTransfer.copyFile(f, dest);
         });

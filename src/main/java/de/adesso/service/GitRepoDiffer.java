@@ -1,6 +1,5 @@
 package de.adesso.service;
 
-import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.lib.ObjectId;
@@ -15,14 +14,11 @@ import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Date;
 import java.util.List;
 
 @Service
@@ -30,50 +26,36 @@ public class GitRepoDiffer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MarkdownTransformer.class);
 
-    @Value("${repository.local.JSON.path}")
-    private String JSON_PATH;
+    private final ConfigService configService;
 
-    @Value("${repository.local.image.path}")
-    private String LOCAL_SITE_IMAGE;
-
-    @Value("${repository.local.image.destination.path}")
-    private String LOCAL_DEST_IMAGE;
-
-    private final GitRepoPusher repoPusher;
-    private final MarkdownTransformer markdownTransformer;
-    private final FileTransfer imageTransfer;
-    private final JekyllService jekyllService;
-    
+    //Not initialised, because repo needs to be cloned first, so there is no bean
     private Repository repo;
 
     @Autowired
-    public GitRepoDiffer(GitRepoPusher repoPusher, MarkdownTransformer markdownTransformer, FileTransfer imageTransfer, JekyllService jekyllService) {
-        this.repoPusher = repoPusher;
-        this.markdownTransformer = markdownTransformer;
-        this.imageTransfer = imageTransfer;
-        this.jekyllService = jekyllService;
+    public GitRepoDiffer(ConfigService configService) {
+        this.configService = configService;
     }
 
     /**
      * Gets the information of the newest commit
      */
-    public void  getCommitInformation() {
-            try (Git git = new Git(repo = LocalRepoCreater.getLocalGit().getRepository())) {
-                //Getting The Commit Information of the Remote Repository
-                RevWalk walker = new RevWalk(repo);
-                RevCommit commit = walker.parseCommit(repo.resolve("HEAD"));
-                String commitID = repo.resolve("HEAD").getName();
+    private String getCommitInformation() {
+        repo = LocalRepoCreater.getLocalGit().getRepository();
+        String commitID = "";
+        try {
+            //Getting The Commit Information of the Remote Repository
+            RevWalk walker = new RevWalk(repo);
+            RevCommit commit = walker.parseCommit(repo.resolve("HEAD"));
+            commitID = repo.resolve("HEAD").getName();
 
-                // compare local and remote branch
-                this.checkForUpdates(commitID);
-            } catch (Exception e) {
-                
-            }
-            finally {
-                LocalRepoCreater.getLocalGit().close();
-            }
-    } 
-    
+        } catch (Exception e) {
+
+        } finally {
+            LocalRepoCreater.getLocalGit().close();
+        }
+        return commitID;
+    }
+
 
     /**
      * Method checks if remote repository was updated. Before the git-pull command
@@ -83,36 +65,39 @@ public class GitRepoDiffer {
      * repository with the state of the repository after executing the git-pull
      * command. Changed files will be logged
      *
+     * @return
      */
-    private void checkForUpdates(String commitID) {
+    public List<DiffEntry> checkForUpdates() {
+        String commitID = getCommitInformation();
+
         LOGGER.info("Checking for Updates");
         JSONParser parser = new JSONParser();
         try {
-			/*
-			 * Getting the Commit Information from the local
-			 * JSON File to compare this Information with
-			 * the Commit Information of the pull
-			 */
-            Object object = parser.parse(new FileReader(JSON_PATH));
+            /*
+             * Getting the Commit Information from the local
+             * JSON File to compare this Information with
+             * the Commit Information of the pull
+             */
+            Object object = parser.parse(new FileReader(configService.getJSON_PATH()));
             JSONObject commitJSON = (JSONObject) object;
 
             ObjectReader reader = repo.newObjectReader();
             RevWalk revWalk = new RevWalk(repo);
 
-			/*
-			 * Getting the old Head of the Repository
-			 * Takes the Commit ID which is saved in the JSON-File
-			 * And transfers it to a tree Element
-			 */
+            /*
+             * Getting the old Head of the Repository
+             * Takes the Commit ID which is saved in the JSON-File
+             * And transfers it to a tree Element
+             */
             RevCommit revCommitOld = revWalk.parseCommit(ObjectId.fromString(commitJSON.get("CommitID").toString()).toObjectId());
             ObjectId oldTree = revCommitOld.getTree().getId();
             CanonicalTreeParser oldHeadIter = new CanonicalTreeParser(null, reader, oldTree);
 
-			/*
-			 * Getting the old Head of the Repository
-			 * Takes the Commit ID from the last pull
-			 * And transfers it to a tree Element
-			 */
+            /*
+             * Getting the old Head of the Repository
+             * Takes the Commit ID from the last pull
+             * And transfers it to a tree Element
+             */
             RevCommit revCommitNew = revWalk.parseCommit(ObjectId.fromString(commitID).toObjectId());
             ObjectId newTree = revCommitNew.getTree().getId();
             CanonicalTreeParser newHeadIter = new CanonicalTreeParser(null, reader, newTree);
@@ -129,45 +114,24 @@ public class GitRepoDiffer {
             //     copy all generated xml based on the diff information between local and remote
             //     copy all images
             //     commit and push to remote repo
-            
+
             // check if updades found
-            if(commitJSON.get("CommitID").equals(commitID)){
-                LOGGER.info("No updates found.");
-            }
-            else {
+            if (commitJSON.get("CommitID").equals(commitID)) {
+                LOGGER.info("No updates found. \n" +
+                        "Jekyll2cms successfull");
+                System.exit(0);
+            } else {
                 LOGGER.info("Updates found.");
-                imageTransfer.deleteImages(new File(LOCAL_DEST_IMAGE + "/Cropped_Resized"));
-                // if build process success, copy generated xml and images from _site to dest folder
-
-
-
-                LOGGER.info("Starting jekyll-cli");
-                // Step 2
-                jekyllService.startJekyllCI();
-                entries.forEach(entry -> System.out.println(entry.getChangeType() == DiffEntry.ChangeType.DELETE ? entry.getOldPath() : entry.getNewPath()));
-                // after jekyll build
-                // copy xml from _site to assets, if files were deleted, it tries to delete the folder if it is empty
-                markdownTransformer.copyGeneratedXmlFiles(entries);
-                LOGGER.info("Copy Images from devblog/_site/assets/images folder to devblog/assets/images");
-                // copy all images from _site/assets to assets
-                imageTransfer.moveGeneratedImages(new File(LOCAL_SITE_IMAGE), new File(LOCAL_DEST_IMAGE));
-                // push changes on repo
-
-
-                markdownTransformer.copyAllGeneratedXmlFiles();
-
-                // Step 3
-                repoPusher.pushRepo(entries);
+                return entries;
             }
 
 
             // TODO infos for commit message move logic to in repoPusher
             for (DiffEntry entry : entries) {
                 //Checking for deleted Files to get the old Path
-                if(entry.getChangeType() == DiffEntry.ChangeType.DELETE) {
+                if (entry.getChangeType() == DiffEntry.ChangeType.DELETE) {
                     LOGGER.info("The file " + entry.getOldPath() + " was deleted!");
-                }
-                else {
+                } else {
                     LOGGER.info("The file " + entry.getNewPath() + " was updated!!");
                 }
             }
@@ -183,5 +147,6 @@ public class GitRepoDiffer {
             // TODO change exit code later
             System.exit(12);
         }
+        return null;
     }
 }

@@ -27,8 +27,9 @@ public class JekyllService {
 	/**
      * Starts the jekyll build process (jekyll build --incremental)
      */
-    public void startJekyllCI() {
-    	// create command builder
+    public void startJekyllBuildProcess() {
+		LOGGER.info("Starting jekyll build");
+		// create command builder
 		ProcessBuilder builder = new ProcessBuilder();
 		// set command:
 		//   execute in shell

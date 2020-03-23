@@ -1,18 +1,17 @@
 package de.adesso.service;
 
+import org.eclipse.jgit.diff.DiffEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.io.File;
+import java.util.List;
 
 @Service
 public class InitializationService {
-
-	@Value("${jekyll2cms.start.notification}")
-	private String JEKYLL2CMS_START_NOTIFICATION;
 
 	private MarkdownTransformer markdownTransformer;
 	private GitRepoCloner repoCloner;
@@ -20,18 +19,22 @@ public class InitializationService {
 	private ConfigService configService;
 	private EmailService emailService;
 	private GitRepoDiffer repoDiffer;
+	private FileTransfer fileTransfer;
+	private JekyllService jekyllService;
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(InitializationService.class);
 
 	@Autowired
 	public InitializationService(MarkdownTransformer markdownTransformer, GitRepoCloner gitRepoCloner,
-								 GitRepoPusher gitRepoPusher, ConfigService configService, EmailService emailService, GitRepoDiffer repoDiffer){
+								 GitRepoPusher gitRepoPusher, ConfigService configService, EmailService emailService, GitRepoDiffer repoDiffer, FileTransfer fileTransfer, JekyllService jekyllService){
 		this.markdownTransformer = markdownTransformer;
 		this.repoCloner = gitRepoCloner;
 		this.repoPusher = gitRepoPusher;
 		this.configService = configService;
 		this.emailService = emailService;
 		this.repoDiffer = repoDiffer;
+		this.fileTransfer = fileTransfer;
+		this.jekyllService = jekyllService;
 	}
 
 	/**
@@ -45,35 +48,32 @@ public class InitializationService {
 	@PostConstruct
 	public void init() {
 		try {
-
 			// TODO: Step 0: Check config
 			configService.checkConfiguration();
 			// Step 1: Clone repo
 			repoCloner.cloneRemoteRepo();
 			// TODO: Step 2: Transform repo using jekyll
-			repoDiffer.getCommitInformation(); //TODO Refactor inner methods
+			List<DiffEntry> entries = repoDiffer.checkForUpdates(); //TODO Refactor inner methods
+
+			fileTransfer.deleteImages(new File(configService.getLOCAL_DEST_IMAGE() + "/Cropped_Resized"));
+			jekyllService.startJekyllBuildProcess();
+			markdownTransformer.copyGeneratedXmlFiles(entries);
+			fileTransfer.moveGeneratedImages(new File(configService.getLOCAL_SITE_IMAGE()), new File(configService.getLOCAL_DEST_IMAGE()));
+			markdownTransformer.copyAllGeneratedXmlFiles();
+
+			// Step 3
+			repoPusher.pushRepo(entries);
 			// TODO: Step 3: Push changes
 
 			// TODO: Step 4: Send Notifications (optional)
 //			emailService.sendSimpleEmail("Jekyll2cms startet", "Jekyll2cms for: " +
 //				REPOSITORY_REMOTE_URL + " has been successfully started.");
 		} catch(Exception e) {
-
+			LOGGER.error("UNDEFINED EXCEPTION");
+			e.printStackTrace();
+			System.exit(1000);
 		}
-
-
-
-//		try {
-//			if (repoCloner.cloneRemoteRepo()) {
-//				repoPuller.pullRemoteRepo();
-//				repoPusher.triggerBuildProcess();
-//				markdownTransformer.copyAllGeneratedXmlFiles(); //GitRepoDiffer.copyAllGeneratedXmlFiles
-//				System.exit(0);
-//			}
-//			System.exit(1);
-//		} catch (Exception e) {
-//			LOGGER.error("Jekyll2cm couldn't be initialized successfully.", e);
-//			System.exit(1);
-//		}
+		LOGGER.info("Jekyll2cms successfull!");
+		System.exit(0);
 	}
 }

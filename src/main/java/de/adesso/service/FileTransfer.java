@@ -2,7 +2,7 @@ package de.adesso.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -16,14 +16,12 @@ public class FileTransfer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FileTransfer.class);
 
-    @Value("${repository.local.htmlposts.path}")
-    private String LOCAL_HTML_POSTS;
+    private ConfigService configService;
 
-    @Value("${repository.local.image.path}")
-    private String LOCAL_SITE_IMAGE;
-
-    @Value("${repository.local.image.destination.path}")
-    private String LOCAL_DEST_IMAGE;
+    @Autowired
+    public FileTransfer(ConfigService configService) {
+        this.configService = configService;
+    }
 
     /**
      * Copy a file
@@ -53,8 +51,8 @@ public class FileTransfer {
      * Folder
      */
     void deleteXmlFromSiteFolder() {
-        LOGGER.info("Paths: " + Paths.get(LOCAL_HTML_POSTS));
-        try (Stream<Path> stream = Files.find(Paths.get(LOCAL_HTML_POSTS), 5,
+        LOGGER.info("Paths: " + Paths.get(configService.getLOCAL_HTML_POSTS()));
+        try (Stream<Path> stream = Files.find(Paths.get(configService.getLOCAL_HTML_POSTS()), 5,
                 (path, attr) -> path.getFileName().toString().endsWith(".xml"))) {
             stream.forEach(path -> {
                 try {
@@ -68,32 +66,31 @@ public class FileTransfer {
         }
     }
 
-    void moveGeneratedImages(File srcFolder, File destFolder){
-        if(srcFolder.isDirectory()){
+    void moveGeneratedImages(File srcFolder, File destFolder) {
+        if (srcFolder.isDirectory()) {
 
-            if(!destFolder.exists()){
+            if (!destFolder.exists()) {
                 destFolder.mkdir();
             }
 
             String files[] = srcFolder.list();
-            for (String file : files){
+            for (String file : files) {
                 File srcFile = new File(srcFolder, file);
                 File destFile = new File(destFolder, file);
 
                 moveGeneratedImages(srcFile, destFile);
             }
-        }
-        else{
+        } else {
             try {
                 Files.copy(srcFolder.toPath(), destFolder.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                LOGGER.info("Copy Image "+ destFolder);
+                LOGGER.info("Copy Image " + destFolder);
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
 
-    void deleteImages (File source) {
+    void deleteImages(File source) {
         if (source.isDirectory()) {
             try {
                 Files.walkFileTree(Paths.get(source.getAbsolutePath()), new SimpleFileVisitor<Path>() {

@@ -4,15 +4,12 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.lib.PersonIdent;
-
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 import java.io.FileWriter;
@@ -22,31 +19,15 @@ import java.util.List;
 @Service
 public class GitRepoPusher {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MarkdownTransformer.class);
-
-    @Value("#{environment.REPOSITORY_LOCAL_USER_NAME}")
-    private String GIT_AUTHOR_NAME;
-    @Value("#{environment.REPOSITORY_LOCAL_USER_MAIL}")
-    private String GIT_AUTHOR_MAIL;
-
-    @Value("#{environment.REPOSITORY_LOCAL_USER_PASSWORD}")
-    private String GIT_AUTHOR_PASSWORD;
-
-    @Value("${repository.local.JSON.path}")
-    private String JSON_PATH;
+    private static final Logger LOGGER = LoggerFactory.getLogger(GitRepoPusher.class);
 
     private final String GIT_COMMIT_MESSAGE = "New First Spirit XML files added automatically by jekyll2cms";
 
-    private JekyllService jekyllService;
-
-    private EmailService emailService;
-
-    private Git localGit;
+    private final ConfigService configService;
 
     @Autowired
-    public GitRepoPusher(JekyllService jekyllService, EmailService emailService) {
-        this.jekyllService = jekyllService;
-        this.emailService = emailService;
+    public GitRepoPusher(ConfigService configService) {
+        this.configService = configService;
     }
 
     /**
@@ -60,7 +41,7 @@ public class GitRepoPusher {
 		 * First-Spirit-XML files, another implementation (other remote repository etc.)
 		 * is necessary
 		 */
-        localGit = LocalRepoCreater.getLocalGit();
+        Git localGit = LocalRepoCreater.getLocalGit();
         JSONObject commitInfo = new JSONObject();
 
         if (localGit != null) {
@@ -74,7 +55,7 @@ public class GitRepoPusher {
 
                 // TODO: set message with new infos
                 PersonIdent personIdent = localGit.commit().setAll(true).setMessage(GIT_COMMIT_MESSAGE)
-                        .setAuthor(GIT_AUTHOR_NAME, GIT_AUTHOR_MAIL).call().getAuthorIdent();
+                        .setAuthor(configService.getGIT_AUTHOR_NAME(), configService.getGIT_AUTHOR_MAIL()).call().getAuthorIdent();
 
                 /*
                  * Taking the Information from the Commit of the Update
@@ -90,12 +71,12 @@ public class GitRepoPusher {
                 commitInfo.put("CommitID", localGit.getRepository().resolve("HEAD").getName());
 
                 // write json file
-                FileWriter jsonFile = new FileWriter(JSON_PATH);
+                FileWriter jsonFile = new FileWriter(configService.getJSON_PATH());
                 jsonFile.write(commitInfo.toJSONString());
                 jsonFile.flush();
                 jsonFile.close();
 
-                CredentialsProvider cp = new UsernamePasswordCredentialsProvider(GIT_AUTHOR_NAME, GIT_AUTHOR_PASSWORD);
+                CredentialsProvider cp = new UsernamePasswordCredentialsProvider(configService.getGIT_AUTHOR_NAME(), configService.getGIT_AUTHOR_PASSWORD());
                 localGit.push().setForce(true).setCredentialsProvider(cp).call();
                 LOGGER.info("Pushing XML files was successful");
             } catch (GitAPIException e) {

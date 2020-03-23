@@ -1,7 +1,7 @@
 package de.adesso.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -12,11 +12,12 @@ import java.util.Properties;
 @Configuration
 public class MailConfig {
 
-    @Value("#{environment.SPRING_MAIL_USERNAME}")
-    private String EMAIL;
+    private final ConfigService configService;
 
-    @Value("#{environment.SPRING_MAIL_PASSWORD}")
-    private String PASSWORD;
+    @Autowired
+    public MailConfig(ConfigService configService) {
+        this.configService = configService;
+    }
 
     @Bean
     @Qualifier("newMailSender")
@@ -25,8 +26,8 @@ public class MailConfig {
         mailSender.setHost("smtp.gmail.com");
         mailSender.setPort(587);
 
-        mailSender.setUsername(EMAIL);
-        mailSender.setPassword(PASSWORD);
+        mailSender.setUsername(configService.getSPRING_MAIL_USERNAME());
+        mailSender.setPassword(configService.getSPRING_MAIL_PASSWORD());
 
         Properties props = mailSender.getJavaMailProperties();
         props.put("mail.transport.protocol", "smtp");
