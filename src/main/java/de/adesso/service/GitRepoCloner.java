@@ -27,7 +27,7 @@ public class GitRepoCloner {
     public void cloneRemoteRepo() {
         try {
             LocalRepoCreater.setLocalGit(Git.cloneRepository()
-                    .setURI(configService.getREMOTE_REPO_URL())
+                    .setURI(configService.getREPOSITORY_REMOTE_URL())
                     .setDirectory(new File(configService.getLOCAL_REPO_PATH()))
                     .call());
             LOGGER.info("Repository cloned successfully");

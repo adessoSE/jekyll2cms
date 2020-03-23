@@ -6,14 +6,12 @@ import org.springframework.stereotype.Service;
 @Service
 public class ConfigService {
 
-    @Value("#{environment.REPOSITORY_REMOTE_URL}")
-    private String REPOSITORY_REMOTE_URL;
 
     @Value("#{environment.SPRING_MAIL_RECEIPIENT}")
     private String RECEIPIENT;
 
     @Value("#{environment.REPOSITORY_REMOTE_URL}")
-    private String REMOTE_REPO_URL;
+    private String REPOSITORY_REMOTE_URL;
 
     @Value("#{environment.REPOSITORY_LOCAL_USER_NAME}")
     private String GIT_AUTHOR_NAME;
@@ -57,16 +55,13 @@ public class ConfigService {
         // TODO: implement validations
     }
 
-    public String getREPOSITORY_REMOTE_URL() {
-        return REPOSITORY_REMOTE_URL;
-    }
 
     public String getLOCAL_REPO_PATH() {
         return LOCAL_REPO_PATH;
     }
 
-    public String getREMOTE_REPO_URL() {
-        return REMOTE_REPO_URL;
+    public String getREPOSITORY_REMOTE_URL() {
+        return REPOSITORY_REMOTE_URL;
     }
 
     public String getJEKYLL2CMS_START_NOTIFICATION() {
