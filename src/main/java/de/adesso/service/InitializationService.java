@@ -19,17 +19,19 @@ public class InitializationService {
 	private GitRepoPusher repoPusher;
 	private ConfigService configService;
 	private EmailService emailService;
+	private GitRepoDiffer repoDiffer;
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(InitializationService.class);
 
 	@Autowired
 	public InitializationService(MarkdownTransformer markdownTransformer, GitRepoCloner gitRepoCloner,
-								 GitRepoPusher gitRepoPusher, ConfigService configService, EmailService emailService){
+								 GitRepoPusher gitRepoPusher, ConfigService configService, EmailService emailService, GitRepoDiffer repoDiffer){
 		this.markdownTransformer = markdownTransformer;
 		this.repoCloner = gitRepoCloner;
 		this.repoPusher = gitRepoPusher;
 		this.configService = configService;
 		this.emailService = emailService;
+		this.repoDiffer = repoDiffer;
 	}
 
 	/**
@@ -49,7 +51,9 @@ public class InitializationService {
 			// Step 1: Clone repo
 			repoCloner.cloneRemoteRepo();
 			// TODO: Step 2: Transform repo using jekyll
+			repoDiffer.getCommitInformation(); //TODO Refactor inner methods
 			// TODO: Step 3: Push changes
+
 			// TODO: Step 4: Send Notifications (optional)
 //			emailService.sendSimpleEmail("Jekyll2cms startet", "Jekyll2cms for: " +
 //				REPOSITORY_REMOTE_URL + " has been successfully started.");

@@ -5,6 +5,7 @@ import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
+import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
@@ -42,6 +43,8 @@ public class GitRepoDiffer {
     private final MarkdownTransformer markdownTransformer;
     private final FileTransfer imageTransfer;
     private final JekyllService jekyllService;
+    
+    private Git localGit;
 
     @Autowired
     public GitRepoDiffer(GitRepoPusher repoPusher, MarkdownTransformer markdownTransformer, FileTransfer imageTransfer, JekyllService jekyllService) {
@@ -50,6 +53,31 @@ public class GitRepoDiffer {
         this.imageTransfer = imageTransfer;
         this.jekyllService = jekyllService;
     }
+
+    /**
+     * Gets the information of the newest commit
+     */
+    public void  getCommitInformation() {
+            Repository repo;
+            try (Git git = new Git(repo = LocalRepoCreater.getLocalGit().getRepository())) {
+                //Getting The Commit Information of the Remote Repository
+                RevWalk walker = new RevWalk(repo);
+                RevCommit commit = walker.parseCommit(repo.resolve("HEAD"));
+                Date commitTime = commit.getAuthorIdent().getWhen();
+                String commiterName = commit.getAuthorIdent().getName();
+                String commitEmail = commit.getAuthorIdent().getEmailAddress();
+                String commitID = repo.resolve("HEAD").getName();
+
+                // compare local and remote branch
+                this.checkForUpdates(git, commiterName, commitEmail, commitTime, commitID);
+            } catch (Exception e) {
+                
+            }
+            finally {
+                localGit.close();    
+            }
+    } 
+    
 
     /**
      * Method checks if remote repository was updated. Before the git-pull command
@@ -61,7 +89,7 @@ public class GitRepoDiffer {
      *
      * @param git
      */
-    public void checkForUpdates(Git git, String name, String email, Date timestamp, String commitID) {
+    private void checkForUpdates(Git git, String name, String email, Date timestamp, String commitID) {
         LOGGER.info("Checking for Updates");
         JSONParser parser = new JSONParser();
         try {
@@ -106,10 +134,7 @@ public class GitRepoDiffer {
             //     copy all generated xml based on the diff information between local and remote
             //     copy all images
             //     commit and push to remote repo
-
-
-
-
+            
             // check if uptades found
             if(commitJSON.get("Name").equals(name) && commitJSON.get("Email").equals(email)
                     && commitJSON.get("Date").equals(timestamp.toString())&& commitJSON.get("CommitID").equals(commitID)){
