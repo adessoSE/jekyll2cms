@@ -1,49 +1,31 @@
 package de.adesso.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class ConfigService {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigService.class);
+
     //REMOTE REPO
-    @Value("#{environment.REPOSITORY_REMOTE_URL}")
+    @Value("#{environment.REPOSITORY_REMOTE_URL ?: null}")
     private String REPOSITORY_REMOTE_URL;
 
     //GITHUB CREDENTIALS
-    @Value("#{environment.REPOSITORY_LOCAL_USER_NAME}")
+    @Value("#{environment.REPOSITORY_LOCAL_USER_NAME ?: null}")
     private String GIT_AUTHOR_NAME;
 
-    @Value("#{environment.REPOSITORY_LOCAL_USER_MAIL}")
+    @Value("#{environment.REPOSITORY_LOCAL_USER_MAIL ?: null}")
     private String GIT_AUTHOR_MAIL;
 
-    @Value("#{environment.REPOSITORY_LOCAL_USER_PASSWORD}")
+    @Value("#{environment.REPOSITORY_LOCAL_USER_PASSWORD ?: null}")
     private String GIT_AUTHOR_PASSWORD;
-
-    //SPRING MAIL CONFIG
-    @Value("#{environment.SPRING_MAIL_RECEIPIENT}")
-    private String RECEIPIENT;
-
-    @Value("#{environment.SPRING_MAIL_USERNAME}")
-    private String SPRING_MAIL_USERNAME;
-
-    @Value("#{environment.SPRING_MAIL_PASSWORD}")
-    private String SPRING_MAIL_PASSWORD;
-
-    @Value("#{environment.SPRING_MAIL_PORT}")
-    private String SPRING_MAIL_PORT;
-
-    @Value("#{environment.SPRING_MAIL_HOST}")
-    private String SPRING_MAIL_HOST;
-
-    @Value("#{environment.SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH}")
-    private String SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH;
-
-    @Value("#{environment.SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE}")
-    private String SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE;
-
-    @Value("#{environment.JEKYLL_START_NOTIFICATION}")
-    private String JEKYLL_START_NOTIFICATION;
 
     @Value("${repository.local.JSON.path}")
     private String JSON_PATH;
@@ -64,11 +46,48 @@ public class ConfigService {
     private String FIRSTSPIRIT_XML_PATH;
 
 
-    public void checkConfiguration() {
-        // TODO: implement checks
-        // TODO: implement validations
-    }
 
+    public void checkConfiguration() {
+
+        /*
+            REPO URL
+         */
+        if (REPOSITORY_REMOTE_URL == null) {
+            LOGGER.error("ERROR: Environment variable not provided: REPOSITORY_REMOTE_URL \n" +
+                    "Please provide something in the format: https://github.com/myAccount/devblog");
+            System.exit(1);
+        } else {
+            LOGGER.info("SUCCESS: Environemnt variable provided: REPOSITORY_REMOTE_URL");
+        }
+
+        /*
+            Github-Names
+         */
+        if (GIT_AUTHOR_NAME == null) {
+            LOGGER.error("ERROR: Environment variable not provided: GIT_AUTHOR_NAME \n" +
+                    "Please provide some Github-Username");
+
+            System.exit(1);
+        } else {
+            LOGGER.info("SUCCESS: Environemnt variable provided: GIT_AUTHOR_NAME");
+        }
+
+        if (GIT_AUTHOR_MAIL == null) {
+            LOGGER.error("ERROR: Environment variable not provided: GIT_AUTHOR_MAIL \n" +
+                    "Please provide some correspronding Email to the Github Username");
+            System.exit(1);
+        } else {
+            LOGGER.info("SUCCESS: Environemnt variable provided: GIT_AUTHOR_MAIL");
+        }
+
+        if (GIT_AUTHOR_PASSWORD == null) {
+            LOGGER.error("ERROR: Environment variable not provided: GIT_AUTHOR_PASSWORD \n" +
+                    "Please provide some correspronding password to the Github Username");
+            System.exit(1);
+        } else {
+            LOGGER.info("SUCCESS: Environemnt variable provided: GIT_AUTHOR_PASSWORD");
+        }
+    }
 
     public String getLOCAL_REPO_PATH() {
         return LOCAL_REPO_PATH;
@@ -99,10 +118,6 @@ public class ConfigService {
         return JSON_PATH;
     }
 
-    public String getRECEIPIENT() {
-        return RECEIPIENT;
-    }
-
     public String getGIT_AUTHOR_NAME() {
         return GIT_AUTHOR_NAME;
     }
@@ -113,33 +128,5 @@ public class ConfigService {
 
     public String getGIT_AUTHOR_PASSWORD() {
         return GIT_AUTHOR_PASSWORD;
-    }
-
-    public String getSPRING_MAIL_USERNAME() {
-        return SPRING_MAIL_USERNAME;
-    }
-
-    public String getSPRING_MAIL_PASSWORD() {
-        return SPRING_MAIL_PASSWORD;
-    }
-
-    public String getJEKYLL_START_NOTIFICATION() {
-        return JEKYLL_START_NOTIFICATION;
-    }
-
-    public String getSPRING_MAIL_PORT() {
-        return SPRING_MAIL_PORT;
-    }
-
-    public String getSPRING_MAIL_HOST() {
-        return SPRING_MAIL_HOST;
-    }
-
-    public String getSPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH() {
-        return SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH;
-    }
-
-    public String getSPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE() {
-        return SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE;
     }
 }

@@ -62,9 +62,6 @@ public class InitializationService {
 			// Step 3: Push changes
 			repoPusher.pushRepo(entries);
 
-			// TODO: Step 4: Send Notifications (optional)
-//			emailService.sendSimpleEmail("Jekyll2cms startet", "Jekyll2cms for: " +
-//				REPOSITORY_REMOTE_URL + " has been successfully started.");
 		} catch(Exception e) {
 			LOGGER.error("UNDEFINED EXCEPTION");
 			e.printStackTrace();
