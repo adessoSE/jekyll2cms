@@ -35,6 +35,7 @@ jobs:
           
   build-docker-image:
       runs-on: ubuntu-latest
+      needs: [build-java-application]
 
       steps:
         - uses: actions/checkout@master
@@ -44,6 +45,7 @@ jobs:
         
   push-docker-image-to-hub:
       runs-on: ubuntu-latest
+      needs: [build-docker-image]
       
       steps:
         - uses: actions/checkout@master
