@@ -35,7 +35,6 @@ public class GitRepoCloner {
                     .setURI(configService.getREPOSITORY_REMOTE_URL())
                     .setDirectory(new File(configService.getLOCAL_REPO_PATH()))
                     .setBranchesToClone(Collections.singletonList("refs/heads/master"))
-                    .setProgressMonitor(new TextProgressMonitor(new PrintWriter(System.out)))
                     .call());
             LOGGER.info("Repository cloned successfully");
         } catch (Exception e) {
