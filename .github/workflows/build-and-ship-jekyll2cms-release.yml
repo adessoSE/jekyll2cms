@@ -52,4 +52,4 @@ jobs:
           run: docker login --username=${{ secrets.DOCKERHUB_USER_NAME }} --password=${{ secrets.DOCKERHUB_USER_PASSWORD }}
           
         - name: Push Docker image to Dockerhub
-          run: docker push
+          run: docker push jekyll2cms/jekyll2cms
