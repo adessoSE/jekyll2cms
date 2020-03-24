@@ -11,5 +11,5 @@ RUN apk add imagemagick
 
 FROM builder as jar
 
-ADD build/libs/jekyll2cms-1.0.0.jar /jekyll2cms/jekyll2cms-1.0.0.jar
-ENTRYPOINT ["java","-jar","/jekyll2cms/jekyll2cms-1.0.0.jar"]
+ADD build/libs/jekyll2cms-2.0.0.jar /jekyll2cms/jekyll2cms-2.0.0.jar
+ENTRYPOINT ["java","-jar","/jekyll2cms/jekyll2cms-2.0.0.jar"]
