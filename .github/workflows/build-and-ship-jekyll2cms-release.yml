@@ -32,24 +32,27 @@ jobs:
           LICENSE.md
           README.md
           ./build/libs/*.jar
-          
-  build-docker-image:
-      runs-on: ubuntu-latest
 
-      steps:
-        - uses: actions/checkout@master
+    - name: Build Docker image
+      run: docker build . --tag jekyll2cms/jekyll2cms
+          
+  # build-docker-image:
+  #     runs-on: ubuntu-latest
+
+  #     steps:
+  #       - uses: actions/checkout@master
         
-        - name: Build Docker image
-          run: docker build . --tag jekyll2cms/jekyll2cms
+  #       - name: Build Docker image
+  #         run: docker build . --tag jekyll2cms/jekyll2cms
         
-  push-docker-image-to-hub:
-      runs-on: ubuntu-latest
+  # push-docker-image-to-hub:
+  #     runs-on: ubuntu-latest
       
-      steps:
-        - uses: actions/checkout@master
+  #     steps:
+  #       - uses: actions/checkout@master
 
-        - name: Login to Dockerhub
-          run: docker login --username=${{ secrets.DOCKERHUB_USER_NAME }} --password=${{ secrets.DOCKERHUB_USER_PASSWORD }}
+  #       - name: Login to Dockerhub
+  #         run: docker login --username=${{ secrets.DOCKERHUB_USER_NAME }} --password=${{ secrets.DOCKERHUB_USER_PASSWORD }}
           
-        - name: Push Docker image to Dockerhub
-          run: docker push
+  #       - name: Push Docker image to Dockerhub
+  #         run: docker push
