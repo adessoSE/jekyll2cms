@@ -83,7 +83,7 @@ public class FileTransfer {
         } else {
             try {
                 Files.copy(srcFolder.toPath(), destFolder.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                LOGGER.info("Copy Image " + destFolder);
+                LOGGER.debug("Copy Image " + destFolder);
             } catch (IOException e) {
                 e.printStackTrace();
             }

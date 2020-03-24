@@ -5,9 +5,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Service
 public class ConfigService {
 
@@ -45,10 +42,7 @@ public class ConfigService {
     @Value("${repository.local.firstspirit-xml.path}")
     private String FIRSTSPIRIT_XML_PATH;
 
-
-
     public void checkConfiguration() {
-
         /*
             REPO URL
          */

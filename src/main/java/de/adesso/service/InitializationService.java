@@ -57,7 +57,6 @@ public class InitializationService {
 			jekyllService.startJekyllBuildProcess();
 			markdownTransformer.copyGeneratedXmlFiles(entries);
 			fileTransfer.moveGeneratedImages(new File(configService.getLOCAL_SITE_IMAGE()), new File(configService.getLOCAL_DEST_IMAGE()));
-			markdownTransformer.copyAllGeneratedXmlFiles();
 
 			// Step 3: Push changes
 			repoPusher.pushRepo(entries);
