@@ -48,16 +48,3 @@ jobs:
           
         - name: Push Docker image to Dockerhub
           run: docker push jekyll2cms/jekyll2cms
-        
-  # push-docker-image-to-hub:
-  #     runs-on: ubuntu-latest
-  #     needs: [build-docker-image]
-      
-  #     steps:
-  #       - uses: actions/checkout@master
-
-  #       - name: Login to Dockerhub
-  #         run: docker login --username=${{ secrets.DOCKERHUB_USER_NAME }} --password=${{ secrets.DOCKERHUB_USER_PASSWORD }}
-          
-  #       - name: Push Docker image to Dockerhub
-  #         run: docker push jekyll2cms/jekyll2cms
