@@ -49,7 +49,7 @@ jobs:
         - uses: actions/checkout@master
 
         - name: Login to Dockerhub
-          run: docker login --username=${{ secrets.DOCKERHUB_USER_NAME }} --email=${{ secrets.DOCKERHUB_USER_MAIL }} --password=${{ secrets.DOCKERHUB_USER_PASSWORD }}
+          run: docker login --username=${{ secrets.DOCKERHUB_USER_NAME }} --password=${{ secrets.DOCKERHUB_USER_PASSWORD }}
           
         - name: Push Docker image to Dockerhub
           run: docker push
