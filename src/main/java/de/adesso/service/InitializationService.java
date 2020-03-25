@@ -46,27 +46,30 @@ public class InitializationService {
 	@PostConstruct
 	public void init() {
 		try {
-			// Step 0: Check config
+			// Step 1: Check config
 			configService.checkConfiguration();
-			// Step 1: Clone repo
-			repoCloner.cloneRemoteRepo();
-			// Step 2: Transform repo using jekyll
-			List<DiffEntry> entries = repoDiffer.checkForUpdates(); //TODO Refactor inner methods
 
+			// Step 2: Clone repo
+			repoCloner.cloneRemoteRepo();
+
+			// Step 3: Transform repo using jekyll
+			List<DiffEntry> entries = repoDiffer.checkForUpdates();
 			fileTransfer.deleteImages(new File(configService.getLOCAL_DEST_IMAGE() + "/Cropped_Resized"));
 			jekyllService.startJekyllBuildProcess();
 			markdownTransformer.copyGeneratedXmlFiles(entries);
 			fileTransfer.moveGeneratedImages(new File(configService.getLOCAL_SITE_IMAGE()), new File(configService.getLOCAL_DEST_IMAGE()));
 
-			// Step 3: Push changes
+			// Step 4: Push changes
 			repoPusher.pushRepo(entries);
 
 		} catch(Exception e) {
-			LOGGER.error("UNDEFINED EXCEPTION");
-			e.printStackTrace();
-			System.exit(1000);
+			LOGGER.error("UNDEFINED EXCEPTION", e);
+			LOGGER.error("Exiting jekyll2cms.");
+			System.exit(1);
 		}
-		LOGGER.info("Jekyll2cms successfull!");
+
+		LOGGER.info("Execution of jekyll2cms successful.");
+		LOGGER.info("Stopping jekyll2cms.");
 		System.exit(0);
 	}
 }

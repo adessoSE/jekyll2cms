@@ -32,7 +32,7 @@ public class FileTransfer {
     void copyFile(File source, File dest) {
         try {
             if (source.lastModified() != dest.lastModified()) {
-                LOGGER.info("Copy file from " + source.getAbsolutePath() + " to " + dest.getAbsolutePath());
+                LOGGER.debug("Copy file from " + source.getAbsolutePath() + " to " + dest.getAbsolutePath());
                 if (!dest.exists()) {
                     dest.getParentFile().mkdir();
                 }
@@ -40,7 +40,9 @@ public class FileTransfer {
                         StandardCopyOption.COPY_ATTRIBUTES);
             }
         } catch (IOException e) {
-            LOGGER.error("An error occured while copying generated XML files to destinantion");
+            LOGGER.error("An error occurred while copying generated XML files to destination.", e);
+            LOGGER.error("Exiting jekyll2cms.");
+            System.exit(36);
         }
     }
 
@@ -51,7 +53,6 @@ public class FileTransfer {
      * Folder
      */
     void deleteXmlFromSiteFolder() {
-        LOGGER.info("Paths: " + Paths.get(configService.getLOCAL_HTML_POSTS()));
         try (Stream<Path> stream = Files.find(Paths.get(configService.getLOCAL_HTML_POSTS()), 5,
                 (path, attr) -> path.getFileName().toString().endsWith(".xml"))) {
             stream.forEach(path -> {
@@ -62,7 +63,9 @@ public class FileTransfer {
                 }
             });
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error("Error during deleting from _site folder.", e);
+            LOGGER.error("Exiting jekyll2cms.");
+            System.exit(37);
         }
     }
 
@@ -85,7 +88,9 @@ public class FileTransfer {
                 Files.copy(srcFolder.toPath(), destFolder.toPath(), StandardCopyOption.REPLACE_EXISTING);
                 LOGGER.debug("Copy Image " + destFolder);
             } catch (IOException e) {
-                e.printStackTrace();
+                LOGGER.error("An error occurred while copying images to destination.", e);
+                LOGGER.error("Exiting jekyll2cms.");
+                System.exit(390);
             }
         }
     }
@@ -107,7 +112,9 @@ public class FileTransfer {
                     }
                 });
             } catch (IOException e) {
-                e.printStackTrace();
+                LOGGER.error("An error occurred while deleting images.", e);
+                LOGGER.error("Exiting jekyll2cms.");
+                System.exit(38);
             }
         }
     }

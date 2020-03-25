@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.concurrent.Executors;
 
 /**
  * This service helps managing all jekyll related commands.
@@ -20,45 +19,44 @@ public class JekyllService {
     private final ConfigService configService;
 
     @Autowired
-	public JekyllService(ConfigService configService) {
-		this.configService = configService;
-	}
+    public JekyllService(ConfigService configService) {
+        this.configService = configService;
+    }
 
-	/**
+    /**
      * Starts the jekyll build process (jekyll build --incremental)
      */
     public void startJekyllBuildProcess() {
-		LOGGER.info("Starting jekyll build");
-		// create command builder
-		ProcessBuilder builder = new ProcessBuilder();
-		// set command:
-		//   execute in shell
-		//   allow file access of repo dir for user jekyll
-		//   call jekyll build
-		builder.command("sh", "-c", "chown -R jekyll /srv/jekyll/repo && jekyll build --incremental");
-		LOGGER.info("Builder working dir: " + configService.getLOCAL_REPO_PATH());
-		// set dir where to execute command
-		builder.directory(new File(configService.getLOCAL_REPO_PATH()));
+        LOGGER.info("Starting jekyll build...");
+        // create command builder
+        ProcessBuilder builder = new ProcessBuilder();
+        // set command:
+        //   execute in shell
+        //   allow file access of repo dir for user jekyll
+        //   call jekyll build
+        builder.command("sh", "-c", "chown -R jekyll /srv/jekyll/repo && jekyll build --incremental");
+        // set dir where to execute command
+        builder.directory(new File(configService.getLOCAL_REPO_PATH()));
 
-		Process process = null;
-		try {
-			LOGGER.info("execute command: sh -c chown -R jekyll /srv/jekyll/repo && jekyll build --incremental");
-			process = builder.start();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		// pass every out line from process to sysout
-		StreamGobbler streamGobbler = new StreamGobbler(process.getInputStream(), System.out::println);
-		Executors.newSingleThreadExecutor().submit(streamGobbler);
-		int exitCode = 0;
-		try {
-			exitCode = process.waitFor();
-			LOGGER.info("jekyll build finished with exit code: " + exitCode);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		if (exitCode != 0) {
-			System.exit(20);
-		}
+        try {
+            LOGGER.info("execute command: sh -c chown -R jekyll /srv/jekyll/repo && jekyll build --incremental");
+            Process process = builder.start();
+            int exitCode = process.waitFor();
+            if (exitCode == 0) {
+                LOGGER.info("jekyll build finished with exit code: " + exitCode);
+            } else {
+                LOGGER.error("jekyll build finished with exit code: " + exitCode);
+                LOGGER.error("Exiting jekyll2cms.");
+                System.exit(33);
+            }
+        } catch (IOException e) {
+            LOGGER.error("Error during building command: ", e);
+            LOGGER.error("Exiting jekyll2cms.");
+            System.exit(34);
+        } catch (InterruptedException e) {
+            LOGGER.error("Error during jekyll build execution: ", e);
+            LOGGER.error("Exiting jekyll2cms.");
+            System.exit(35);
+        }
     }
 }

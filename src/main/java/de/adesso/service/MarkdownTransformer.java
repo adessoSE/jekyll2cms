@@ -1,6 +1,8 @@
 package de.adesso.service;
 
 import org.eclipse.jgit.diff.DiffEntry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +19,8 @@ import java.util.regex.Pattern;
  */
 @Service
 public class MarkdownTransformer {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(MarkdownTransformer.class);
 
     private final ConfigService configService;
 
@@ -68,7 +72,7 @@ public class MarkdownTransformer {
                 String xmlFileName = fileName + ".xml";
 
 				/*
-				 * The Jeykyll xml built is located at
+				 * The Jekyll xml built is located at
 				 * "/_site/blog-posts/2017-08-01/new-post-title/2017-08-01-new-post-title.xml
 				 */
                 File source = new File(String.format("%s%s/%s/%s/%s", configService.getLOCAL_HTML_POSTS(), folderStructure, fileDate, fileName, xmlFileName));
@@ -85,7 +89,9 @@ public class MarkdownTransformer {
                             Files.delete(dirPath);
                         }
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        LOGGER.error("An error occurred while deleting files.", e);
+                        LOGGER.error("Exiting jekyll2cms.");
+                        System.exit(391);
                     }
                 } else {
                     fileTransfer.copyFile(source, dest);

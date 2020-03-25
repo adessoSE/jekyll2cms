@@ -34,10 +34,11 @@ public class GitRepoPusher {
         Git localGit = LocalRepoCreater.getLocalGit();
         if (localGit != null) {
             try {
-                LOGGER.info("Pushing XML files to repository");
+                LOGGER.info("Pushing XML files to repository...");
 
                 if (localGit.status().call().isClean()) {
-                    LOGGER.info("No new files were generated. Exiting jekyll2cms...");
+                    LOGGER.info("No new files were generated.");
+                    LOGGER.info("Stopping jekyll2cms.");
                     System.exit(0);
                 }
 
@@ -69,11 +70,11 @@ public class GitRepoPusher {
                         .call();
                 CredentialsProvider cp = new UsernamePasswordCredentialsProvider(configService.getGIT_AUTHOR_NAME(), configService.getGIT_AUTHOR_PASSWORD());
                 localGit.push().setForce(true).setCredentialsProvider(cp).call();
-                LOGGER.info("Pushing XML files was successful");
+                LOGGER.info("XML files pushed successfully.");
             } catch (GitAPIException e) {
-                LOGGER.error("An error occured while pushing files to remote repository");
-                e.printStackTrace();
-                System.exit(30);
+                LOGGER.error("An error occurred while pushing files to remote repository.", e);
+                LOGGER.error("Exiting jekyll2cms.");
+                System.exit(40);
             }
         }
     }

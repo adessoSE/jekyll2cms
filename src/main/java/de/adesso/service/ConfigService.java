@@ -14,18 +14,17 @@ public class ConfigService {
     @Value("#{environment.REPOSITORY_REMOTE_URL ?: null}")
     private String REPOSITORY_REMOTE_URL;
 
-    //GITHUB CREDENTIALS
+    //GITHUB USERNAME
     @Value("#{environment.REPOSITORY_LOCAL_USER_NAME ?: null}")
     private String GIT_AUTHOR_NAME;
 
+    // GITHUB EMAIL
     @Value("#{environment.REPOSITORY_LOCAL_USER_MAIL ?: null}")
     private String GIT_AUTHOR_MAIL;
 
+    // GITHUB PASSWORD
     @Value("#{environment.REPOSITORY_LOCAL_USER_PASSWORD ?: null}")
     private String GIT_AUTHOR_PASSWORD;
-
-    @Value("${repository.local.JSON.path}")
-    private String JSON_PATH;
 
     @Value("${repository.local.image.path}")
     private String LOCAL_SITE_IMAGE;
@@ -43,43 +42,44 @@ public class ConfigService {
     private String FIRSTSPIRIT_XML_PATH;
 
     public void checkConfiguration() {
-        /*
-            REPO URL
-         */
+        // Repo URL
         if (REPOSITORY_REMOTE_URL == null) {
-            LOGGER.error("ERROR: Environment variable not provided: REPOSITORY_REMOTE_URL \n" +
-                    "Please provide something in the format: https://github.com/myAccount/devblog");
-            System.exit(1);
+            LOGGER.error("Environment variable not provided: REPOSITORY_REMOTE_URL. " +
+                    "Please provide something in the format: https://github.com/myAccount/devblog.");
+            LOGGER.error("Exiting jekyll2cms.");
+            System.exit(10);
         } else {
-            LOGGER.info("SUCCESS: Environemnt variable provided: REPOSITORY_REMOTE_URL");
+            LOGGER.info("Environment variable provided: REPOSITORY_REMOTE_URL");
         }
 
-        /*
-            Github-Names
-         */
+        // GitHub name
         if (GIT_AUTHOR_NAME == null) {
-            LOGGER.error("ERROR: Environment variable not provided: GIT_AUTHOR_NAME \n" +
-                    "Please provide some Github-Username");
-
-            System.exit(1);
+            LOGGER.error("Environment variable not provided: GIT_AUTHOR_NAME. " +
+                    "Please provide some Github-Username.");
+            LOGGER.error("Exiting jekyll2cms.");
+            System.exit(11);
         } else {
-            LOGGER.info("SUCCESS: Environemnt variable provided: GIT_AUTHOR_NAME");
+            LOGGER.info("Environment variable provided: GIT_AUTHOR_NAME");
         }
 
+        // GitHub author mail
         if (GIT_AUTHOR_MAIL == null) {
-            LOGGER.error("ERROR: Environment variable not provided: GIT_AUTHOR_MAIL \n" +
-                    "Please provide some correspronding Email to the Github Username");
-            System.exit(1);
+            LOGGER.error("Environment variable not provided: GIT_AUTHOR_MAIL. " +
+                    "Please provide the provided GitHub user's Email.");
+            LOGGER.error("Exiting jekyll2cms.");
+            System.exit(12);
         } else {
-            LOGGER.info("SUCCESS: Environemnt variable provided: GIT_AUTHOR_MAIL");
+            LOGGER.info("Environment variable provided: GIT_AUTHOR_MAIL");
         }
 
+        // GitHub Password
         if (GIT_AUTHOR_PASSWORD == null) {
-            LOGGER.error("ERROR: Environment variable not provided: GIT_AUTHOR_PASSWORD \n" +
-                    "Please provide some correspronding password to the Github Username");
-            System.exit(1);
+            LOGGER.error("Environment variable not provided: GIT_AUTHOR_PASSWORD. " +
+                    "Please provide the provided GitHub user's Password.");
+            LOGGER.error("Exiting jekyll2cms.");
+            System.exit(13);
         } else {
-            LOGGER.info("SUCCESS: Environemnt variable provided: GIT_AUTHOR_PASSWORD");
+            LOGGER.info("Environment variable provided: GIT_AUTHOR_PASSWORD");
         }
     }
 
@@ -90,7 +90,6 @@ public class ConfigService {
     public String getREPOSITORY_REMOTE_URL() {
         return REPOSITORY_REMOTE_URL;
     }
-
 
     public String getLOCAL_HTML_POSTS() {
         return LOCAL_HTML_POSTS;
@@ -106,10 +105,6 @@ public class ConfigService {
 
     public String getFIRSTSPIRIT_XML_PATH() {
         return FIRSTSPIRIT_XML_PATH;
-    }
-
-    public String getJSON_PATH() {
-        return JSON_PATH;
     }
 
     public String getGIT_AUTHOR_NAME() {

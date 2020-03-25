@@ -2,28 +2,19 @@ package de.adesso.service;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.api.errors.NoHeadException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
-import org.eclipse.jgit.errors.AmbiguousObjectException;
-import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
-import org.eclipse.jgit.treewalk.TreeWalk;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.StreamSupport;
@@ -34,9 +25,6 @@ public class GitRepoDiffer {
     private static final Logger LOGGER = LoggerFactory.getLogger(MarkdownTransformer.class);
 
     private final ConfigService configService;
-
-    //Not initialised, because repo needs to be cloned first, so there is no bean
-    private Repository repo;
 
     @Autowired
     public GitRepoDiffer(ConfigService configService) {
@@ -52,9 +40,9 @@ public class GitRepoDiffer {
      * command. Changed files will be logged
      */
     public List<DiffEntry> checkForUpdates() {
-        LOGGER.info("Checking for Updates");
+        LOGGER.info("Checking for updates...");
         try {
-            repo = LocalRepoCreater.getLocalGit().getRepository();
+            Repository repo = LocalRepoCreater.getLocalGit().getRepository();
             ObjectReader reader = repo.newObjectReader();
 
             // get current head (latest commit) from remote
@@ -64,7 +52,7 @@ public class GitRepoDiffer {
 
             // search latest commit with changes done by a contributor who is not GIT_AUTHOR_NAME
             // this commit is the last commit which is not done by GIT_AUTHOR_NAME
-            LOGGER.info("Searching latest commit not done by " + configService.getGIT_AUTHOR_NAME());
+            LOGGER.info("Searching latest commit not done by " + configService.getGIT_AUTHOR_NAME() + "...");
             CanonicalTreeParser oldTreeIter = new CanonicalTreeParser();
             RevCommit revCommitOld = StreamSupport.stream(new Git(repo).log().all().call().spliterator(), false)
                     .filter(commit -> !commit.getAuthorIdent().getName().equals(configService.getGIT_AUTHOR_NAME()))
@@ -72,8 +60,9 @@ public class GitRepoDiffer {
 
             // if there is no such commit, exit
             if (revCommitOld == null) {
-                LOGGER.error("No commits found. Exiting jekyll2cms...");
-                System.exit(12);
+                LOGGER.error("No commits found.");
+                LOGGER.error("Exiting jekyll2cms.");
+                System.exit(30);
             }
 
             // if the found commit is the latest commit, the latest commit and the second latest commit are used for generating diffs
@@ -92,8 +81,8 @@ public class GitRepoDiffer {
             List<DiffEntry> entries = df.scan(oldTreeIter, newTreeIter);
 
             if (entries.isEmpty()) {
-                // TODO: log commit info
-                LOGGER.info("No updates found in between " + newTree.toString() + " and " + oldTree.toString() + ". Exiting jekyll2cms...");
+                LOGGER.info("No updates found in between " + newTree.toString() + " and " + oldTree.toString() + ".");
+                LOGGER.info("Stopping jekyll2cms.");
                 System.exit(0);
             } else {
                 LOGGER.info("Updates found.");
@@ -103,11 +92,12 @@ public class GitRepoDiffer {
 
         } catch (IOException e) {
             LOGGER.error("Error while checking for updated files.", e);
-            // TODO change exit code later
-            System.exit(11);
+            LOGGER.error("Exiting jekyll2cms.");
+            System.exit(31);
         } catch (GitAPIException e) {
             LOGGER.error("Error getting commits.", e);
-            System.exit(12);
+            LOGGER.error("Exiting jekyll2cms.");
+            System.exit(32);
         }
         return null;
     }
