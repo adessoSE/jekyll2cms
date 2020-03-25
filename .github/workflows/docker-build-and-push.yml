@@ -1,0 +1,21 @@
+name: Jekyll2cms create release when push on master
+
+on: 
+  push:
+    branches: 
+      - master
+
+jobs:
+  buildJekyll2cms:
+    name: buildJekyll2cms
+    runs-on: ubuntu-latest
+  steps:
+  - uses: actions/checkout@v2
+  - run: git checkout HEAD^
+  - uses: mr-smithers-excellent/docker-build-push@v2
+    with:
+      image: smahler/jekyll2cms
+      tag: 2.0.1
+      registry: hub.docker.com
+      username: ${{ secrets.DOCKER_USERNAME }}
+      password: ${{ secrets.DOCKER_PASSWORD }}
