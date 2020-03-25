@@ -1,51 +1,47 @@
 package de.adesso.service;
 
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.NoHeadException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
+import org.eclipse.jgit.errors.AmbiguousObjectException;
+import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
+import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
+import org.eclipse.jgit.treewalk.TreeWalk;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Date;
 import java.util.List;
+import java.util.stream.StreamSupport;
 
 @Service
 public class GitRepoDiffer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MarkdownTransformer.class);
 
-    @Value("${repository.local.JSON.path}")
-    private String JSON_PATH;
+    private final ConfigService configService;
 
-    @Value("${repository.local.image.path}")
-    private String LOCAL_SITE_IMAGE;
-
-    @Value("${repository.local.image.destination.path}")
-    private String LOCAL_DEST_IMAGE;
+    //Not initialised, because repo needs to be cloned first, so there is no bean
+    private Repository repo;
 
     @Autowired
-    private GitRepoPusher repoPusher;
-
-    @Autowired
-    private MarkdownTransformer markdownTransformer;
-
-    @Autowired
-    private FileTransfer imageTransfer;
+    public GitRepoDiffer(ConfigService configService) {
+        this.configService = configService;
+    }
 
     /**
      * Method checks if remote repository was updated. Before the git-pull command
@@ -54,80 +50,65 @@ public class GitRepoDiffer {
      * was executed, this method will be called which compares the state of the old
      * repository with the state of the repository after executing the git-pull
      * command. Changed files will be logged
-     *
-     * @param git
      */
-    public void checkForUpdates(Git git, String name, String email, Date timestamp, String commitID) {
+    public List<DiffEntry> checkForUpdates() {
         LOGGER.info("Checking for Updates");
-        JSONParser parser = new JSONParser();
         try {
-			/*
-			 * Getting the Commit Information from the local
-			 * JSON File to compare this Information with
-			 * the Commit Information of the pull
-			 */
-            Object object = parser.parse(new FileReader(JSON_PATH));
-            JSONObject commitJSON = (JSONObject) object;
+            repo = LocalRepoCreater.getLocalGit().getRepository();
+            ObjectReader reader = repo.newObjectReader();
 
-            ObjectReader reader = git.getRepository().newObjectReader();
-            RevWalk revWalk = new RevWalk(git.getRepository());
+            // get current head (latest commit) from remote
+            CanonicalTreeParser newTreeIter = new CanonicalTreeParser();
+            ObjectId newTree = repo.resolve("HEAD^{tree}");
+            newTreeIter.reset(reader, newTree);
 
-			/*
-			 * Getting the old Head of the Repository
-			 * Takes the Commit ID which is saved in the JSON-File
-			 * And transfers it to a tree Element
-			 */
-            RevCommit revCommitOld = revWalk.parseCommit(ObjectId.fromString(commitJSON.get("CommitID").toString()).toObjectId());
+            // search latest commit with changes done by a contributor who is not GIT_AUTHOR_NAME
+            // this commit is the last commit which is not done by GIT_AUTHOR_NAME
+            LOGGER.info("Searching latest commit not done by " + configService.getGIT_AUTHOR_NAME());
+            CanonicalTreeParser oldTreeIter = new CanonicalTreeParser();
+            RevCommit revCommitOld = StreamSupport.stream(new Git(repo).log().all().call().spliterator(), false)
+                    .filter(commit -> !commit.getAuthorIdent().getName().equals(configService.getGIT_AUTHOR_NAME()))
+                    .findFirst().orElse(null);
+
+            // if there is no such commit, exit
+            if (revCommitOld == null) {
+                LOGGER.error("No commits found. Exiting jekyll2cms...");
+                System.exit(12);
+            }
+
+            // if the found commit is the latest commit, the latest commit and the second latest commit are used for generating diffs
             ObjectId oldTree = revCommitOld.getTree().getId();
-            CanonicalTreeParser oldHeadIter = new CanonicalTreeParser(null, reader, oldTree);
-
-			/*
-			 * Getting the old Head of the Repository
-			 * Takes the Commit ID from the last pull
-			 * And transfers it to a tree Element
-			 */
-            RevCommit revCommitNew = revWalk.parseCommit(ObjectId.fromString(commitID).toObjectId());
-            ObjectId newTree = revCommitNew.getTree().getId();
-            CanonicalTreeParser newHeadIter = new CanonicalTreeParser(null, reader, newTree);
-
-            DiffFormatter df = new DiffFormatter(new ByteArrayOutputStream());
-            df.setRepository(git.getRepository());
-            List<DiffEntry> entries = df.scan(oldHeadIter, newHeadIter);
-
-            if(commitJSON.get("Name").equals(name) && commitJSON.get("Email").equals(email)
-                    && commitJSON.get("Date").equals(timestamp.toString())&& commitJSON.get("CommitID").equals(commitID)){
-                LOGGER.info("No updates found.");
+            if (oldTree.equals(newTree)) {
+                LOGGER.info("Latest commit is not done by " + configService.getGIT_AUTHOR_NAME()
+                        + ". Generating diffs with latest and second latest commit...");
+                oldTree = repo.resolve("HEAD~1^{tree}");
             }
-            else{
+            oldTreeIter.reset(reader, oldTree);
+
+            // get all diffs which were added by the author
+            // ignore all changes from GIT_AUTHOR_NAME
+            DiffFormatter df = new DiffFormatter(new ByteArrayOutputStream()); // use NullOutputStream.INSTANCE if you don't need the diff output
+            df.setRepository(repo);
+            List<DiffEntry> entries = df.scan(oldTreeIter, newTreeIter);
+
+            if (entries.isEmpty()) {
+                // TODO: log commit info
+                LOGGER.info("No updates found in between " + newTree.toString() + " and " + oldTree.toString() + ". Exiting jekyll2cms...");
+                System.exit(0);
+            } else {
                 LOGGER.info("Updates found.");
-                imageTransfer.deleteImages(new File(LOCAL_DEST_IMAGE + "/Cropped_Resized"));
-                if(repoPusher.triggerBuildProcess())
-                {
-                    markdownTransformer.copyGeneratedXmlFiles(entries);
-                    LOGGER.info("Copy Images from devblog/_site/assets/images folder to devblog/assets/images");
-                    imageTransfer.moveGeneratedImages(new File(LOCAL_SITE_IMAGE), new File(LOCAL_DEST_IMAGE));
-                    repoPusher.pushRepo(entries);
-                }
-                else {
-                    LOGGER.info("No Updates, so no push.");
-                }
-            }
-
-            for (DiffEntry entry : entries) {
-                //Checking for deleted Files to get the old Path
-                if(entry.getChangeType() == DiffEntry.ChangeType.DELETE) {
-                    LOGGER.info("The file " + entry.getOldPath() + " was deleted!");
-                }
-                else {
-                    LOGGER.info("The file " + entry.getNewPath() + " was updated!!");
-                }
+                return entries;
             }
             df.close();
+
         } catch (IOException e) {
-            LOGGER.error("Error while checking for updated files");
-            e.printStackTrace();
-        } catch (ParseException e) {
-            e.printStackTrace();
+            LOGGER.error("Error while checking for updated files.", e);
+            // TODO change exit code later
+            System.exit(11);
+        } catch (GitAPIException e) {
+            LOGGER.error("Error getting commits.", e);
+            System.exit(12);
         }
+        return null;
     }
 }

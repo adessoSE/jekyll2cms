@@ -3,59 +3,27 @@ package de.adesso.service;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
-import org.eclipse.jgit.lib.PersonIdent;
-
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
-import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class GitRepoPusher {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MarkdownTransformer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GitRepoPusher.class);
 
-    @Value("${repository.local.user.name}")
-    private String GIT_AUTHOR_NAME;
-
-    @Value("${repository.local.user.mail}")
-    private String GIT_AUTHOR_MAIL;
-
-    @Value("${repository.local.user.password}")
-    private String GIT_AUTHOR_PASSWORD;
-
-    @Value("${repository.local.JSON.path}")
-    private String JSON_PATH;
-
-    private final String GIT_COMMIT_MESSAGE = "New First Spirit XML files added automatically by jekyll2cms";
+    private final ConfigService configService;
 
     @Autowired
-    private JekyllService jekyllService;
-
-    @Autowired
-    private EmailService emailService;
-
-    private Git localGit;
-
-    /**
-     * Starts the jekyll build process
-     */
-    public boolean triggerBuildProcess() {
-        LOGGER.info(
-                "Start jekyll build process and generate XML files from jekyll builts and push them to remote repository");
-        if (!jekyllService.startJekyllCI()) {
-            LOGGER.error("An error occured while building the sources with jekyll");
-            return false;
-        }
-        return true;
+    public GitRepoPusher(ConfigService configService) {
+        this.configService = configService;
     }
 
     /**
@@ -63,59 +31,49 @@ public class GitRepoPusher {
      * And check for deleted Data
      */
     public void pushRepo(List<DiffEntry> entries) {
-		/*
-		 * Assumption: the XML-posts will be pushed into the same repository where the
-		 * markdown-posts were pushed, too. If another repository is intended for the
-		 * First-Spirit-XML files, another implementation (other remote repository etc.)
-		 * is necessary
-		 */
-        localGit = LocalRepoCreater.getLocalGit();
-        JSONObject commitInfo = new JSONObject();
-
+        Git localGit = LocalRepoCreater.getLocalGit();
         if (localGit != null) {
             try {
                 LOGGER.info("Pushing XML files to repository");
+
+                if (localGit.status().call().isClean()) {
+                    LOGGER.info("No new files were generated. Exiting jekyll2cms...");
+                    System.exit(0);
+                }
+
                 localGit.add().addFilepattern(".").setUpdate(false).call();
-                //Iterates through entries to find deleted File
+                // iterates through entries to find deleted File
                 if (entries.iterator().next().getChangeType() == DiffEntry.ChangeType.DELETE){
                     localGit.add().addFilepattern("-A").setUpdate(false).call();
                 }
 
-                PersonIdent personIdent = localGit.commit().setAll(true).setMessage(GIT_COMMIT_MESSAGE)
-                        .setAuthor(GIT_AUTHOR_NAME, GIT_AUTHOR_MAIL).call().getAuthorIdent();
+                StringBuilder commitMessageBuilder = new StringBuilder();
+                // set commit message with all added and deleted files
+                entries.forEach(entry -> {
+                    String path = entry.getChangeType() == DiffEntry.ChangeType.DELETE ? entry.getOldPath() : entry.getNewPath();
+                    String regex = "(((/.+/)|())(((\\d+-){3})(([^/\\.]+))))";
+                    Pattern pattern = Pattern.compile(regex);
+                    Matcher matcher = pattern.matcher(path);
 
-                /*
-                 * Taking the Information from the Commit of the Update
-                 * and saving it into a the local Commit Information
-                 * JSON File
-                 * The Remote Repo has the JSON File of the Commit
-                 * before this Commit
-                 */
-                commitInfo.put("Name", personIdent.getName());
-                commitInfo.put("Email", personIdent.getEmailAddress());
-                commitInfo.put("Date", personIdent.getWhen().toString());
-                commitInfo.put("CommitID", localGit.getRepository().getRef("HEAD").getObjectId().getName());
+                    if(path.startsWith("_posts") && matcher.find()) {
+                        String fileName = matcher.group(8);
+                        String fileDate = matcher.group(5).substring(0, 10);
+                        commitMessageBuilder.append(entry.getChangeType()).append(": ").append(fileName).append(", ").append(fileDate);
+                    }
+                });
 
-                FileWriter jsonFile = new FileWriter(JSON_PATH);
-                jsonFile.write(commitInfo.toJSONString());
-                jsonFile.flush();
-                jsonFile.close();
-                CredentialsProvider cp = new UsernamePasswordCredentialsProvider(GIT_AUTHOR_NAME, GIT_AUTHOR_PASSWORD);
+                localGit.commit()
+                        .setAll(true)
+                        .setMessage(commitMessageBuilder.toString())
+                        .setAuthor(configService.getGIT_AUTHOR_NAME(), configService.getGIT_AUTHOR_MAIL())
+                        .call();
+                CredentialsProvider cp = new UsernamePasswordCredentialsProvider(configService.getGIT_AUTHOR_NAME(), configService.getGIT_AUTHOR_PASSWORD());
                 localGit.push().setForce(true).setCredentialsProvider(cp).call();
                 LOGGER.info("Pushing XML files was successful");
-                emailService.sendSimpleEmail("Success",
-                        "Pushing XML files was successful");
             } catch (GitAPIException e) {
                 LOGGER.error("An error occured while pushing files to remote repository");
                 e.printStackTrace();
-                emailService.sendSimpleEmail("Fail",
-                        "An error occured with the jekyll2cms application while pushing files to remote repository. \n " +
-                                "This is the stacktrace: \n " + e.getStackTrace());
-            } catch (IOException e) {
-                e.printStackTrace();
-                emailService.sendSimpleEmail("Fail",
-                        "An error occured with the jekyll2cms application while pushing files to remote repository. \n " +
-                                "This is the stacktrace: \n " + e.getStackTrace());
+                System.exit(30);
             }
         }
     }

@@ -1,76 +1,72 @@
 package de.adesso.service;
 
+import org.eclipse.jgit.diff.DiffEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
+import java.io.File;
+import java.util.List;
+
 @Service
-@EnableScheduling
 public class InitializationService {
 
-	@Value("${repository.remote.url}")
-	private String REPOSITORY_REMOTE_URL;
-
-	@Value("${jekyll2cms.start.notification}")
-	private boolean JEKYLL2CMS_START_NOTIFICATION;
-
-	@Autowired
 	private MarkdownTransformer markdownTransformer;
-
-	@Autowired
 	private GitRepoCloner repoCloner;
-
-	@Autowired
-	private GitRepoPuller repoPuller;
-
-	@Autowired
 	private GitRepoPusher repoPusher;
-
-	@Autowired
-	private EmailService emailService;
+	private ConfigService configService;
+	private GitRepoDiffer repoDiffer;
+	private FileTransfer fileTransfer;
+	private JekyllService jekyllService;
 	
-	private final static long pollInterval = 60000;
-
 	private static final Logger LOGGER = LoggerFactory.getLogger(InitializationService.class);
 
+	@Autowired
+	public InitializationService(MarkdownTransformer markdownTransformer, GitRepoCloner gitRepoCloner,
+								 GitRepoPusher gitRepoPusher, ConfigService configService, GitRepoDiffer repoDiffer, FileTransfer fileTransfer, JekyllService jekyllService){
+		this.markdownTransformer = markdownTransformer;
+		this.repoCloner = gitRepoCloner;
+		this.repoPusher = gitRepoPusher;
+		this.configService = configService;
+		this.repoDiffer = repoDiffer;
+		this.fileTransfer = fileTransfer;
+		this.jekyllService = jekyllService;
+	}
+
 	/**
-	 * Initializes jekyll2cms lifecycle.
-	 *
-	 * @return true, if initialization was successful. Return false otherwise.
+	 * Init the Jekyll2cms process.
+	 * Step 0: Check config
+	 * Step 1: Clone repo
+ 	 * Step 2: Transform repo using jekyll
+	 * Step 3: Push changes
+	 * Step 4: Send Notifications (optional)
 	 */
-	public boolean init() {
+	@PostConstruct
+	public void init() {
 		try {
-			if (repoCloner.cloneRemoteRepo()) {
-				repoPuller.pullRemoteRepo();
-				repoPusher.triggerBuildProcess();
-				markdownTransformer.copyAllGeneratedXmlFiles(); //GitRepoDiffer.copyAllGeneratedXmlFiles
-				if(JEKYLL2CMS_START_NOTIFICATION) {
-					emailService.sendSimpleEmail("Jekyll2cms startet", "Jekyll2cms for: " +
-							REPOSITORY_REMOTE_URL
-							+ " has been successfully started.");
-				}
-				return true;
-			}
-			return false;
-		} catch (Exception e) {
-			LOGGER.error("Jekyll2cm couldn't be initialized successfully.", e);
-			return false;
+			// Step 0: Check config
+			configService.checkConfiguration();
+			// Step 1: Clone repo
+			repoCloner.cloneRemoteRepo();
+			// Step 2: Transform repo using jekyll
+			List<DiffEntry> entries = repoDiffer.checkForUpdates(); //TODO Refactor inner methods
+
+			fileTransfer.deleteImages(new File(configService.getLOCAL_DEST_IMAGE() + "/Cropped_Resized"));
+			jekyllService.startJekyllBuildProcess();
+			markdownTransformer.copyGeneratedXmlFiles(entries);
+			fileTransfer.moveGeneratedImages(new File(configService.getLOCAL_SITE_IMAGE()), new File(configService.getLOCAL_DEST_IMAGE()));
+
+			// Step 3: Push changes
+			repoPusher.pushRepo(entries);
+
+		} catch(Exception e) {
+			LOGGER.error("UNDEFINED EXCEPTION");
+			e.printStackTrace();
+			System.exit(1000);
 		}
+		LOGGER.info("Jekyll2cms successfull!");
+		System.exit(0);
 	}
-
-	/**
-	 * Triggers the git-pull command to check if there are any updates on the remote
-	 * repository. The fixed rate value in the annotation defines the frequency in
-	 * ms, when to check for an update (i.e. 10000ms = 10s ==> every 10 seconds the
-	 * repository will be pulled (fetch+merge)
-	 */
-	@Scheduled(fixedDelay = pollInterval) // 3600000 = 1h (value in milliseconds)
-	public void pullRemoteRepo() {
-		this.repoPuller.pullRemoteRepo();
-	}
-
 }

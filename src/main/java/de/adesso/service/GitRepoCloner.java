@@ -1,70 +1,46 @@
 package de.adesso.service;
 
 import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.errors.RepositoryNotFoundException;
-import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
+import org.eclipse.jgit.lib.TextProgressMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Arrays;
+import java.util.Collections;
 
 @Service
 public class GitRepoCloner {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MarkdownTransformer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GitRepoCloner.class);
 
-    @Value("${repository.local.path}")
-    private String LOCAL_REPO_PATH;
+    private final ConfigService configService;
 
-    @Value("${repository.remote.url}")
-    private String REMOTE_REPO_URL;
-
-    /**
-     * Clones the remote repository (defined in application.properties:
-     * repository.remote.url) to the local file system (repository.local.path) -
-     * only if the local repository does not already exist.
-     */
-    public boolean cloneRemoteRepo() {
-
-        String method = "cloneRemoteRepo";
-        try {
-            if (!localRepositoryExists()) {
-                LocalRepoCreater.setLocalGit(Git.cloneRepository().setURI(REMOTE_REPO_URL).setDirectory(new File(LOCAL_REPO_PATH)).call());
-                LOGGER.info("Repository cloned successfully");
-            } else {
-                LOGGER.warn("Remote repository is already cloned into local repository");
-                LocalRepoCreater.setLocalGit(Git.open(new File(LOCAL_REPO_PATH+".git")));
-            }
-        } catch (Exception e) {
-            LOGGER.error("In method " + method + ": Error while cloning remote git respository", e);
-            return false;
-        }
-
-        return true;
+    @Autowired
+    public GitRepoCloner(ConfigService configService) {
+        this.configService = configService;
     }
 
     /**
-     * Checks if the local repository exists and creates it matching the
-     * configuration in the builder.
-     *
-     * @return true, if repository exists and could be built successful
+     * Clones the remote repository (defined in environment variables:
+     * repository.remote.url) to the local file system (repository.local.path)
      */
-    private boolean localRepositoryExists() {
-        String method = "localRepositoryExists";
+    public void cloneRemoteRepo() {
         try {
-            FileRepositoryBuilder repositoryBuilder = new FileRepositoryBuilder();
-            repositoryBuilder.setGitDir(new File(LOCAL_REPO_PATH + ".git"));
-            repositoryBuilder.setMustExist(true);
-            repositoryBuilder.build();
-        } catch (RepositoryNotFoundException e) {
-            LOGGER.error("In method {}: Could not find repository: Error message: {}", method, e.getMessage());
-            return false;
-        } catch (IOException e) {
-            LOGGER.error("In method {}: Error while accessing file: Error message: {}", method, e.getMessage());
+            LOGGER.info("Start cloning Repository...");
+            LocalRepoCreater.setLocalGit(Git.cloneRepository()
+                    .setURI(configService.getREPOSITORY_REMOTE_URL())
+                    .setDirectory(new File(configService.getLOCAL_REPO_PATH()))
+                    .setBranchesToClone(Collections.singletonList("refs/heads/master"))
+                    .call());
+            LOGGER.info("Repository cloned successfully");
+        } catch (Exception e) {
+            LOGGER.error("In cloneRemoteRepo: Error while cloning remote git repository", e);
+            LOGGER.error("Exiting Jekyll2cms...");
+            System.exit(10);
         }
-        return true;
     }
 }
