@@ -4,7 +4,7 @@ If you wrote a blogpost and it got reviewed, you almost got everything done to p
 The last step is to convert the post in the markdown-format (ending.md) your wrote into an XML-Format for the CMS adesso is using to display the blogcontent and other content.
 You dont need to do that by hand, just execute the jekyll2cms with Docker this command:
 
- ```docker run -d --name jekyll2cms smahler/jekyll2cms:1.0.5```
+```docker run -d --name jekyll2cms jekyll2cms/jekyll2cms:2.0.0```
  
  After some minutes you should see a commit in the adesso/devblog -Repository from a User called Jekyll2cms.
  Then stop the docker-container and delete the image with:
