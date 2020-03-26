@@ -4,15 +4,20 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
+import org.eclipse.jgit.errors.CorruptObjectException;
+import org.eclipse.jgit.errors.IncorrectObjectTypeException;
+import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
+import org.eclipse.jgit.treewalk.TreeWalk;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import sun.reflect.generics.tree.Tree;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -55,8 +60,20 @@ public class GitRepoDiffer {
             LOGGER.info("Searching latest commit not done by " + configService.getGIT_AUTHOR_NAME() + "...");
             CanonicalTreeParser oldTreeIter = new CanonicalTreeParser();
             RevCommit revCommitOld = StreamSupport.stream(new Git(repo).log().all().call().spliterator(), false)
-                    .filter(commit -> !commit.getAuthorIdent().getName().equals(configService.getGIT_AUTHOR_NAME()))
+                    .filter(commit -> !commit.getAuthorIdent().getName().equals(configService.getGIT_AUTHOR_NAME()) && checkOnPost(commit))
                     .findFirst().orElse(null);
+
+//            for (RevCommit commit : new Git(repo).log().call()) {
+//                if (!commit.getAuthorIdent().getName().equals(configService.getGIT_AUTHOR_NAME())) {
+//
+//                }
+//            }
+
+            // 1. head ist von jekyll2cms
+            // 2. head ist von user change in md
+            // 3. head ist von user other changes
+
+
 
             // if there is no such commit, exit
             if (revCommitOld == null) {
@@ -100,5 +117,31 @@ public class GitRepoDiffer {
             System.exit(32);
         }
         return null;
+    }
+
+    private boolean checkOnPost(RevCommit commit) {
+        try (DiffFormatter df = new DiffFormatter(new ByteArrayOutputStream())) {
+            Repository repo = LocalRepoCreater.getLocalGit().getRepository();
+            df.setRepository(repo);
+            ObjectReader reader = repo.newObjectReader();
+
+            CanonicalTreeParser newTreeIter = new CanonicalTreeParser();
+            ObjectId newTree = commit.getTree().getId();
+            newTreeIter.reset(reader, newTree);
+
+            CanonicalTreeParser oldTreeIter = new CanonicalTreeParser();
+            ObjectId oldTree = commit.getParent(0).getTree().getId();
+            oldTreeIter.reset(reader, oldTree);
+            List<DiffEntry> entries = df.scan(oldTreeIter, newTreeIter);
+            for (DiffEntry entry : entries) {
+                String path = entry.getChangeType().equals(DiffEntry.ChangeType.DELETE) ? entry.getOldPath() : entry.getNewPath();
+                if (path.startsWith("_post")) {
+                    return true;
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 }

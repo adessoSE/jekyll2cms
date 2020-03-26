@@ -37,7 +37,6 @@ public class GitRepoPusher {
             try {
                 LOGGER.info("Pushing XML files to repository...");
 
-                Status status = localGit.status().call();
                 if (localGit.status().call().isClean()) {
                     LOGGER.info("No new files were generated.");
                     LOGGER.info("Stopping jekyll2cms.");
