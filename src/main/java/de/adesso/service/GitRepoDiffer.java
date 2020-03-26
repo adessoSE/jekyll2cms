@@ -21,6 +21,7 @@ import sun.reflect.generics.tree.Tree;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.StreamSupport;
 
@@ -50,55 +51,38 @@ public class GitRepoDiffer {
             Repository repo = LocalRepoCreater.getLocalGit().getRepository();
             ObjectReader reader = repo.newObjectReader();
 
-            // get current head (latest commit) from remote
-            CanonicalTreeParser newTreeIter = new CanonicalTreeParser();
-            ObjectId newTree = repo.resolve("HEAD^{tree}");
-            newTreeIter.reset(reader, newTree);
-
             // search latest commit with changes done by a contributor who is not GIT_AUTHOR_NAME
             // this commit is the last commit which is not done by GIT_AUTHOR_NAME
             LOGGER.info("Searching latest commit not done by " + configService.getGIT_AUTHOR_NAME() + "...");
-            CanonicalTreeParser oldTreeIter = new CanonicalTreeParser();
-            RevCommit revCommitOld = StreamSupport.stream(new Git(repo).log().all().call().spliterator(), false)
+            CanonicalTreeParser newTreeIter = new CanonicalTreeParser();
+            RevCommit revCommitNew = StreamSupport.stream(new Git(repo).log().all().call().spliterator(), false)
                     .filter(commit -> !commit.getAuthorIdent().getName().equals(configService.getGIT_AUTHOR_NAME()) && checkOnPost(commit))
                     .findFirst().orElse(null);
 
-//            for (RevCommit commit : new Git(repo).log().call()) {
-//                if (!commit.getAuthorIdent().getName().equals(configService.getGIT_AUTHOR_NAME())) {
-//
-//                }
-//            }
-
-            // 1. head ist von jekyll2cms
-            // 2. head ist von user change in md
-            // 3. head ist von user other changes
-
-
-
             // if there is no such commit, exit
-            if (revCommitOld == null) {
+            if (revCommitNew == null) {
                 LOGGER.error("No commits found.");
                 LOGGER.error("Exiting jekyll2cms.");
                 System.exit(30);
             }
 
-            // if the found commit is the latest commit, the latest commit and the second latest commit are used for generating diffs
-            ObjectId oldTree = revCommitOld.getTree().getId();
-            if (oldTree.equals(newTree)) {
-                LOGGER.info("Latest commit is not done by " + configService.getGIT_AUTHOR_NAME()
-                        + ". Generating diffs with latest and second latest commit...");
-                oldTree = repo.resolve("HEAD~1^{tree}");
-            }
-            oldTreeIter.reset(reader, oldTree);
+            ObjectId newTree = revCommitNew.getTree().getId();
+            newTreeIter.reset(reader, newTree);
 
-            // get all diffs which were added by the author
-            // ignore all changes from GIT_AUTHOR_NAME
-            DiffFormatter df = new DiffFormatter(new ByteArrayOutputStream()); // use NullOutputStream.INSTANCE if you don't need the diff output
+            List<DiffEntry> entries = new ArrayList<>();
+            // get all diffs between the last commit containing a change in a post and its parent
+            DiffFormatter df = new DiffFormatter(new ByteArrayOutputStream());
             df.setRepository(repo);
-            List<DiffEntry> entries = df.scan(oldTreeIter, newTreeIter);
+
+            CanonicalTreeParser oldTreeIter = new CanonicalTreeParser();
+            for (RevCommit revCommitOld : revCommitNew.getParents()) {
+                ObjectId oldTree = revCommitOld.getTree().getId();
+                oldTreeIter.reset(reader, oldTree);
+                entries.addAll(df.scan(oldTreeIter, newTreeIter));
+            }
 
             if (entries.isEmpty()) {
-                LOGGER.info("No updates found in between " + newTree.toString() + " and " + oldTree.toString() + ".");
+                LOGGER.info("No updates found in between " + newTree.toString() + " and its parents.");
                 LOGGER.info("Stopping jekyll2cms.");
                 System.exit(0);
             } else {
