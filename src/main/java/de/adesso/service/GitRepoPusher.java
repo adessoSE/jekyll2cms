@@ -1,6 +1,7 @@
 package de.adesso.service;
 
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.transport.CredentialsProvider;
@@ -42,11 +43,8 @@ public class GitRepoPusher {
                     System.exit(0);
                 }
 
-                localGit.add().addFilepattern(".").setUpdate(false).call();
-                // iterates through entries to find deleted File
-                if (entries.iterator().next().getChangeType() == DiffEntry.ChangeType.DELETE){
-                    localGit.add().addFilepattern("-A").setUpdate(false).call();
-                }
+                // add everything in ./assets, gemfile.lock and _site folder are ignored due to .gitignore
+                localGit.add().addFilepattern("assets").setUpdate(false).call();
 
                 StringBuilder commitMessageBuilder = new StringBuilder();
                 // set commit message with all added and deleted files

@@ -2,26 +2,17 @@ package de.adesso.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.*;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.util.stream.Stream;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 
 @Service
 public class FileTransfer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FileTransfer.class);
-
-    private ConfigService configService;
-
-    @Autowired
-    public FileTransfer(ConfigService configService) {
-        this.configService = configService;
-    }
 
     /**
      * Copy a file
@@ -46,29 +37,6 @@ public class FileTransfer {
         }
     }
 
-    /*
-     * New: 2017-08-18
-     * Function to delete all the XML-Files
-     * from the _site/blog-post/YYYY-MM_DD/...
-     * Folder
-     */
-    void deleteXmlFromSiteFolder() {
-        try (Stream<Path> stream = Files.find(Paths.get(configService.getLOCAL_HTML_POSTS()), 5,
-                (path, attr) -> path.getFileName().toString().endsWith(".xml"))) {
-            stream.forEach(path -> {
-                try {
-                    Files.delete(path);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            });
-        } catch (IOException e) {
-            LOGGER.error("Error during deleting from _site folder.", e);
-            LOGGER.error("Exiting jekyll2cms.");
-            System.exit(37);
-        }
-    }
-
     void moveGeneratedImages(File srcFolder, File destFolder) {
         if (srcFolder.isDirectory()) {
 
@@ -90,31 +58,7 @@ public class FileTransfer {
             } catch (IOException e) {
                 LOGGER.error("An error occurred while copying images to destination.", e);
                 LOGGER.error("Exiting jekyll2cms.");
-                System.exit(390);
-            }
-        }
-    }
-
-    void deleteImages(File source) {
-        if (source.isDirectory()) {
-            try {
-                Files.walkFileTree(Paths.get(source.getAbsolutePath()), new SimpleFileVisitor<Path>() {
-                    @Override
-                    public FileVisitResult visitFile(Path file, BasicFileAttributes attr) throws IOException {
-                        Files.delete(file);
-                        return FileVisitResult.CONTINUE;
-                    }
-
-                    @Override
-                    public FileVisitResult postVisitDirectory(Path dir, IOException exec) throws IOException {
-                        Files.delete(dir);
-                        return FileVisitResult.CONTINUE;
-                    }
-                });
-            } catch (IOException e) {
-                LOGGER.error("An error occurred while deleting images.", e);
-                LOGGER.error("Exiting jekyll2cms.");
-                System.exit(38);
+                System.exit(39);
             }
         }
     }

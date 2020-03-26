@@ -98,6 +98,5 @@ public class MarkdownTransformer {
                 }
             }
         });
-        fileTransfer.deleteXmlFromSiteFolder();
     }
 }

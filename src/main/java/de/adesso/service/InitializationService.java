@@ -54,7 +54,6 @@ public class InitializationService {
 
 			// Step 3: Transform repo using jekyll
 			List<DiffEntry> entries = repoDiffer.checkForUpdates();
-			fileTransfer.deleteImages(new File(configService.getLOCAL_DEST_IMAGE() + "/Cropped_Resized"));
 			jekyllService.startJekyllBuildProcess();
 			markdownTransformer.copyGeneratedXmlFiles(entries);
 			fileTransfer.moveGeneratedImages(new File(configService.getLOCAL_SITE_IMAGE()), new File(configService.getLOCAL_DEST_IMAGE()));

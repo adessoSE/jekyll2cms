@@ -31,5 +31,6 @@ nbdist/
 *.sass
 *.sass-cache
 _site/*
+Gemfile.lock
 #/src/main/resources/application.properties
 #/bin/application.properties
