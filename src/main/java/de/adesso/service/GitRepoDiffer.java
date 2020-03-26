@@ -105,7 +105,6 @@ public class GitRepoDiffer {
 
     private boolean checkOnPost(RevCommit commit) {
         try (DiffFormatter df = new DiffFormatter(new ByteArrayOutputStream())) {
-            System.out.println(commit.getShortMessage());
             Repository repo = LocalRepoCreater.getLocalGit().getRepository();
             df.setRepository(repo);
             ObjectReader reader = repo.newObjectReader();
@@ -120,7 +119,6 @@ public class GitRepoDiffer {
             List<DiffEntry> entries = df.scan(oldTreeIter, newTreeIter);
             for (DiffEntry entry : entries) {
                 String path = entry.getChangeType().equals(DiffEntry.ChangeType.DELETE) ? entry.getOldPath() : entry.getNewPath();
-                System.out.println(path);
                 if (path.startsWith("_post")) {
                     return true;
                 }
