@@ -37,7 +37,8 @@ public class GitRepoPusher {
             try {
                 LOGGER.info("Pushing XML files to repository...");
 
-                if (isClean()) {
+                Status status = localGit.status().call();
+                if (status.isClean() || (status.getUntracked().size() == 1 && status.getUntracked().contains("Gemfile.lock"))) {
                     LOGGER.info("No new files were generated, so no files to push.");
                     LOGGER.info("Stopping jekyll2cms.");
                     System.exit(0);
@@ -75,11 +76,5 @@ public class GitRepoPusher {
                 System.exit(40);
             }
         }
-    }
-
-    private boolean isClean() throws GitAPIException {
-        Status status = LocalRepoCreater.getLocalGit().status().call();
-        return status.isClean() ? isClean() : status.getAdded().isEmpty() && status.getChanged().isEmpty() &&
-                status.getRemoved().isEmpty() && status.getModified().isEmpty();
     }
 }
