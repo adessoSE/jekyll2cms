@@ -37,8 +37,8 @@ public class GitRepoPusher {
             try {
                 LOGGER.info("Pushing XML files to repository...");
 
-                if (localGit.status().call().isClean()) {
-                    LOGGER.info("No new files were generated.");
+                if (isClean()) {
+                    LOGGER.info("No new files were generated, so no files to push.");
                     LOGGER.info("Stopping jekyll2cms.");
                     System.exit(0);
                 }
@@ -67,7 +67,7 @@ public class GitRepoPusher {
                         .setAuthor(configService.getGIT_AUTHOR_NAME(), configService.getGIT_AUTHOR_MAIL())
                         .call();
                 CredentialsProvider cp = new UsernamePasswordCredentialsProvider(configService.getGIT_AUTHOR_NAME(), configService.getGIT_AUTHOR_PASSWORD());
-                localGit.push().setForce(true).setCredentialsProvider(cp).call();
+                localGit.push().setForce(false).setCredentialsProvider(cp).call();
                 LOGGER.info("XML files pushed successfully.");
             } catch (GitAPIException e) {
                 LOGGER.error("An error occurred while pushing files to remote repository.", e);
@@ -75,5 +75,11 @@ public class GitRepoPusher {
                 System.exit(40);
             }
         }
+    }
+
+    private boolean isClean() throws GitAPIException {
+        Status status = LocalRepoCreater.getLocalGit().status().call();
+        return status.isClean() ? isClean() : status.getAdded().isEmpty() && status.getChanged().isEmpty() &&
+                status.getRemoved().isEmpty() && status.getModified().isEmpty();
     }
 }
