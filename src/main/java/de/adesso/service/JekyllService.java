@@ -34,12 +34,12 @@ public class JekyllService {
         //   execute in shell
         //   allow file access of repo dir for user jekyll
         //   call jekyll build
-        builder.command("sh", "-c", "chown -R jekyll /srv/jekyll/repo && jekyll build --incremental");
+        builder.command("sh", "-c", "chown -R jekyll /srv/jekyll/repo && jekyll build");
         // set dir where to execute command
         builder.directory(new File(configService.getLOCAL_REPO_PATH()));
 
         try {
-            LOGGER.info("execute command: sh -c chown -R jekyll /srv/jekyll/repo && jekyll build --incremental");
+            LOGGER.info("execute command: sh -c chown -R jekyll /srv/jekyll/repo && jekyll build");
             Process process = builder.start();
             int exitCode = process.waitFor();
             if (exitCode == 0) {
