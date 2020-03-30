@@ -14,29 +14,6 @@ public class FileTransfer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FileTransfer.class);
 
-    /**
-     * Copy a file
-     *
-     * @param source Source of the file
-     * @param dest   Destination of the file
-     */
-    void copyFile(File source, File dest) {
-        try {
-            if (source.lastModified() != dest.lastModified()) {
-                LOGGER.debug("Copy file from " + source.getAbsolutePath() + " to " + dest.getAbsolutePath());
-                if (!dest.exists()) {
-                    dest.getParentFile().mkdir();
-                }
-                Files.copy(source.toPath(), dest.toPath(), StandardCopyOption.REPLACE_EXISTING,
-                        StandardCopyOption.COPY_ATTRIBUTES);
-            }
-        } catch (IOException e) {
-            LOGGER.error("An error occurred while copying generated XML files to destination.", e);
-            LOGGER.error("Exiting jekyll2cms.");
-            System.exit(36);
-        }
-    }
-
     void moveGeneratedImages(File srcFolder, File destFolder) {
         if (srcFolder.isDirectory()) {
 
