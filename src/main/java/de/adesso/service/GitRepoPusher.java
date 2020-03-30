@@ -58,7 +58,7 @@ public class GitRepoPusher {
                     if(path.startsWith("_posts") && matcher.find()) {
                         String fileName = matcher.group(8);
                         String fileDate = matcher.group(5).substring(0, 10);
-                        commitMessageBuilder.append(entry.getChangeType()).append(": ").append(fileName).append(", ").append(fileDate);
+                        commitMessageBuilder.append(entry.getChangeType()).append(": ").append(fileName).append(", ").append(fileDate).append("\n");
                     }
                 });
 
