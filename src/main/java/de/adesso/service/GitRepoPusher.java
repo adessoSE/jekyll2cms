@@ -34,7 +34,7 @@ public class GitRepoPusher {
 
                 Status status = localGit.status().call();
 
-                if (status.isClean() || (status.getUntracked().size() == 1 && status.getUntracked().contains("Gemfile.lock"))) {
+                if (containsChangedFiles(status)) {
                     LOGGER.info("No new files were generated, so no files to push.");
                     LOGGER.info("Stopping jekyll2cms.");
                     System.exit(0);
@@ -43,16 +43,9 @@ public class GitRepoPusher {
                 // add everything in ./assets, gemfile.lock and _site folder are ignored due to .gitignore
                 localGit.add().addFilepattern("assets").setUpdate(false).call();
 
-                // set commit message with all added and deleted files
-                status = localGit.status().call();
-                System.out.println(status.getAdded().size());
-                StringBuilder commitMessageBuilder = new StringBuilder();
-                status.getAdded().forEach(file -> commitMessageBuilder.append("ADD ").append(file).append("\n"));
-                status.getRemoved().forEach(file -> commitMessageBuilder.append("DELETE ").append(file).append("\n"));
-
                 localGit.commit()
                         .setAll(true)
-                        .setMessage(commitMessageBuilder.toString())
+                        .setMessage(getCommitMessage())
                         .setAuthor(configService.getGIT_AUTHOR_NAME(), configService.getGIT_AUTHOR_MAIL())
                         .call();
                 CredentialsProvider cp = new UsernamePasswordCredentialsProvider(configService.getGIT_AUTHOR_NAME(), configService.getGIT_AUTHOR_PASSWORD());
@@ -64,5 +57,23 @@ public class GitRepoPusher {
                 System.exit(40);
             }
         }
+    }
+
+    private boolean containsChangedFiles(Status status) {
+        return status.isClean() || (status.getUntracked().size() == 1 && status.getUntracked().contains("Gemfile.lock"));
+    }
+
+    /**
+     * Set commit message with all added and deleted files.
+     *
+     * @return Commit message
+     * @throws GitAPIException on status call not possible.
+     */
+    private String getCommitMessage() throws GitAPIException {
+        Status status = LocalRepoCreater.getLocalGit().status().call();
+        StringBuilder commitMessageBuilder = new StringBuilder();
+        status.getAdded().forEach(file -> commitMessageBuilder.append("ADD ").append(file).append("\n"));
+        status.getRemoved().forEach(file -> commitMessageBuilder.append("DELETE ").append(file).append("\n"));
+        return commitMessageBuilder.toString();
     }
 }

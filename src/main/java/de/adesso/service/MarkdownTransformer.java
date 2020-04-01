@@ -32,22 +32,18 @@ public class MarkdownTransformer {
      * The jekyll-build process generates html and xml files to the corresponding markdown file.
      * The xml output has to be copied to an intended folder.
      */
-    protected void copyGeneratedXmlFiles() {
+    public void copyGeneratedXmlFiles() {
         try {
             File generatedXmlFolder = new File(configService.getLOCAL_HTML_POSTS());
-            if (generatedXmlFolder.isDirectory()) {
+            if (fileIsDirectory(generatedXmlFolder)) {
                 // for all folders in LOCAL_HTML_POSTS
                 for (File file : Objects.requireNonNull(generatedXmlFolder.listFiles())) {
-                    // check if the folder name can converted to a date
+                    // save the date from the file name of the blog post
                     String datePart = getLastPartOfPath(file.getPath());
-                    if (datePart.matches("\\d{4}-\\d{2}-\\d{2}")) {
-                        LocalDate date = LocalDate.parse(datePart);
-                        // if the folders date is not in the future
-                        if (date.isBefore(LocalDate.now())) {
-                            // get the xml files from this folder and copy them to the destination
-                            Files.walk(file.toPath()).filter(sourcePath -> sourcePath.toFile().getName().endsWith(".xml"))
-                                    .forEach(sourcePath -> copyFile(sourcePath, datePart));
-                        }
+                    if (isFutureEntry(datePart)) {
+                        // get the xml files from this folder and copy them to the destination
+                        Files.walk(file.toPath()).filter(sourcePath -> sourcePath.toFile().getName().endsWith(".xml"))
+                                .forEach(sourcePath -> copyFile(sourcePath, datePart));
                     }
                 }
             }
@@ -72,5 +68,25 @@ public class MarkdownTransformer {
             LOGGER.error("Exiting jekyll2cms.");
             System.exit(36);
         }
+    }
+
+    private boolean fileIsDirectory(File file) {
+        return file.isDirectory();
+    }
+
+    private boolean canConvertToDate(String string) {
+        return string.matches("\\d{4}-\\d{2}-\\d{2}");
+    }
+
+    private boolean isNotInFuture(LocalDate date) {
+        return !date.isAfter(LocalDate.now());
+    }
+
+    private boolean isFutureEntry(String string) {
+        if (canConvertToDate(string)) {
+            // if the folders date is not in the future
+            return isNotInFuture(LocalDate.parse(string));
+        }
+        return false;
     }
 }
