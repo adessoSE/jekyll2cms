@@ -40,10 +40,13 @@ public class MarkdownTransformer {
                 for (File file : Objects.requireNonNull(generatedXmlFolder.listFiles())) {
                     // save the date from the file name of the blog post
                     String datePart = getLastPartOfPath(file.getPath());
-                    if (isFutureEntry(datePart)) {
-                        // get the xml files from this folder and copy them to the destination
-                        Files.walk(file.toPath()).filter(sourcePath -> sourcePath.toFile().getName().endsWith(".xml"))
-                                .forEach(sourcePath -> copyFile(sourcePath, datePart));
+                    if (canConvertToDate(datePart)) {
+                        // if the folders date is not in the future
+                        if (isNotInFuture(LocalDate.parse(datePart))) {
+                            // get the xml files from this folder and copy them to the destination
+                            Files.walk(file.toPath()).filter(sourcePath -> sourcePath.toFile().getName().endsWith(".xml"))
+                                    .forEach(sourcePath -> copyFile(sourcePath, datePart));
+                        }
                     }
                 }
             }
@@ -80,13 +83,5 @@ public class MarkdownTransformer {
 
     private boolean isNotInFuture(LocalDate date) {
         return !date.isAfter(LocalDate.now());
-    }
-
-    private boolean isFutureEntry(String string) {
-        if (canConvertToDate(string)) {
-            // if the folders date is not in the future
-            return isNotInFuture(LocalDate.parse(string));
-        }
-        return false;
     }
 }
