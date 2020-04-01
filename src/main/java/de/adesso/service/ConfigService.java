@@ -10,19 +10,15 @@ public class ConfigService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfigService.class);
 
-    //REMOTE REPO
     @Value("#{environment.REPOSITORY_REMOTE_URL ?: null}")
     private String REPOSITORY_REMOTE_URL;
 
-    //GITHUB USERNAME
     @Value("#{environment.REPOSITORY_LOCAL_USER_NAME ?: null}")
     private String GIT_AUTHOR_NAME;
 
-    // GITHUB EMAIL
     @Value("#{environment.REPOSITORY_LOCAL_USER_MAIL ?: null}")
     private String GIT_AUTHOR_MAIL;
 
-    // GITHUB PASSWORD
     @Value("#{environment.REPOSITORY_LOCAL_USER_PASSWORD ?: null}")
     private String GIT_AUTHOR_PASSWORD;
 
@@ -42,45 +38,10 @@ public class ConfigService {
     private String FIRSTSPIRIT_XML_PATH;
 
     public void checkConfiguration() {
-        // Repo URL
-        if (REPOSITORY_REMOTE_URL == null) {
-            LOGGER.error("Environment variable not provided: REPOSITORY_REMOTE_URL. " +
-                    "Please provide something in the format: https://github.com/myAccount/devblog.");
-            LOGGER.error("Exiting jekyll2cms.");
-            System.exit(10);
-        } else {
-            LOGGER.info("Environment variable provided: REPOSITORY_REMOTE_URL");
-        }
-
-        // GitHub name
-        if (GIT_AUTHOR_NAME == null) {
-            LOGGER.error("Environment variable not provided: GIT_AUTHOR_NAME. " +
-                    "Please provide some Github-Username.");
-            LOGGER.error("Exiting jekyll2cms.");
-            System.exit(11);
-        } else {
-            LOGGER.info("Environment variable provided: GIT_AUTHOR_NAME");
-        }
-
-        // GitHub author mail
-        if (GIT_AUTHOR_MAIL == null) {
-            LOGGER.error("Environment variable not provided: GIT_AUTHOR_MAIL. " +
-                    "Please provide the provided GitHub user's Email.");
-            LOGGER.error("Exiting jekyll2cms.");
-            System.exit(12);
-        } else {
-            LOGGER.info("Environment variable provided: GIT_AUTHOR_MAIL");
-        }
-
-        // GitHub Password
-        if (GIT_AUTHOR_PASSWORD == null) {
-            LOGGER.error("Environment variable not provided: GIT_AUTHOR_PASSWORD. " +
-                    "Please provide the provided GitHub user's Password.");
-            LOGGER.error("Exiting jekyll2cms.");
-            System.exit(13);
-        } else {
-            LOGGER.info("Environment variable provided: GIT_AUTHOR_PASSWORD");
-        }
+        checkRemoteRepoUrl();
+        checkAuthorName();
+        checkAuthorMail();
+        checkAuthorPassword();
     }
 
     public String getLOCAL_REPO_PATH() {
@@ -117,5 +78,44 @@ public class ConfigService {
 
     public String getGIT_AUTHOR_PASSWORD() {
         return GIT_AUTHOR_PASSWORD;
+    }
+
+    private void checkRemoteRepoUrl() {
+        if (REPOSITORY_REMOTE_URL == null) {
+            logAndExitVariableNotFound("REPOSITORY_REMOTE_URL", "Please provide something in the format: https://github.com/myAccount/devblog.", 10);
+        } else {
+            LOGGER.info("Environment variable provided: REPOSITORY_REMOTE_URL");
+        }
+    }
+
+    private void checkAuthorName() {
+        if (GIT_AUTHOR_NAME == null) {
+            logAndExitVariableNotFound("GIT_AUTHOR_NAME", "Please provide a Github-Username.", 11);
+        } else {
+            LOGGER.info("Environment variable provided: GIT_AUTHOR_NAME");
+        }
+    }
+
+    private void checkAuthorMail() {
+        if (GIT_AUTHOR_MAIL == null) {
+            logAndExitVariableNotFound("GIT_AUTHOR_MAIL", "Please provide the email of the specified GitHub user.", 12);
+        } else {
+            LOGGER.info("Environment variable provided: GIT_AUTHOR_MAIL");
+        }
+
+    }
+
+    private void checkAuthorPassword() {
+        if (GIT_AUTHOR_PASSWORD == null) {
+            logAndExitVariableNotFound("GIT_AUTHOR_PASSWORD", "Please provide the provided GitHub user's Password.", 13);
+        } else {
+            LOGGER.info("Environment variable provided: GIT_AUTHOR_PASSWORD");
+        }
+    }
+
+    private void logAndExitVariableNotFound(String variable, String description, int exitCode) {
+        LOGGER.error("Environment variable not provided: " + variable + ". " + description);
+        LOGGER.error("Exiting jekyll2cms.");
+        System.exit(exitCode);
     }
 }
