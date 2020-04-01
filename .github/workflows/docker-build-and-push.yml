@@ -20,7 +20,7 @@ jobs:
       uses: mr-smithers-excellent/docker-build-push@v2
       with:
         image: jekyll2cms/jekyll2cms
-        tag: 2.0.0
+        tag: 2.1.0
         registry: docker.io
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
