@@ -10,11 +10,9 @@ public class ConfigService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfigService.class);
 
-    //REMOTE REPO
     @Value("#{environment.REPOSITORY_REMOTE_URL ?: null}")
     private String REPOSITORY_REMOTE_URL;
 
-    //GITHUB CREDENTIALS
     @Value("#{environment.REPOSITORY_LOCAL_USER_NAME ?: null}")
     private String GIT_AUTHOR_NAME;
 
@@ -23,9 +21,6 @@ public class ConfigService {
 
     @Value("#{environment.REPOSITORY_LOCAL_USER_PASSWORD ?: null}")
     private String GIT_AUTHOR_PASSWORD;
-
-    @Value("${repository.local.JSON.path}")
-    private String JSON_PATH;
 
     @Value("${repository.local.image.path}")
     private String LOCAL_SITE_IMAGE;
@@ -43,44 +38,10 @@ public class ConfigService {
     private String FIRSTSPIRIT_XML_PATH;
 
     public void checkConfiguration() {
-        /*
-            REPO URL
-         */
-        if (REPOSITORY_REMOTE_URL == null) {
-            LOGGER.error("ERROR: Environment variable not provided: REPOSITORY_REMOTE_URL \n" +
-                    "Please provide something in the format: https://github.com/myAccount/devblog");
-            System.exit(1);
-        } else {
-            LOGGER.info("SUCCESS: Environemnt variable provided: REPOSITORY_REMOTE_URL");
-        }
-
-        /*
-            Github-Names
-         */
-        if (GIT_AUTHOR_NAME == null) {
-            LOGGER.error("ERROR: Environment variable not provided: GIT_AUTHOR_NAME \n" +
-                    "Please provide some Github-Username");
-
-            System.exit(1);
-        } else {
-            LOGGER.info("SUCCESS: Environemnt variable provided: GIT_AUTHOR_NAME");
-        }
-
-        if (GIT_AUTHOR_MAIL == null) {
-            LOGGER.error("ERROR: Environment variable not provided: GIT_AUTHOR_MAIL \n" +
-                    "Please provide some correspronding Email to the Github Username");
-            System.exit(1);
-        } else {
-            LOGGER.info("SUCCESS: Environemnt variable provided: GIT_AUTHOR_MAIL");
-        }
-
-        if (GIT_AUTHOR_PASSWORD == null) {
-            LOGGER.error("ERROR: Environment variable not provided: GIT_AUTHOR_PASSWORD \n" +
-                    "Please provide some correspronding password to the Github Username");
-            System.exit(1);
-        } else {
-            LOGGER.info("SUCCESS: Environemnt variable provided: GIT_AUTHOR_PASSWORD");
-        }
+        checkRemoteRepoUrl();
+        checkAuthorName();
+        checkAuthorMail();
+        checkAuthorPassword();
     }
 
     public String getLOCAL_REPO_PATH() {
@@ -90,7 +51,6 @@ public class ConfigService {
     public String getREPOSITORY_REMOTE_URL() {
         return REPOSITORY_REMOTE_URL;
     }
-
 
     public String getLOCAL_HTML_POSTS() {
         return LOCAL_HTML_POSTS;
@@ -108,10 +68,6 @@ public class ConfigService {
         return FIRSTSPIRIT_XML_PATH;
     }
 
-    public String getJSON_PATH() {
-        return JSON_PATH;
-    }
-
     public String getGIT_AUTHOR_NAME() {
         return GIT_AUTHOR_NAME;
     }
@@ -122,5 +78,44 @@ public class ConfigService {
 
     public String getGIT_AUTHOR_PASSWORD() {
         return GIT_AUTHOR_PASSWORD;
+    }
+
+    private void checkRemoteRepoUrl() {
+        if (REPOSITORY_REMOTE_URL == null) {
+            logAndExitVariableNotFound("REPOSITORY_REMOTE_URL", "Please provide something in the format: https://github.com/myAccount/devblog.", 10);
+        } else {
+            LOGGER.info("Environment variable provided: REPOSITORY_REMOTE_URL");
+        }
+    }
+
+    private void checkAuthorName() {
+        if (GIT_AUTHOR_NAME == null) {
+            logAndExitVariableNotFound("GIT_AUTHOR_NAME", "Please provide a Github-Username.", 11);
+        } else {
+            LOGGER.info("Environment variable provided: GIT_AUTHOR_NAME");
+        }
+    }
+
+    private void checkAuthorMail() {
+        if (GIT_AUTHOR_MAIL == null) {
+            logAndExitVariableNotFound("GIT_AUTHOR_MAIL", "Please provide the email of the specified GitHub user.", 12);
+        } else {
+            LOGGER.info("Environment variable provided: GIT_AUTHOR_MAIL");
+        }
+
+    }
+
+    private void checkAuthorPassword() {
+        if (GIT_AUTHOR_PASSWORD == null) {
+            logAndExitVariableNotFound("GIT_AUTHOR_PASSWORD", "Please provide the provided GitHub user's Password.", 13);
+        } else {
+            LOGGER.info("Environment variable provided: GIT_AUTHOR_PASSWORD");
+        }
+    }
+
+    private void logAndExitVariableNotFound(String variable, String description, int exitCode) {
+        LOGGER.error("Environment variable not provided: " + variable + ". " + description);
+        LOGGER.error("Exiting jekyll2cms.");
+        System.exit(exitCode);
     }
 }
