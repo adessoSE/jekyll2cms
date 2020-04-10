@@ -105,7 +105,8 @@ To run your local changes using docker follow these steps:
 
 # Releases
 On every commit on the master branch a new release for jekyll2cms is built using GitHub actions.
-The version number is defined in the docker-build-and-push.yml. 
+The version number is defined in the docker-build-and-push.yml workflow file file. 
+If it is not changed the current image on docker hub is overwritten.
 
 # Questions?
 In general, we do not provide any official support for this software. If you have any questions, feedback or issues, create an issue on GitHub or write a mail to devblog[replace with the at-sign]adesso.de. 
