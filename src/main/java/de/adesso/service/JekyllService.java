@@ -47,16 +47,16 @@ public class JekyllService {
             } else {
                 LOGGER.error("jekyll build finished with exit code: " + exitCode);
                 LOGGER.error("Exiting jekyll2cms.");
-                System.exit(33);
+                System.exit(30);
             }
         } catch (IOException e) {
             LOGGER.error("Error during building command: ", e);
             LOGGER.error("Exiting jekyll2cms.");
-            System.exit(34);
+            System.exit(31);
         } catch (InterruptedException e) {
             LOGGER.error("Error during jekyll build execution: ", e);
             LOGGER.error("Exiting jekyll2cms.");
-            System.exit(35);
+            System.exit(32);
         }
     }
 }

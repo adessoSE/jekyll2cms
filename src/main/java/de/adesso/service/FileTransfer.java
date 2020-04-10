@@ -35,7 +35,7 @@ public class FileTransfer {
             } catch (IOException e) {
                 LOGGER.error("An error occurred while copying images to destination.", e);
                 LOGGER.error("Exiting jekyll2cms.");
-                System.exit(39);
+                System.exit(35);
             }
         }
     }

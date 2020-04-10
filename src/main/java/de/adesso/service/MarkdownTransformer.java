@@ -53,7 +53,7 @@ public class MarkdownTransformer {
         } catch (IOException e) {
             LOGGER.error("An error occurred while assembling all files to copy.", e);
             LOGGER.error("Exiting jekyll2cms.");
-            System.exit(30);
+            System.exit(33);
         }
     }
 
@@ -69,7 +69,7 @@ public class MarkdownTransformer {
         } catch (IOException e) {
             LOGGER.error("An error occurred while copying generated XML files to destination.", e);
             LOGGER.error("Exiting jekyll2cms.");
-            System.exit(36);
+            System.exit(34);
         }
     }
 
