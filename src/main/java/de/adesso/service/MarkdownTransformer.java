@@ -62,15 +62,22 @@ public class MarkdownTransformer {
     }
 
     private void copyFile(Path sourcePath, String datePart) {
-        String destinationPath = datePart + "/" + datePart + "-" + sourcePath.getFileName().toString();
+        Path destinationPath = new File(configService.getFIRSTSPIRIT_XML_PATH() + "/" + datePart + "/" + datePart + "-" + sourcePath.getFileName().toString()).toPath();
         try {
             LOGGER.debug("Copy file from " + sourcePath + " to " + destinationPath);
-            Files.copy(sourcePath, new File(configService.getFIRSTSPIRIT_XML_PATH() + "/" + destinationPath).toPath(), StandardCopyOption.REPLACE_EXISTING);
+            if (pathDoesNotExist(destinationPath)) {
+                Files.createDirectories(destinationPath);
+            }
+            Files.copy(sourcePath, destinationPath, StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
             LOGGER.error("An error occurred while copying generated XML files to destination.", e);
             LOGGER.error("Exiting jekyll2cms.");
             System.exit(36);
         }
+    }
+
+    private boolean pathDoesNotExist(Path path) {
+        return !path.getParent().toFile().exists();
     }
 
     private boolean fileIsDirectory(File file) {
