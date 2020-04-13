@@ -1,87 +1,138 @@
-# 1) Only using Jekyll2cms for Blogpost Conversion
+jekyll2cms converts markdown files into xml in order to export [Jekyll blogs](https://jekyllrb.com/) to content management systems. It is delivered as a docker image, which you can easily use in your blog.
 
-If you wrote a blogpost and it got reviewed, you almost got everything done to publish it to the adesso blog. (blog.adesso.de)
-The last step is to convert the post in the markdown-format (ending.md) your wrote into an XML-Format for the CMS adesso is using to display the blogcontent and other content.
-You dont need to do that by hand, just execute the jekyll2cms with Docker this command:
 
-```docker run -d --name jekyll2cms jekyll2cms/jekyll2cms:2.0.0```
+
+# Usage
+
+jekyll2cms requires a Jekyll repository on GitHub.
+This repository will be used to convert its markdown files into xml & xml-template files.
+Repositories must adhere to structural requirements.
+Make sure to check out the [adesso SE devblog](https://github.com/adessoAG/devblog) as an example.
+- The markdown files to be converted must be in the `_posts` folder.
+- The generated xml files will be located in `assets/first-spirit-xml`.
+- The format of the generated xml files will be determined by `_layouts/post-xml.xml` . 
+
+
+## How to execute
+
+
+Running jekyll2cms requires some environment variables that must be passed to the `docker run` command or be defined as [GitHub Secrets](https://help.github.com/en/actions/configuring-and-managing-workflows/creating-and-storing-encrypted-secrets):
+
+
+| Name | Description |
+| ------------- | ------------- |
+| REPOSITORY_LOCAL_USER_NAME | The GitHub username of the user who will commit the generated xml files to the repository. This user needs to have at least write access to the repository. If the branches are protected, this user needs admin access. |
+| REPOSITORY_LOCAL_USER_PASSWORD | The password of this user. It is needed to provide the credentials to allow the commit. |
+| REPOSITORY_LOCAL_USER_MAIL | The email of this user. This is needed to provide further commit information. |
+| REPOSITORY_REMOTE_URL | The URL of the repository which contains the markdown files. This is also the location where the generated xml files are pushed to. |
+
+### Executing localy
+Run jekyll2cms on your machine using the following command:
+
+
+```
+docker run -e REPOSITORY_REMOTE_URL=<repository_url> -e REPOSITORY_LOCAL_USER_NAME=<github_username> -e REPOSITORY_LOCAL_USER_MAIL=<github_email> -e REPOSITORY_LOCAL_USER_PASSWORD=<github_password> jekyll2cms/jekyll2cms:<tag>
+```
+
+### Automatic execution on GitHub
+It is also possible to use jekyll2cms as a GitHub Action - Create a [workflow ](https://help.github.com/en/actions/configuring-and-managing-workflows/configuring-and-managing-workflow-files-and-runs) and copy the following steps. We recommend using GitHub Secrets to provide the configuration.
+
+
+```
+ - name: Pull Docker image
+   run: docker pull <your_docker_hub_user>/<your_docker_hub_image>:<tag>
+
+ - name: Run Docker image
+   run: docker run -e REPOSITORY_REMOTE_URL='${{ secrets.REPOSITORY_REMOTE_URL }}' -e REPOSITORY_LOCAL_USER_NAME='${{ secrets.REPOSITORY_LOCAL_USER_NAME }}' -e REPOSITORY_LOCAL_USER_MAIL='${{ secrets.REPOSITORY_LOCAL_USER_MAIL }}' -e REPOSITORY_LOCAL_USER_PASSWORD='${{ secrets.REPOSITORY_LOCAL_USER_PASSWORD }}' <your_docker_hub_user>/<your_docker_hub_image>:<tag>
+```
+
+# Program sequence
+
+
+jekyll2cms is a Java Spring Boot application. The execution is separated into four steps.
+
+
+* Check configuration
+* Clone repository
+* Execute `jekyll build` and copy generated xml files to specified folder 
+
+* Commit and push generated files to remote repository
+
+
+jekyll2cms will first check if the configuration and the associated environment variables are passed correctly.
+The target repository will then be cloned.
+`jekyll build` is executed and generates the xml files in the `_site` directory.
+The generated xml files are moved from `_site` to `assets/first-spirit-xml`.
+Images used in the markdown files are copied to` assets/images`.
+
+jekyll2cms then checks if any files have changed.
+This is done using `git status` in JGit.
+Any changes are committed and pushed to the remote repository using a commit message that specifies the changes.
+The process is finished without commits if no changes were detected.
+jekyll2cms then exits.
+
+
+## Program exit
  
- After some minutes you should see a commit in the adesso/devblog -Repository from a User called Jekyll2cms.
- Then stop the docker-container and delete the image with:
- 
-```docker stop jekyll2cms``` <br>
-```docker rmi jekyll2cms```
+
+jekyll2cms will exit successfuly if 
+- the generated xml files were pushed successfuly
+- or if a commit doesn't containt new changes.
+
+jekyll2cms will exit with code 0 in both cases.
 
 
-# 2) Developing Jekyll2cms - Getting started
+### Error codes
 
-The main purpose of this web application is to automatically extract blog posts, defined in markdown-format,  from a **[Github Pages](https://pages.github.com/)** repository and to convert it into an XML-format with the help of **[jekyll](https://jekyllrb.com/)**. This XML format is compatible with the CMS "First-Spirit" from **[E-Spirit](http://www.e-spirit.com/de/)**, a member of the **[adesso Group](https://www.adesso.de)** . The main goal of this project is to provide a developer friendly way (using git and markdown) for submitting blog posts to a CMS based web site.
+jekyll2cms can fail during execution. Reasons might include misconfiguration or errors in Jekyll. We have defined error codes to make debugging easier. 
+
+
+| Exit code | Description |
+| ------------- | ------------- |
+| 01 | An error ocurred that is not handled by jekyll2cms. |
+| 10 | Environment variable REPOSITORY_REMOTE_URL not found. |
+| 11 | Environment variable REPOSITORY_LOCAL_USER_NAME not found. |
+| 12 | Environment variable REPOSITORY_LOCAL_USER_MAIL not found. |
+| 13 | Environment variable REPOSITORY_LOCAL_USER_PASSWORD not found. |
+| 20 | Error while cloning remote repository. |
+| 30 | Execution of `jekyll build` returned a non zero exit code. |
+| 31 | Couldn't generate `jekyll build`. Execution directory not found. |
+| 32 | Error calling generated `jekyll build` command. This is not an error with jekyll. |
+| 33 | Error assembling files to copy. |
+| 34 | Error copying genereated files. |
+| 35 | Error copying images. |
+| 40 | Error pushing files to remote repository. |
+
+
+# Developing
+Feel free to fork and adapt jekyll2cms to your needs. We've prepared a short guide to help you get started.
 
 ## Prerequisites
 
-Before you can start the application, make sure that the following components are installed correctly on your local system.
+Make sure that the following components are installed correctly on your system:
 
-* Git (v2.4 or higher) [Download](https://git-scm.com/downloads)
-* Java Development Kit (JDK) (v1.8 or higher)  [Download](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
-* jekyll (v3.5.0 or higher)  [Download and getting started](https://jekyllrb.com/)
 
-You can check if the tools are installed correctly by trying to execute them with the version command (e.g. `git --version`)
+* Java Development Kit (JDK) (v1.8 or higher) [Download](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
+* Docker [Download](https://www.docker.com/get-started)
 
-## How to run jekyll2cms
+## Running jekyll2cms on your local machine
 
-### Before you start
-If all necessary tools are installed, you can checkout *jekyll2cms*, using [this link](https://github.com/adessoAG/jekyll2cms.git) as clone URI. Before starting the application, you first need to configure and build it. You will find a file named `application-sample.properties` in the directory `src/main/resources/`. Rename the file to `application.properties` and open it to insert your local configuration. It is necessary, for example, to define to which local destination the remote repository is cloned to (`repository.local.path`) and, of course, the URL of the remote repository (`repository.remote.url`) which contains the markdown files. The generated XML files will be pushed to the same repository. You also have to specify the destination path for the generated XML files and the login data of a user who is allowed to push on the remote repository. The comments in the sample file should help you doing the configuration right. Note that the remote repository must have the same structure as you require in the `application.properties` (e.g. if you expect the markdown files in a folder `/_posts`, make sure that this folder exists on the remote repository). 
 
-After you have done the configuration, you can build the application. Open a new terminal window in the root directory of the project and run `gradlew build`. The output should be BUILD SUCESSFUL. 
-
-### Run application
-Open a new terminal window in the root folder of the project an run 
-`java -jar build/libs/jekyll2cms-0.0.1.jar`
+We highly recommend to always execute jekyll2cms using docker. This prevents errors due to missing environment variables or different path separators. However you can also use the jar to execute it. 
 
 ### Run with Docker
-If you want to run the application with Docker you need to build an Image with the Dockerfile.
-
-To do so: (In the project-directory)
+To run your local changes using docker follow these steps:
 
 1. Rebuild your app with `gradlew build`
-2. Run `docker build -t jekyll2cms:latest` to build an actual image
-3. Run the image locally with `docker run -d --name jekyll2cms jekyll2cms:latest`
-4. To see the logs use `docker logs jekyll2cms`
-5. If you want to deploy it, push your image to a registry ([see the documentation](https://docs.docker.com/engine/reference/commandline/push/))
+2. Run `docker build -t jekyll2cms` to build a new image
 
-## How to work with jekyll2cms
-After you successfully started the application, it will clone the remote repository. If there is already a local clone, updates will be pulled automatically. The received blog-content in markdown will be transformed into FirstSpirit compatible XML, which is stored in the directory you defined in the `application.properties` file and pushed back to the remote repository. 
+3. Use the `docker run` command as specified in [Executing localy](#executing-localy)
 
-Jekyll2cms updates the repository every 10 seconds to check for new blog posts. If the application detects changes in a markdown-file, the XML files will be updated and pushed to the remote repository.  
 
-### Add Blogpost
-To add new posts, simply add a file in the directory you configured in the `jekyll.path.posts` property that follows the convention `YYYY-MM-DD-name-of-post.markdown` and includes the necessary [front matter](https://jekyllrb.com/docs/frontmatter/), which should look something like this:
+# Releases
+On every commit on the master branch a new release for jekyll2cms is built using GitHub actions.
+The version number is defined in the docker-build-and-push.yml workflow file. 
+If it is not changed the current image on docker hub is overwritten.
 
-    ---
-    # layout is required. DO NOT CHANGE.
-    layout: [post, post-xml]
-    # title is required. Add the title of your post.
-    title:  "adesso AG Blog Post Example"
-    # date is required. If possible, also provide a time. e.g. 2017-08-10 10:25:00.
-    date:   2017-08-10 10:25:00 
-    # If you are modifying an existing post, provide a date for it.
-    modified_date:
-    # author must be your name used in the _data/authors.yml file.
-    author: jondoe
-    # Categories are written inside square brackets '[cat1, cat2]' and are separated by commas.
-    # add at least one category name.
-    categories: [Technologie]
-    # Tags are written inside square brackets '[tag1, tag2]' and are separated by commas.
-    # tags are optional, but help to narrow down the subject of the blog post
-    tags: [Digitalisierung, Banken]
-    ---
-
-You can find more examples for blog posts in the [adesso devblog repository](https://github.com/adessoAG/devblog/tree/master/_posts).
-
-For creating or modifying posts, it is recommended not to work on the same local clone as jekyll2cms does to prevent unpredictable errors. If you like,  you can also edit the markdown files directly with the help of the web interface of your desired git service, for example GitHub.
-
-### See XML result
-After adding or updating a markdown file and waiting for a couple of seconds, jekyll2cms will detect the changes. The XML file will be created and pushed immediately to the remote repository so that it can be included into the CMS by the end user with the next manual pull.  
-
-## Questions?
-In general, we do not provide any official support for this software. If you have any questions, feedback or issues, create an issue on GitHub or write a mail to info[replace with the at-sign]adesso.de and ask for the Open Source Team. 
+# Questions?
+We do not provide any official support for this software. You can however create an issue in this repository if you have any questions, feedback or technical difficulties. You can also reach us at devblog[replace with the at-sign]adesso.de. 
