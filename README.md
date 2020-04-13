@@ -1,18 +1,23 @@
-jekyll2cms is a tool to convert markdown files to xml files using [jekyll site generator](https://jekyllrb.com/). jekyll2cms comes as a docker image which you can easily deploy to your blog.
+jekyll2cms converts markdown files into xml in order to export [Jekyll blogs](https://jekyllrb.com/) to content management systems. It is delivered as a docker image, which you can easily use in your blog.
+
+
 
 # Usage
 
-To use jekyll2cms you need a jekyll repository on GitHub.
-This repository contains the markdown files which are the base for generating the xml files and the xml template files.
-This jekyll repository needs a specific structure though.
-An example for this structure is the [adesso SE devblog](https://github.com/adessoAG/devblog).
-The _post folder contains all markdown files which are the base of the generation.
-The assets/first-spirit-xml folder contains the generated xml files.
-The _layouts/post-xml.xml contains the format of the generated xml files. 
+jekyll2cms requires a Jekyll repository on GitHub.
+This repository will be used to convert its markdown files into xml & xml-template files.
+Repositories must adhere to structural requirements.
+Make sure to check out the [adesso SE devblog](https://github.com/adessoAG/devblog) as an example.
+- The markdown files to be converted must be in the `_posts` folder.
+- The generated xml files will be located in `assets/first-spirit-xml`.
+- The format of the generated xml files will be determined by `_layouts/post-xml.xml` . 
 
-## How to run
 
-To run jekyll2cms, you need to configure some environment variables:
+## How to execute
+
+
+Running jekyll2cms requires some environment variables that must be passed to the `docker run` command or be defined as [GitHub Secrets](https://help.github.com/en/actions/configuring-and-managing-workflows/creating-and-storing-encrypted-secrets):
+
 
 | Name | Description |
 | ------------- | ------------- |
@@ -21,13 +26,17 @@ To run jekyll2cms, you need to configure some environment variables:
 | REPOSITORY_LOCAL_USER_MAIL | The email of this user. This is needed to provide further commit information. |
 | REPOSITORY_REMOTE_URL | The URL of the repository which contains the markdown files. This is also the location where the generated xml files are pushed to. |
 
-jekyll2cms can be run using the following command:
+### Executing localy
+Run jekyll2cms on your machine using the following command:
+
 
 ```
 docker run -e REPOSITORY_REMOTE_URL=<repository_url> -e REPOSITORY_LOCAL_USER_NAME=<github_username> -e REPOSITORY_LOCAL_USER_MAIL=<github_email> -e REPOSITORY_LOCAL_USER_PASSWORD=<github_password> jekyll2cms/jekyll2cms:<tag>
 ```
 
-It is also possible to exeute jekyll2cms in a GitHub action. The follwing steps are needed for that. We recommend using GitHub secrets to provide the needed configuration.
+### Automatic execution on GitHub
+It is also possible to use jekyll2cms as a GitHub Action - Create a [workflow ](https://help.github.com/en/actions/configuring-and-managing-workflows/configuring-and-managing-workflow-files-and-runs) and copy the following steps. We recommend using GitHub Secrets to provide the configuration.
+
 
 ```
  - name: Pull Docker image
@@ -37,34 +46,46 @@ It is also possible to exeute jekyll2cms in a GitHub action. The follwing steps 
    run: docker run -e REPOSITORY_REMOTE_URL='${{ secrets.REPOSITORY_REMOTE_URL }}' -e REPOSITORY_LOCAL_USER_NAME='${{ secrets.REPOSITORY_LOCAL_USER_NAME }}' -e REPOSITORY_LOCAL_USER_MAIL='${{ secrets.REPOSITORY_LOCAL_USER_MAIL }}' -e REPOSITORY_LOCAL_USER_PASSWORD='${{ secrets.REPOSITORY_LOCAL_USER_PASSWORD }}' <your_docker_hub_user>/<your_docker_hub_image>:<tag>
 ```
 
-## Program sequence
+# Program sequence
 
-jekyll2cms is a Java Spring Boot program. The execution is separated into for steps.
+
+jekyll2cms is a Java Spring Boot application. The execution is separated into four steps.
+
 
 * Check configuration
 * Clone repository
-* execute `jekyll build` and copy generated xml files to a specific folder 
-* commit and push changed files to remote repository
+* Execute `jekyll build` and copy generated xml files to specified folder 
 
-At first jekyll2cms checks if the configurations using environment variables are done correctly.
-Then the configured repository is cloned.
-The next step is the execution of the `jekyll build` command. 
-This step generates the xml files to a new folder named _site.
-jekyll2cms copies every generated xml file from this _site folder to assets/first-spirit-xml.
-Also all images which are used in the xml files are copied from the _site folder to assets/images.
-As the last step jekyll2cms checks if any files changed.
-This is done using git status in JGit.
-If there are any changes, these changes are committed and pushed to the repository using a commit message that contains all changes.
-If there were no changes, the process is finished and no commits are made.
-After this jekyll2cms stops itself.
+* Commit and push generated files to remote repository
 
-### Exit program
 
-jekyll2cms will stop after its work is done. This can either be after sucessfully pushing the generated xml files or if there are no changes to commit. In both cases jekyll2cms will exit with exit code 0.
+jekyll2cms will first check if the configuration and the associated environment variables are passed correctly.
+The target repository will then be cloned.
+`jekyll build` is executed and generates the xml files in the `_site` directory.
+The generated xml files are moved from `_site` to `assets/first-spirit-xml`.
+Images used in the markdown files are copied to` assets/images`.
+
+jekyll2cms then checks if any files have changed.
+This is done using `git status` in JGit.
+Any changes are committed and pushed to the remote repository using a commit message that specifies the changes.
+The process is finished without commits if no changes were detected.
+jekyll2cms then exits.
+
+
+## Program exit
+ 
+
+jekyll2cms will exit successfuly if 
+- the generated xml files were pushed successfuly
+- or if a commit doesn't containt new changes.
+
+jekyll2cms will exit with code 0 in both cases.
+
 
 ### Error codes
 
-During the execution of jekyll2cms, there can also appear some errors, for example due to misconfiguration or errors in jekyll. We have defined some error codes to make debugging easier. 
+jekyll2cms can fail during execution. Reasons might include misconfiguration or errors in Jekyll. We have defined error codes to make debugging easier. 
+
 
 | Exit code | Description |
 | ------------- | ------------- |
@@ -84,15 +105,18 @@ During the execution of jekyll2cms, there can also appear some errors, for examp
 
 
 # Developing
+Feel free to fork and adapt jekyll2cms to your needs. We've prepared a short guide to help you get started.
 
 ## Prerequisites
 
-Before you can start the application, make sure that the following components are installed correctly on your local system.
+Make sure that the following components are installed correctly on your system:
+
 
 * Java Development Kit (JDK) (v1.8 or higher) [Download](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
 * Docker [Download](https://www.docker.com/get-started)
 
-## run jekyll2cms on your local machine
+## Running jekyll2cms on your local machine
+
 
 We highly recommend to always execute jekyll2cms using docker. This prevents errors due to missing environment variables or different path separators. However you can also use the jar to execute it. 
 
@@ -100,8 +124,10 @@ We highly recommend to always execute jekyll2cms using docker. This prevents err
 To run your local changes using docker follow these steps:
 
 1. Rebuild your app with `gradlew build`
-2. Run `docker build -t jekyll2cms` to build an actual image
-3. Run the image locally using the docker command mentioned in [how to run](#how-to-run)
+2. Run `docker build -t jekyll2cms` to build a new image
+
+3. Use the `docker run` command as specified in [Executing localy](#executing-localy)
+
 
 # Releases
 On every commit on the master branch a new release for jekyll2cms is built using GitHub actions.
@@ -109,4 +135,4 @@ The version number is defined in the docker-build-and-push.yml workflow file.
 If it is not changed the current image on docker hub is overwritten.
 
 # Questions?
-In general, we do not provide any official support for this software. If you have any questions, feedback or issues, create an issue on GitHub or write a mail to devblog[replace with the at-sign]adesso.de. 
+We do not provide any official support for this software. You can however create an issue in this repository if you have any questions, feedback or technical difficulties. You can also reach us at devblog[replace with the at-sign]adesso.de. 
