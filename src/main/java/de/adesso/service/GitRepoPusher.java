@@ -10,6 +10,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 public class GitRepoPusher {
 
@@ -48,6 +52,7 @@ public class GitRepoPusher {
                         .setMessage(getCommitMessage())
                         .setAuthor(configService.getGIT_AUTHOR_NAME(), configService.getGIT_AUTHOR_MAIL())
                         .call();
+
                 CredentialsProvider cp = new UsernamePasswordCredentialsProvider(configService.getGIT_AUTHOR_NAME(), configService.getGIT_AUTHOR_PASSWORD());
                 localGit.push().setForce(false).setCredentialsProvider(cp).call();
                 LOGGER.info("XML files pushed successfully.");
@@ -71,9 +76,9 @@ public class GitRepoPusher {
      */
     private String getCommitMessage() throws GitAPIException {
         Status status = LocalRepoCreater.getLocalGit().status().call();
-        StringBuilder commitMessageBuilder = new StringBuilder();
-        status.getAdded().forEach(file -> commitMessageBuilder.append("ADD ").append(file).append("\n"));
-        status.getRemoved().forEach(file -> commitMessageBuilder.append("DELETE ").append(file).append("\n"));
-        return commitMessageBuilder.toString();
+        List<String> messages = new ArrayList<>();
+        messages.addAll(status.getAdded().stream().map(file -> "ADD " + file).collect(Collectors.toList()));
+        messages.addAll(status.getRemoved().stream().map(file -> "DELETE " + file).collect(Collectors.toList()));
+        return String.join("\n", messages);
     }
 }
