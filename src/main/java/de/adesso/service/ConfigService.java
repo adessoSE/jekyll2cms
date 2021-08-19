@@ -19,9 +19,6 @@ public class ConfigService {
     @Value("#{environment.REPOSITORY_LOCAL_USER_MAIL ?: null}")
     private String GIT_AUTHOR_MAIL;
 
-    @Value("#{environment.REPOSITORY_LOCAL_USER_PASSWORD ?: null}")
-    private String GIT_AUTHOR_PASSWORD;
-
     @Value("#{environment.REPOSITORY_LOCAL_USER_TOKEN ?: null}")
     private String GIT_AUTHOR_TOKEN;
 
@@ -44,7 +41,6 @@ public class ConfigService {
         checkRemoteRepoUrl();
         checkAuthorName();
         checkAuthorMail();
-        checkAuthorPassword();
         checkAuthorToken();
     }
 
@@ -80,10 +76,6 @@ public class ConfigService {
         return GIT_AUTHOR_MAIL;
     }
 
-    public String getGIT_AUTHOR_PASSWORD() {
-        return GIT_AUTHOR_PASSWORD;
-    }
-
     public String getGIT_AUTHOR_TOKEN() {
         return GIT_AUTHOR_TOKEN;
     }
@@ -113,17 +105,9 @@ public class ConfigService {
 
     }
 
-    private void checkAuthorPassword() {
-        if (GIT_AUTHOR_PASSWORD == null) {
-            logAndExitVariableNotFound("GIT_AUTHOR_PASSWORD", "Please provide the provided GitHub user's password.", 13);
-        } else {
-            LOGGER.info("Environment variable provided: GIT_AUTHOR_PASSWORD");
-        }
-    }
-
     private void checkAuthorToken() {
-        if (GIT_AUTHOR_PASSWORD == null) {
-            logAndExitVariableNotFound("GIT_AUTHOR_TOKEN", "Please provide the provided GitHub user's access token.", 13);
+        if (GIT_AUTHOR_TOKEN == null) {
+            logAndExitVariableNotFound("GIT_AUTHOR_TOKEN", "Please provide the provided GitHub user's access token.", 14);
         } else {
             LOGGER.info("Environment variable provided: GIT_AUTHOR_TOKEN");
         }
