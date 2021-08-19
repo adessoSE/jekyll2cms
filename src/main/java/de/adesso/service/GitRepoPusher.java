@@ -53,7 +53,7 @@ public class GitRepoPusher {
                         .setAuthor(configService.getGIT_AUTHOR_NAME(), configService.getGIT_AUTHOR_MAIL())
                         .call();
 
-                CredentialsProvider cp = new UsernamePasswordCredentialsProvider(configService.getGIT_AUTHOR_NAME(), configService.getGIT_AUTHOR_PASSWORD());
+                CredentialsProvider cp = new UsernamePasswordCredentialsProvider(configService.getGIT_AUTHOR_TOKEN(), "");
                 localGit.push().setForce(false).setCredentialsProvider(cp).call();
                 LOGGER.info("XML files pushed successfully.");
             } catch (GitAPIException e) {
