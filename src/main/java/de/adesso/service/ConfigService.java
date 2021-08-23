@@ -19,8 +19,8 @@ public class ConfigService {
     @Value("#{environment.REPOSITORY_LOCAL_USER_MAIL ?: null}")
     private String GIT_AUTHOR_MAIL;
 
-    @Value("#{environment.REPOSITORY_LOCAL_USER_PASSWORD ?: null}")
-    private String GIT_AUTHOR_PASSWORD;
+    @Value("#{environment.REPOSITORY_LOCAL_USER_TOKEN ?: null}")
+    private String GIT_AUTHOR_TOKEN;
 
     @Value("${repository.local.image.path}")
     private String LOCAL_SITE_IMAGE;
@@ -41,7 +41,7 @@ public class ConfigService {
         checkRemoteRepoUrl();
         checkAuthorName();
         checkAuthorMail();
-        checkAuthorPassword();
+        checkAuthorToken();
     }
 
     public String getLOCAL_REPO_PATH() {
@@ -76,8 +76,8 @@ public class ConfigService {
         return GIT_AUTHOR_MAIL;
     }
 
-    public String getGIT_AUTHOR_PASSWORD() {
-        return GIT_AUTHOR_PASSWORD;
+    public String getGIT_AUTHOR_TOKEN() {
+        return GIT_AUTHOR_TOKEN;
     }
 
     private void checkRemoteRepoUrl() {
@@ -90,7 +90,7 @@ public class ConfigService {
 
     private void checkAuthorName() {
         if (GIT_AUTHOR_NAME == null) {
-            logAndExitVariableNotFound("GIT_AUTHOR_NAME", "Please provide a Github-Username.", 11);
+            logAndExitVariableNotFound("GIT_AUTHOR_NAME", "Please provide a Github username.", 11);
         } else {
             LOGGER.info("Environment variable provided: GIT_AUTHOR_NAME");
         }
@@ -105,11 +105,11 @@ public class ConfigService {
 
     }
 
-    private void checkAuthorPassword() {
-        if (GIT_AUTHOR_PASSWORD == null) {
-            logAndExitVariableNotFound("GIT_AUTHOR_PASSWORD", "Please provide the provided GitHub user's Password.", 13);
+    private void checkAuthorToken() {
+        if (GIT_AUTHOR_TOKEN == null) {
+            logAndExitVariableNotFound("GIT_AUTHOR_TOKEN", "Please provide the provided GitHub user's access token.", 14);
         } else {
-            LOGGER.info("Environment variable provided: GIT_AUTHOR_PASSWORD");
+            LOGGER.info("Environment variable provided: GIT_AUTHOR_TOKEN");
         }
     }
 
