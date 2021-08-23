@@ -17,7 +17,8 @@ Running jekyll2cms requires some environment variables that must be passed to th
 | Name | Description |
 | ------------- | ------------- |
 | REPOSITORY_LOCAL_USER_NAME | The GitHub username of the user who will commit the generated xml files to the repository. This user needs to have at least write access to the repository. If the branches are protected, this user needs admin access. |
-| REPOSITORY_LOCAL_USER_PASSWORD | The password of this user. It is needed to provide the credentials to allow the commit. |
+| REPOSITORY_LOCAL_USER_PASSWORD | The password of this user. It is needed to provide the credentials to allow the commit. Sinse version 2.2.0 this is not needed anymore |
+| REPOSITORY_LOCAL_USER_TOKEN | The access token of this user. It is needed to provide the credentials to allow the commit. This is new in version 2.2.0 |
 | REPOSITORY_LOCAL_USER_MAIL | The email of this user. This is needed to provide further commit information. |
 | REPOSITORY_REMOTE_URL | The URL of the repository which contains the markdown files. This is also the location where the generated xml files are pushed to. |
 
@@ -81,6 +82,7 @@ We have defined error codes to make debugging easier.
 | 11 | Environment variable REPOSITORY_LOCAL_USER_NAME not found. |
 | 12 | Environment variable REPOSITORY_LOCAL_USER_MAIL not found. |
 | 13 | Environment variable REPOSITORY_LOCAL_USER_PASSWORD not found. |
+| 14 | Environment variable REPOSITORY_LOCAL_USER_TOKEN not found. |
 | 20 | Error while cloning remote repository. |
 | 30 | Execution of `jekyll build` returned a non zero exit code. |
 | 31 | Couldn't generate `jekyll build`. Execution directory not found. |
